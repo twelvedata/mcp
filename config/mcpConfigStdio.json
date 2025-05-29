@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "mcpServerDev": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-twelve-data"
+      ],
+      "workingDir": ".",
+      "env": {
+
+      }
+    }
+  }
+}

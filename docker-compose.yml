@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  mcp-server-twelve-data:
+    build: .
+    container_name: mcp-server-twelve-data
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+
+    command: ["-k", "demo", "-t", "streamable-http"]
+
+networks:
+  backend:
