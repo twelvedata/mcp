@@ -1,0 +1,1324 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "description": "## Getting Started\n\nWelcome to the Twelve Data! You can use this API to access world financial markets including stocks, forex, ETFs, and cryptocurrencies.\nMost of the exchanges are available in real-time, while others have some [delays](https://twelvedata.com/stocks).\nOver 20+ years of end-of-day data and a couple of years for intraday [historical data](https://support.twelvedata.com/en/articles/5194454-historical-data).\n\nIf you are unfamiliar with APIs and requests, check [this](https://support.twelvedata.com/en/articles/5620512-how-to-create-a-request) tutorial on how to make requests as part of the [How-to](https://support.twelvedata.com/en/collections/2999522-api-guide#how-to) tutorials.\n\n## Authentication\nTwelve Data authenticates users by valid API keys for both API and WebSocket.\nIt can be specified in two ways:\n<ul>\n\n<li>At query string, as <code>&apikey=your_api_key</code></li>\n<li>At header, as <code>Authorization=\"apikey your_api_key\"</code></li>\n\n</ul>\n\nA `demo` API key is used for sample requests to familiarize yourself with the API format. Complete access to API is available with your API key, which can be obtained for free by [signing up](https://twelvedata.com/pricing) for the Basic plan.\nSpecific endpoints are available starting only from `Grow`, `Pro`, `Ultra` or `Enterprise` plans. However, they all can be tested as [trial](https://support.twelvedata.com/en/articles/5335783-trial) symbols across all markets. API will return an error if the key is invalid or has insufficient permissions.\n\n## Endpoints\nAPI endpoints are prefixed with `https://api.twelvedata.com`\n\nWebSocket endpoints are prefixed with `wss://ws.twelvedata.com`\n\n## Parameters\n\n### How to separate\n\nParameters are ampersand(&) separated.\nE.g. `?symbol=AAPL&interval=5min&outputsize=200`\n\n### Casting\nWord casing doesn\u0432\u0402\u0098t matter when passing parameters.\nE.g. `?symbol=AAPL`, `?symbol=AaPl`, or `?symbol=aapl` will all correctly work.\n\n### CSV\nWhen the `format` parameter is set to `CSV`, additional `filename` parameter might be used to specify the custom name of the output file. E.g. `?format=CSV&filename=my_own_csv_name`\n\n### Dates\nTo get the most use of `start_date`, `end_date`, and `outputsize` parameters when accessing historical data, refer to [this](https://support.twelvedata.com/en/articles/5214728-getting-historical-data) tutorial.\n\n## Errors\n\nTwelve Data API uses a unified error response scheme. Consisting of a JSON object with `code`, `message` and `status` keys.\n\nPossible output error codes are:\n\n Code | Status                  | Meaning                                                                 |\n------|-------------------------|-------------------------------------------------------------------------|\n 400  | Bad Request             | There is an error with one or multiple parameters.                      |\n 401  | Unauthorized            | Your API key is wrong or not valid.                                     |\n 403  | Forbidden               | Your API key is valid but has no permissions to make request available on the upper plans. |\n 404  | Not Found               | The specified data can not be found.                                    |\n 414  | Parameter Too Long      | The parameter which accepts multiple values is out of range.            |\n 429  | Too Many Requests       | You've reached your API request limits.                                 |\n 500  | Internal Server Error   | There is an error on the server-side. Try again later.                  |\n\nHTTP request example:\n\n```\nhttps://api.twelvedata.com/time_series?symbol=AAPL&interval=0.99min&apikey=your_api_key\n```\nThis request with incorrect interval set will return JSON with the following structure:\n\n```json\n\n{\n\"code\": 400,\n\"message\": \"Invalid **interval** provided: 0.99min. Supported intervals: 1min, 5min, 15min, 30min, 45min, 1h, 2h, 4h, 8h, 1day, 1week, 1month\",\n\"status\": \"error\"\n}\n\n```\n\n## Roadmap\n\nWe continuously make Twelve Data the only place where all users can obtain the necessary financial data. If you have any questions or ideas about improvement, [contact us](https://twelvedata.com/contact).\n\n## Libraries\n\nHere, we publish libraries created to get the most of Twelve Data. We work towards making the industry the best SDKs for the most popular languages. Large releases are coming soon. A full list can be found on [GitHub](https://github.com/search?q=twelvedata).\n\n### Official libraries and Add-ins\n\n Language      | URL |\n---------------|-----|\n Python        | [twelvedata-python](https://github.com/twelvedata/twelvedata-python) |\n R             | [twelvedata-r-sdk](https://github.com/twelvedata/twelvedata-r-sdk) |\n Excel         | [Excel Add-in](https://twelvedata.com/excel) |\n Google Sheets | [Google Sheets Add-on](https://twelvedata.com/google-sheets) |\n\n### Third-party libraries\n Language      | URL |\n---------------|-----|\n C#            | [TwelveDataSharp](https://github.com/pseudomarkets/TwelveDataSharp) |\n JavaScript    | [twelvedata](https://github.com/evzaboun/twelvedata) |\n PHP           | [twelvedata](https://github.com/ingelby/twelvedata) |\n Go            | [twelvedata](https://github.com/soulgarden/twelvedata) |\n\n## Support\n\nPlease refer to the [Help Center](https://support.twelvedata.com/) for general assistance. If your question has not been answered yet drop a [message](https://twelvedata.com/contact) to us.",
+    "title": "Twelve Data API",
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "https://api.twelvedata.com/"
+    }
+  ],
+  "paths": {
+    "/time_series": {
+      "get": {
+        "description": "This API call returns meta and time series for the requested instrument. Metaobject consists of general information about the requested symbol. Time series is the array of objects ordered by time descending with Open, High, Low, Close prices. Non-currency instruments also include volume information.",
+        "operationId": "GetTimeSeries",
+        "parameters": [
+          {
+            "description": "Symbol ticker of the instrument. E.g. `AAPL`, `EUR/USD`, `ETH/BTC`, ...",
+            "in": "query",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "x-go-name": "Symbol",
+              "x-order": "10"
+            },
+            "x-go-name": "Symbol",
+            "x-order": "10",
+            "example": "AAPL"
+          },
+          {
+            "description": "Filter by international securities identification number (ISIN)",
+            "in": "query",
+            "name": "isin",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Isin",
+              "x-order": "25"
+            },
+            "x-go-name": "Isin",
+            "x-order": "25",
+            "example": "US0378331005"
+          },
+          {
+            "description": "The FIGI of an instrument for which data is requested",
+            "in": "query",
+            "name": "figi",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Figi",
+              "x-order": "20"
+            },
+            "x-go-name": "Figi",
+            "x-order": "20",
+            "example": "BBG01293F5X4"
+          },
+          {
+            "description": "The CUSIP of an instrument for which data is requested",
+            "in": "query",
+            "name": "cusip",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Cusip",
+              "x-order": "26"
+            },
+            "x-go-name": "Cusip",
+            "x-order": "26",
+            "example": "594918104"
+          },
+          {
+            "description": "Interval between two consecutive points in time series",
+            "in": "query",
+            "name": "interval",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1min",
+                "5min",
+                "15min",
+                "30min",
+                "45min",
+                "1h",
+                "2h",
+                "4h",
+                "5h",
+                "1day",
+                "1week",
+                "1month"
+              ],
+              "type": "string",
+              "x-go-name": "Interval",
+              "x-order": "30"
+            },
+            "x-go-name": "Interval",
+            "x-order": "30",
+            "example": "1min"
+          },
+          {
+            "description": "Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `30` when no date parameters are set, otherwise set to maximum",
+            "in": "query",
+            "name": "outputsize",
+            "schema": {
+              "default": 30,
+              "format": "int64",
+              "type": "integer",
+              "x-go-name": "PageSize",
+              "x-order": "80"
+            },
+            "x-go-name": "PageSize",
+            "x-order": "80"
+          },
+          {
+            "description": "Exchange where instrument is traded",
+            "in": "query",
+            "name": "exchange",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Exchange",
+              "x-order": "40"
+            },
+            "x-go-name": "Exchange",
+            "x-order": "40",
+            "example": "NASDAQ"
+          },
+          {
+            "description": "Market Identifier Code (MIC) under ISO 10383 standard",
+            "in": "query",
+            "name": "mic_code",
+            "schema": {
+              "type": "string",
+              "x-go-name": "MicCode",
+              "x-order": "50"
+            },
+            "x-go-name": "MicCode",
+            "x-order": "50",
+            "example": "XNAS"
+          },
+          {
+            "description": "The country where the instrument is traded, e.g., <code>United States</code> or <code>US</code>.",
+            "in": "query",
+            "name": "country",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Country",
+              "x-order": "60"
+            },
+            "x-go-name": "Country",
+            "x-order": "60",
+            "example": "United States"
+          },
+          {
+            "description": "The asset class to which the instrument belongs",
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "enum": [
+                "American Depositary Receipt",
+                "Bond",
+                "Bond Fund",
+                "Closed-end Fund",
+                "Common Stock",
+                "Depositary Receipt",
+                "Digital Currency",
+                "ETF",
+                "Exchange-Traded Note",
+                "Global Depositary Receipt",
+                "Limited Partnership",
+                "Mutual Fund",
+                "Physical Currency",
+                "Preferred Stock",
+                "REIT",
+                "Right",
+                "Structured Product",
+                "Trust",
+                "Unit",
+                "Warrant"
+              ],
+              "type": "string",
+              "x-go-name": "Type",
+              "x-order": "70"
+            },
+            "x-go-name": "Type",
+            "x-order": "70",
+            "example": "Common Stock"
+          },
+          {
+            "description": "Timezone at which output datetime will be displayed. Supports:\n<ul>\n<li>1. <code>Exchange</code> for local exchange time</li>\n<li>2. <code>UTC</code> for datetime at universal UTC standard</li>\n<li>3. Timezone name according to the IANA Time Zone Database. E.g. <code>America/New_York</code>, <code>Asia/Singapore</code>. Full list of timezones can be found <a href=\"https://en.wikipedia.org/wiki/List_of_tz_database_time_zones\" target=\"blank\">here</a>.</li>\n</ul>\n<i>Take note that the IANA Timezone name is case-sensitive</i>",
+            "in": "query",
+            "name": "timezone",
+            "schema": {
+              "default": "Exchange",
+              "type": "string",
+              "x-go-name": "Timezone",
+              "x-order": "135"
+            },
+            "x-go-name": "Timezone",
+            "x-order": "135"
+          },
+          {
+            "description": "Can be used separately and together with `end_date`. Format `2006-01-02` or `2006-01-02 15:04:05`\n\nDefault location:\n<ul>\n<li>Forex and Cryptocurrencies - <code>UTC</code></li>\n<li>Stocks - where exchange is located (e.g. for AAPL it will be <code>America/New_York</code>)</li>\n</ul>\nBoth parameters take into account if <code>timezone</code> parameter is provided.<br/>\nIf <code>timezone</code> is given then, <code>start_date</code> and <code>end_date</code> will be used in the specified location\n\nExamples:\n<ul>\n<li>1. <code>&symbol=AAPL&start_date=2019-08-09 15:50:00&\u0432\u0402\u00a6</code><br/>\nReturns all records starting from 2019-08-09 15:50:00 New York time up to current date</li>\n<li>2. <code>&symbol=EUR/USD&timezone=Asia/Singapore&start_date=2019-08-09 15:50:00&\u0432\u0402\u00a6</code><br/>\nReturns all records starting from 2019-08-09 15:50:00 Singapore time up to current date</li>\n<li>3. <code>&symbol=ETH/BTC&timezone=Europe/Zurich&start_date=2019-08-09 15:50:00&end_date=2019-08-09 15:55:00&...</code><br/>\nReturns all records starting from 2019-08-09 15:50:00 Zurich time up to 2019-08-09 15:55:00</li>\n</ul>",
+            "in": "query",
+            "name": "start_date",
+            "schema": {
+              "type": "string",
+              "x-go-name": "StartDate",
+              "x-order": "150"
+            },
+            "x-go-name": "StartDate",
+            "x-order": "150",
+            "example": "2024-08-22 15:04:05"
+          },
+          {
+            "description": "The ending date and time for data selection, see `start_date` description for details.",
+            "in": "query",
+            "name": "end_date",
+            "schema": {
+              "type": "string",
+              "x-go-name": "EndDate",
+              "x-order": "160"
+            },
+            "x-go-name": "EndDate",
+            "x-order": "160",
+            "example": "2024-08-22 16:04:05"
+          },
+          {
+            "description": "Specifies the exact date to get the data for. Could be the exact date, e.g. `2021-10-27`, or in human language `today` or `yesterday`",
+            "in": "query",
+            "name": "date",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Date",
+              "x-order": "140"
+            },
+            "x-go-name": "Date",
+            "x-order": "140",
+            "example": "2021-10-27"
+          },
+          {
+            "description": "Sorting order of the output",
+            "in": "query",
+            "name": "order",
+            "schema": {
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string",
+              "x-go-name": "Order",
+              "x-order": "130"
+            },
+            "x-go-name": "Order",
+            "x-order": "130"
+          },
+          {
+            "description": "Returns quotes that include pre-market and post-market data. Only for `Pro` and above plans.\nAvailable at the `1min`, `5min`, `15min`, and `30min` intervals for all US equities.\nOpen, high, low, close values are supplied without volume.",
+            "in": "query",
+            "name": "prepost",
+            "schema": {
+              "default": false,
+              "type": "boolean",
+              "x-go-name": "Prepost",
+              "x-order": "110"
+            },
+            "x-go-name": "Prepost",
+            "x-order": "110"
+          },
+          {
+            "description": "The format of the response data",
+            "in": "query",
+            "name": "format",
+            "schema": {
+              "default": "JSON",
+              "enum": [
+                "JSON",
+                "CSV"
+              ],
+              "type": "string",
+              "x-go-name": "Format",
+              "x-order": "90"
+            },
+            "x-go-name": "Format",
+            "x-order": "90"
+          },
+          {
+            "description": "The separator used in the CSV response data",
+            "in": "query",
+            "name": "delimiter",
+            "schema": {
+              "default": ";",
+              "type": "string",
+              "x-go-name": "Delimiter",
+              "x-order": "100"
+            },
+            "x-go-name": "Delimiter",
+            "x-order": "100"
+          },
+          {
+            "description": "Specifies the number of decimal places for floating values.\nShould be in range [0, 11] inclusive.\nBy default, the number of decimal places is automatically determined based on the values provided.",
+            "in": "query",
+            "name": "dp",
+            "schema": {
+              "default": -1,
+              "format": "int64",
+              "type": "integer",
+              "x-go-name": "DecimalPlaces",
+              "x-order": "120"
+            },
+            "x-go-name": "DecimalPlaces",
+            "x-order": "120"
+          },
+          {
+            "description": "A boolean parameter to include the previous closing price in the time_series data. If true, adds previous bar close price value to the current object.",
+            "in": "query",
+            "name": "previous_close",
+            "schema": {
+              "default": false,
+              "type": "boolean",
+              "x-go-name": "PreviousPrice",
+              "x-order": "170"
+            },
+            "x-go-name": "PreviousPrice",
+            "x-order": "170"
+          },
+          {
+            "description": "Adjusting mode for prices",
+            "in": "query",
+            "name": "adjust",
+            "schema": {
+              "default": "splits",
+              "enum": [
+                "all",
+                "splits",
+                "dividends",
+                "none"
+              ],
+              "type": "string",
+              "x-go-name": "Adjust",
+              "x-order": "180"
+            },
+            "x-go-name": "Adjust",
+            "x-order": "180"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTimeSeries_200_response"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTimeSeries_200_response"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Time series",
+        "tags": [
+          "market_data",
+          "time_series"
+        ],
+        "x-api-credits-cost": "1",
+        "x-api-credits-type": "symbol",
+        "x-badge": "High demand",
+        "x-group": "Core data",
+        "x-order": "10"
+      }
+    },
+    "/price": {
+      "get": {
+        "description": "This endpoint is a lightweight method that allows retrieving only the real-time price of the selected instrument.",
+        "operationId": "GetPrice",
+        "parameters": [
+          {
+            "description": "Symbol ticker of the instrument",
+            "in": "query",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "x-go-name": "Symbol",
+              "x-order": "10"
+            },
+            "x-go-name": "Symbol",
+            "x-order": "10",
+            "example": "AAPL"
+          },
+          {
+            "description": "Filter by financial instrument global identifier (FIGI)",
+            "in": "query",
+            "name": "figi",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Figi",
+              "x-order": "20"
+            },
+            "x-go-name": "Figi",
+            "x-order": "20",
+            "example": "BBG000BHTMY7"
+          },
+          {
+            "description": "Filter by international securities identification number (ISIN)",
+            "in": "query",
+            "name": "isin",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Isin",
+              "x-order": "25"
+            },
+            "x-go-name": "Isin",
+            "x-order": "25",
+            "example": "US0378331005"
+          },
+          {
+            "description": "The CUSIP of an instrument for which data is requested",
+            "in": "query",
+            "name": "cusip",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Cusip",
+              "x-order": "26"
+            },
+            "x-go-name": "Cusip",
+            "x-order": "26",
+            "example": "594918104"
+          },
+          {
+            "description": "Exchange where instrument is traded",
+            "in": "query",
+            "name": "exchange",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Exchange",
+              "x-order": "30"
+            },
+            "x-go-name": "Exchange",
+            "x-order": "30"
+          },
+          {
+            "description": "Market Identifier Code (MIC) under ISO 10383 standard",
+            "in": "query",
+            "name": "mic_code",
+            "schema": {
+              "type": "string",
+              "x-go-name": "MicCode",
+              "x-order": "40"
+            },
+            "x-go-name": "MicCode",
+            "x-order": "40"
+          },
+          {
+            "description": "Country where instrument is traded",
+            "in": "query",
+            "name": "country",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Country",
+              "x-order": "50"
+            },
+            "x-go-name": "Country",
+            "x-order": "50"
+          },
+          {
+            "description": "The asset class to which the instrument belongs",
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "enum": [
+                "American Depositary Receipt",
+                "Bond",
+                "Bond Fund",
+                "Closed-end Fund",
+                "Common Stock",
+                "Depositary Receipt",
+                "Digital Currency",
+                "ETF",
+                "Exchange-Traded Note",
+                "Global Depositary Receipt",
+                "Limited Partnership",
+                "Mutual Fund",
+                "Physical Currency",
+                "Preferred Stock",
+                "REIT",
+                "Right",
+                "Structured Product",
+                "Trust",
+                "Unit",
+                "Warrant"
+              ],
+              "type": "string",
+              "x-go-name": "Type",
+              "x-order": "60"
+            },
+            "x-go-name": "Type",
+            "x-order": "60",
+            "example": "ETF"
+          },
+          {
+            "description": "Value can be JSON or CSV",
+            "in": "query",
+            "name": "format",
+            "schema": {
+              "default": "JSON",
+              "enum": [
+                "JSON",
+                "CSV"
+              ],
+              "type": "string",
+              "x-go-name": "Format",
+              "x-order": "70"
+            },
+            "x-go-name": "Format",
+            "x-order": "70"
+          },
+          {
+            "description": "Specify the delimiter used when downloading the CSV file",
+            "in": "query",
+            "name": "delimiter",
+            "schema": {
+              "default": ";",
+              "type": "string",
+              "x-go-name": "Delimiter",
+              "x-order": "80"
+            },
+            "x-go-name": "Delimiter",
+            "x-order": "80"
+          },
+          {
+            "description": "Parameter is optional. Only for Pro and above plans.\nAvailable at the `1min`, `5min`, `15min`, and `30min` intervals for all US equities.\nOpen, high, low, close values are supplied without volume.",
+            "in": "query",
+            "name": "prepost",
+            "schema": {
+              "default": false,
+              "type": "boolean",
+              "x-go-name": "Prepost",
+              "x-order": "100"
+            },
+            "x-go-name": "Prepost",
+            "x-order": "100"
+          },
+          {
+            "description": "Specifies the number of decimal places for floating values.\nShould be in range [0,11] inclusive",
+            "in": "query",
+            "name": "dp",
+            "schema": {
+              "default": 5,
+              "format": "int64",
+              "type": "integer",
+              "x-go-name": "DecimalPlaces",
+              "x-order": "110"
+            },
+            "x-go-name": "DecimalPlaces",
+            "x-order": "110"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPrice_200_response"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPrice_200_response"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Real-time price",
+        "tags": [
+          "market_data"
+        ],
+        "x-api-credits-cost": "1",
+        "x-api-credits-type": "symbol",
+        "x-badge": "High demand",
+        "x-group": "Core data",
+        "x-order": "60"
+      }
+    },
+    "/stocks": {
+      "get": {
+        "description": "This API call returns an array of symbols available at Twelve Data API. This list is updated daily.",
+        "operationId": "GetStocks",
+        "parameters": [
+          {
+            "description": "The ticker symbol of an instrument for which data is requested",
+            "in": "query",
+            "name": "symbol",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Symbol"
+            },
+            "x-go-name": "Symbol",
+            "example": "AAPL"
+          },
+          {
+            "description": "Filter by financial instrument global identifier (FIGI)",
+            "in": "query",
+            "name": "figi",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Figi"
+            },
+            "x-go-name": "Figi",
+            "example": "BBG000B9Y5X2"
+          },
+          {
+            "description": "Filter by international securities identification number (ISIN)",
+            "in": "query",
+            "name": "isin",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Isin"
+            },
+            "x-go-name": "Isin",
+            "example": "US0378331005"
+          },
+          {
+            "description": "The CUSIP of an instrument for which data is requested",
+            "in": "query",
+            "name": "cusip",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Cusip"
+            },
+            "x-go-name": "Cusip",
+            "example": "594918104"
+          },
+          {
+            "description": "Filter by exchange name",
+            "in": "query",
+            "name": "exchange",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Exchange"
+            },
+            "x-go-name": "Exchange",
+            "example": "NASDAQ"
+          },
+          {
+            "description": "Filter by market identifier code (MIC) under ISO 10383 standard",
+            "in": "query",
+            "name": "mic_code",
+            "schema": {
+              "type": "string",
+              "x-go-name": "MicCode"
+            },
+            "x-go-name": "MicCode",
+            "example": "XNGS"
+          },
+          {
+            "description": "Filter by country name or alpha code",
+            "in": "query",
+            "name": "country",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Country"
+            },
+            "x-go-name": "Country",
+            "example": "United States"
+          },
+          {
+            "description": "The asset class to which the instrument belongs",
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "enum": [
+                "American Depositary Receipt",
+                "Bond",
+                "Bond Fund",
+                "Closed-end Fund",
+                "Common Stock",
+                "Depositary Receipt",
+                "Digital Currency",
+                "ETF",
+                "Exchange-Traded Note",
+                "Global Depositary Receipt",
+                "Index",
+                "Limited Partnership",
+                "Mutual Fund",
+                "Physical Currency",
+                "Preferred Stock",
+                "REIT",
+                "Right",
+                "Structured Product",
+                "Trust",
+                "Unit",
+                "Warrant"
+              ],
+              "type": "string",
+              "x-go-name": "Type"
+            },
+            "x-go-name": "Type",
+            "example": "Common Stock"
+          },
+          {
+            "description": "The format of the response data",
+            "in": "query",
+            "name": "format",
+            "schema": {
+              "default": "JSON",
+              "enum": [
+                "JSON",
+                "CSV"
+              ],
+              "type": "string",
+              "x-go-name": "Format"
+            },
+            "x-go-name": "Format"
+          },
+          {
+            "description": "The separator used in the CSV response data",
+            "in": "query",
+            "name": "delimiter",
+            "schema": {
+              "default": ";",
+              "type": "string",
+              "x-go-name": "Delimiter"
+            },
+            "x-go-name": "Delimiter"
+          },
+          {
+            "description": "Adds info on which plan symbol is available",
+            "in": "query",
+            "name": "show_plan",
+            "schema": {
+              "default": false,
+              "type": "boolean",
+              "x-go-name": "ShowPlan"
+            },
+            "x-go-name": "ShowPlan"
+          },
+          {
+            "description": "Include delisted identifiers",
+            "in": "query",
+            "name": "include_delisted",
+            "schema": {
+              "default": false,
+              "type": "boolean",
+              "x-go-name": "IncludeDelisted"
+            },
+            "x-go-name": "IncludeDelisted"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetStocks_200_response"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetStocks_200_response"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Stocks list",
+        "tags": [
+          "reference_data"
+        ],
+        "x-api-credits-cost": "1",
+        "x-api-credits-type": "request",
+        "x-group": "Reference data",
+        "x-order": "10"
+      }
+    },
+    "/forex_pairs": {
+      "get": {
+        "description": "This API call returns an array of forex pairs available at Twelve Data API. This list is updated daily.",
+        "operationId": "GetForexPairs",
+        "parameters": [
+          {
+            "description": "The ticker symbol of an instrument for which data is requested",
+            "in": "query",
+            "name": "symbol",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Symbol"
+            },
+            "x-go-name": "Symbol",
+            "example": "EUR/USD"
+          },
+          {
+            "description": "Filter by currency base",
+            "in": "query",
+            "name": "currency_base",
+            "schema": {
+              "type": "string",
+              "x-go-name": "CurrencyBase"
+            },
+            "x-go-name": "CurrencyBase",
+            "example": "EUR"
+          },
+          {
+            "description": "Filter by currency quote",
+            "in": "query",
+            "name": "currency_quote",
+            "schema": {
+              "type": "string",
+              "x-go-name": "CurrencyQuote"
+            },
+            "x-go-name": "CurrencyQuote",
+            "example": "USD"
+          },
+          {
+            "description": "The format of the response data",
+            "in": "query",
+            "name": "format",
+            "schema": {
+              "default": "JSON",
+              "enum": [
+                "JSON",
+                "CSV"
+              ],
+              "type": "string",
+              "x-go-name": "Format"
+            },
+            "x-go-name": "Format"
+          },
+          {
+            "description": "The separator used in the CSV response data",
+            "in": "query",
+            "name": "delimiter",
+            "schema": {
+              "default": ";",
+              "type": "string",
+              "x-go-name": "Delimiter"
+            },
+            "x-go-name": "Delimiter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetForexPairs_200_response"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetForexPairs_200_response"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Forex pairs list",
+        "tags": [
+          "reference_data"
+        ],
+        "x-api-credits-cost": "1",
+        "x-api-credits-type": "request",
+        "x-group": "Reference data",
+        "x-order": "20"
+      }
+    },
+    "/cryptocurrencies": {
+      "get": {
+        "description": "This API call returns an array of cryptocurrencies available at Twelve Data API. This list is updated daily.",
+        "operationId": "GetCryptocurrencies",
+        "parameters": [
+          {
+            "description": "The ticker symbol of an instrument for which data is requested",
+            "in": "query",
+            "name": "symbol",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Symbol"
+            },
+            "x-go-name": "Symbol",
+            "example": "BTC/USD"
+          },
+          {
+            "description": "The exchange name where the pair is traded",
+            "in": "query",
+            "name": "exchange",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Exchange"
+            },
+            "x-go-name": "Exchange",
+            "example": "Binance"
+          },
+          {
+            "description": "Filter by currency base",
+            "in": "query",
+            "name": "currency_base",
+            "schema": {
+              "type": "string",
+              "x-go-name": "CurrencyBase"
+            },
+            "x-go-name": "CurrencyBase",
+            "example": "BTC"
+          },
+          {
+            "description": "Filter by currency quote",
+            "in": "query",
+            "name": "currency_quote",
+            "schema": {
+              "type": "string",
+              "x-go-name": "CurrencyQuote"
+            },
+            "x-go-name": "CurrencyQuote",
+            "example": "USD"
+          },
+          {
+            "description": "The format of the response data",
+            "in": "query",
+            "name": "format",
+            "schema": {
+              "default": "JSON",
+              "enum": [
+                "JSON",
+                "CSV"
+              ],
+              "type": "string",
+              "x-go-name": "Format"
+            },
+            "x-go-name": "Format"
+          },
+          {
+            "description": "The separator used in the CSV response data",
+            "in": "query",
+            "name": "delimiter",
+            "schema": {
+              "default": ";",
+              "type": "string",
+              "x-go-name": "Delimiter"
+            },
+            "x-go-name": "Delimiter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetCryptocurrencies_200_response"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetCryptocurrencies_200_response"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Cryptocurrencies list",
+        "tags": [
+          "reference_data"
+        ],
+        "x-api-credits-cost": "1",
+        "x-api-credits-type": "request",
+        "x-group": "Reference data",
+        "x-order": "30"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GetPrice_200_response": {
+        "properties": {
+          "price": {
+            "description": "Real-time or the latest available price",
+            "example": "200.99001",
+            "type": "string",
+            "x-go-name": "Price"
+          }
+        },
+        "type": "object"
+      },
+      "CryptocurrencyResponseItem": {
+        "description": "CryptocurrencyResponseItem represents details of a cryptocurrency",
+        "properties": {
+          "symbol": {
+            "description": "Cryptocurrency pair codes with slash(/) delimiter",
+            "example": "BTC/USD",
+            "type": "string",
+            "x-go-name": "Symbol",
+            "x-order": 10
+          },
+          "available_exchanges": {
+            "description": "List of exchanges where the cryptocurrency is available",
+            "example": [
+              "ABCC",
+              "Allcoin",
+              "BTC-Alpha",
+              "BTCTurk",
+              "Bibox",
+              "n.exchange",
+              "p2pb2b",
+              "xBTCe"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "x-go-name": "AvailableExchanges",
+            "x-order": 20
+          },
+          "currency_base": {
+            "description": "Base currency of the cryptocurrency pair",
+            "example": "Bitcoin",
+            "type": "string",
+            "x-go-name": "CurrencyBase",
+            "x-order": 30
+          },
+          "currency_quote": {
+            "description": "Quote currency of the cryptocurrency pair",
+            "example": "US Dollar",
+            "type": "string",
+            "x-go-name": "CurrencyQuote",
+            "x-order": 40
+          }
+        },
+        "type": "object",
+        "x-go-package": "gitlab.atlasgroup.ai/twelvedata/api/route/description"
+      },
+      "StocksResponseItemAccess": {
+        "properties": {
+          "global": {
+            "description": "Level of access to the symbol",
+            "example": "Level A",
+            "type": "string",
+            "x-go-name": "Global"
+          },
+          "plan": {
+            "description": "The plan name for the symbol",
+            "example": "Grow",
+            "type": "string",
+            "x-go-name": "Plan"
+          }
+        },
+        "type": "object",
+        "x-go-package": "gitlab.atlasgroup.ai/twelvedata/api/route/description"
+      },
+      "GetStocks_200_response": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/StocksResponseItem"
+            },
+            "type": "array",
+            "x-go-name": "Data"
+          }
+        },
+        "type": "object"
+      },
+      "TimeSeriesItem": {
+        "properties": {
+          "close": {
+            "description": "Close price at the end of the bar.",
+            "example": "148.85001",
+            "type": "string",
+            "x-go-name": "Close"
+          },
+          "datetime": {
+            "description": "Datetime at local exchange time referring to when the bar with specified interval was opened.",
+            "example": "2021-09-16 15:59:00",
+            "type": "string",
+            "x-go-name": "Time"
+          },
+          "high": {
+            "description": "Highest price which occurred during the current bar.",
+            "example": "148.86000",
+            "type": "string",
+            "x-go-name": "High"
+          },
+          "low": {
+            "description": "Lowest price which occurred during the current bar.",
+            "example": "148.73000",
+            "type": "string",
+            "x-go-name": "Low"
+          },
+          "open": {
+            "description": "Price at the opening of current bar",
+            "example": "148.73500",
+            "type": "string",
+            "x-go-name": "Open"
+          },
+          "volume": {
+            "description": "Trading volume which occurred during the current bar",
+            "example": "624277",
+            "type": "string",
+            "x-go-name": "Volume"
+          }
+        },
+        "type": "object",
+        "x-go-package": "gitlab.atlasgroup.ai/twelvedata/api/route/description"
+      },
+      "StocksResponseItem": {
+        "description": "StocksResponseItem represents details of a stock instrument",
+        "properties": {
+          "symbol": {
+            "description": "Instrument symbol (ticker)",
+            "example": "AAPL",
+            "type": "string",
+            "x-go-name": "Symbol",
+            "x-order": 10
+          },
+          "name": {
+            "description": "Full name of instrument",
+            "example": "Apple Inc",
+            "type": "string",
+            "x-go-name": "Name",
+            "x-order": 20
+          },
+          "currency": {
+            "description": "Currency of the instrument according to the ISO 4217 standard",
+            "example": "USD",
+            "type": "string",
+            "x-go-name": "Currency",
+            "x-order": 30
+          },
+          "exchange": {
+            "description": "Exchange where instrument is traded",
+            "example": "NASDAQ",
+            "type": "string",
+            "x-go-name": "Exchange",
+            "x-order": 40
+          },
+          "mic_code": {
+            "description": "Market identifier code (MIC) under ISO 10383 standard",
+            "example": "XNGS",
+            "type": "string",
+            "x-go-name": "ExchangeCode",
+            "x-order": 50
+          },
+          "country": {
+            "description": "Country where exchange is located",
+            "example": "United States",
+            "type": "string",
+            "x-go-name": "Country",
+            "x-order": 60
+          },
+          "type": {
+            "description": "Common issue type",
+            "example": "Common Stock",
+            "type": "string",
+            "x-go-name": "Type",
+            "x-order": 70
+          },
+          "figi_code": {
+            "description": "Financial instrument global identifier (FIGI)",
+            "example": "BBG000B9Y5X2",
+            "type": "string",
+            "x-go-name": "FigiCode",
+            "x-order": 80
+          },
+          "cfi_code": {
+            "description": "Classification of Financial Instruments (CFI)",
+            "example": "ESVUFR",
+            "type": "string",
+            "x-go-name": "CfiCode",
+            "x-order": 90
+          },
+          "isin": {
+            "description": "International securities identification number (ISIN), available by individual request to support",
+            "example": "US0378331005",
+            "type": "string",
+            "x-go-name": "Isin",
+            "x-order": 100
+          },
+          "access": {
+            "$ref": "#/components/schemas/StocksResponseItemAccess"
+          }
+        },
+        "type": "object",
+        "x-go-package": "gitlab.atlasgroup.ai/twelvedata/api/route/description"
+      },
+      "Meta": {
+        "description": "Json object with request general information",
+        "properties": {
+          "symbol": {
+            "description": "The ticker symbol of an instrument for which data was requested.",
+            "example": "AAPL",
+            "type": "string",
+            "x-go-name": "Symbol",
+            "x-order": 10
+          },
+          "interval": {
+            "description": "The time gap between consecutive data points.",
+            "example": "1min",
+            "type": "string",
+            "x-go-name": "Interval",
+            "x-order": 20
+          },
+          "currency": {
+            "description": "The currency of a traded instrument.",
+            "example": "USD",
+            "type": "string",
+            "x-go-name": "Currency",
+            "x-order": 30
+          },
+          "exchange_timezone": {
+            "description": "The timezone of the exchange where the instrument is traded.",
+            "example": "America/New_York",
+            "type": "string",
+            "x-go-name": "ExchangeTimezone",
+            "x-order": 60
+          },
+          "exchange": {
+            "description": "The exchange name where the instrument is traded.",
+            "example": "NASDAQ",
+            "type": "string",
+            "x-go-name": "Exchange",
+            "x-order": 70
+          },
+          "mic_code": {
+            "description": "The Market Identifier Code (MIC) of the exchange where the instrument is traded.",
+            "example": "XNAS",
+            "type": "string",
+            "x-go-name": "MicCode",
+            "x-order": 80
+          },
+          "type": {
+            "description": "The asset class to which the instrument belongs.",
+            "example": "Common Stock",
+            "type": "string",
+            "x-go-name": "Type",
+            "x-order": 90
+          }
+        },
+        "type": "object",
+        "x-go-package": "gitlab.atlasgroup.ai/twelvedata/api/route/description"
+      },
+      "ForexResponseItem": {
+        "description": "ForexResponseItem represents details of a forex pair",
+        "properties": {
+          "symbol": {
+            "description": "Currency pair according to ISO 4217 standard codes with slash(/) delimiter",
+            "example": "EUR/USD",
+            "type": "string",
+            "x-go-name": "Symbol",
+            "x-order": 10
+          },
+          "currency_group": {
+            "description": "Group to which currency pair belongs to, could be: Major, Minor, Exotic and Exotic-Cross",
+            "example": "Major",
+            "type": "string",
+            "x-go-name": "CurrencyGroup",
+            "x-order": 20
+          },
+          "currency_base": {
+            "description": "Base currency name according to ISO 4217 standard",
+            "example": "EUR",
+            "type": "string",
+            "x-go-name": "CurrencyBase",
+            "x-order": 30
+          },
+          "currency_quote": {
+            "description": "Quote currency name according to ISO 4217 standard",
+            "example": "USD",
+            "type": "string",
+            "x-go-name": "CurrencyQuote",
+            "x-order": 40
+          }
+        },
+        "type": "object",
+        "x-go-package": "gitlab.atlasgroup.ai/twelvedata/api/route/description"
+      },
+      "GetCryptocurrencies_200_response": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/CryptocurrencyResponseItem"
+            },
+            "type": "array",
+            "x-go-name": "Data"
+          }
+        },
+        "type": "object"
+      },
+      "GetForexPairs_200_response": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ForexResponseItem"
+            },
+            "type": "array",
+            "x-go-name": "Data"
+          }
+        },
+        "type": "object"
+      },
+      "GetTimeSeries_200_response": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "values": {
+            "description": "Single data point for a time series",
+            "items": {
+              "$ref": "#/components/schemas/TimeSeriesItem"
+            },
+            "type": "array",
+            "x-go-name": "Data"
+          }
+        },
+        "type": "object"
+      }
+    }
+  }
+}
