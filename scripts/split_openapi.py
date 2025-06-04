@@ -156,8 +156,8 @@ def split_paths(keys, chunk_size=25):
 
 def filter_paths(all_paths, allowed_list):
     """
-    Возвращает список только тех путей из all_paths, которые присутствуют в allowed_list.
-    Кроме того, печатает пути, которые есть в allowed_list, но не найдены в all_paths.
+    Returns a list of only those paths from all_paths that are present in allowed_list.
+    Additionally, prints paths that are in allowed_list but not found in all_paths.
     """
     f_paths = [path for path in all_paths if path in allowed_list]
     missing_paths = [path for path in allowed_list if path not in f_paths]
@@ -170,14 +170,14 @@ def prune_components(full_components, used_refs):
     pattern = re.compile(r'^#/components/([^/]+)/(.+)$')
     used = defaultdict(set)
 
-    # Помечаем прямые ссылки
+    # Mark direct references
     for ref in used_refs:
         m = pattern.match(ref)
         if m:
             comp_type, comp_name = m.group(1), m.group(2)
             used[comp_type].add(comp_name)
 
-    # Рекурсивно включаем вложенные
+    # Recursively include nested references
     changed = True
     while changed:
         changed = False
@@ -193,7 +193,7 @@ def prune_components(full_components, used_refs):
                                 used[ct].add(cn)
                                 changed = True
 
-    # Сборка ограниченного набора
+    # Assemble a limited set
     pruned = {}
     for comp_type, defs in full_components.items():
         if comp_type in used:
@@ -205,9 +205,9 @@ def prune_components(full_components, used_refs):
 
 def trim_fields(obj):
     """
-    Рекурсивно обрезает строки в полях:
-    - 'description' до 300 символов
-    - 'example' до 700 символов
+    Recursively trims string fields:
+    - 'description' to 300 characters
+    - 'example' to 700 characters
     """
     if isinstance(obj, dict):
         for k, v in obj.items():
@@ -226,15 +226,16 @@ def trim_fields(obj):
 
 def add_empty_properties(obj):
     """
-    Рекурсивно ищет все вхождения ключа 'schema'. Если его значение — dict,
-    и в этом dict нет 'properties', добавляет 'properties': {}.
+    Recursively searches for all occurrences of the 'schema' key.
+    If its value is a dict and this dict does not have 'properties',
+    adds 'properties': {}.
     """
     if isinstance(obj, dict):
         for k, v in obj.items():
             if k == "schema" and isinstance(v, dict):
                 if "properties" not in v:
                     v["properties"] = {}
-                # Продолжаем углубленный обход внутри найденной схемы
+                # Continue deep traversal within the found schema
                 add_empty_properties(v)
             else:
                 add_empty_properties(v)
@@ -252,7 +253,7 @@ def main():
     chunks = list(split_paths(f_paths))
 
     for idx, paths_chunk in enumerate(chunks, start=1):
-        # Собираем новую часть спецификации
+        # Build a new part of the specification
         new_spec = {
             'openapi': spec.get('openapi'),
             'info': spec.get('info'),
@@ -264,17 +265,17 @@ def main():
             'paths': {k: spec['paths'][k] for k in paths_chunk}
         }
 
-        # Обрезаем длинные поля и добавляем отсутствующие 'properties'
+        # Trim long fields and add missing 'properties'
         add_empty_properties(new_spec)
         trim_fields(new_spec)
 
-        # Прореживаем компоненты
+        # Prune components
         used_refs = find_refs(new_spec['paths'])
         pruned = prune_components(spec.get('components', {}), used_refs)
         if pruned:
             new_spec['components'] = pruned
 
-        # Считаем метрики и сохраняем файл
+        # Calculate metrics and save the file
         new_paths_count = len(new_spec['paths'])
         new_components_count = sum(
             len(v) for v in new_spec.get('components', {}).values()
@@ -293,4 +294,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
