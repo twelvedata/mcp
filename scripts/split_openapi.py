@@ -8,18 +8,18 @@ input_path = "../data/openapi01.06.2025.json"
 output_dir = "../data"
 
 mirrors = [
-    "https://api-reference-data.twelvedata.com/",
-    "https://api-time-series.twelvedata.com/",
-    "https://api-mutual-funds.twelvedata.com/",
-    "https://api-etfs.twelvedata.com/",
-    "https://api-fundamental.twelvedata.com/",
-    "https://api-analysis.twelvedata.com/",
-    "https://api-regulator.twelvedata.com/",
-    "https://api-ti-overlap-studies.twelvedata.com/",
-    "https://api-ti-volume-indicators.twelvedata.com/",
-    "https://api-ti-price-transform.twelvedata.com/",
-    "https://api-ti-cycle-indicators.twelvedata.com/",
-    "https://api-ti-statistics-functions.twelvedata.com/"
+    "https://api-reference-data.twelvedata.com",
+    "https://api-time-series.twelvedata.com",
+    "https://api-mutual-funds.twelvedata.com",
+    "https://api-etfs.twelvedata.com",
+    "https://api-fundamental.twelvedata.com",
+    "https://api-analysis.twelvedata.com",
+    "https://api-regulator.twelvedata.com",
+    "https://api-ti-overlap-studies.twelvedata.com",
+    "https://api-ti-volume-indicators.twelvedata.com",
+    "https://api-ti-price-transform.twelvedata.com",
+    "https://api-ti-cycle-indicators.twelvedata.com",
+    "https://api-ti-statistics-functions.twelvedata.com"
 ]
 
 allowed_endpoints = [
