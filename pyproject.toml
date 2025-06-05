@@ -1,6 +1,6 @@
 [project]
 name = "mcp-server-twelve-data"
-version = "0.1.4"
+version = "0.1.9"
 description = "A Model Context Protocol server providing tools access Twelve Data."
 readme = "README.md"
 requires-python = ">=3.13"
@@ -30,7 +30,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv]
-dev-dependencies = ["pyright>=1.1.389", "ruff>=0.7.3", "pytest>=8.0.0"]
+dev-dependencies = ["pyright>=1.1.389", "ruff>=0.7.3", "pytest>=8.0.0", "datamodel-codegen"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
