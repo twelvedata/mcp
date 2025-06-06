@@ -60,8 +60,8 @@ def gen_serve(openapi: dict) -> str:
 
             endpoint_blocks.append(
                 f'    @server.tool(name="{tool_name}", description="{tool_desc}")\n'
-                f'    async def {tool_name}(params: {class_req}) -> {class_resp}:\n'
-                f'        return await _call_endpoint("{endpoint}", params, {class_resp})\n\n'
+                f'    async def {tool_name}(params: {class_req}, ctx: Context) -> {class_resp}:\n'
+                f'        return await _call_endpoint("{endpoint}", params, {class_resp}, ctx)\n\n'
             )
 
     import_requests = "\n".join(f"from {REQUESTS_MODULE} import {t}" for t in sorted(request_types))
@@ -72,7 +72,7 @@ def gen_serve(openapi: dict) -> str:
         "from typing import Type, TypeVar, Literal\n"
         "import httpx\n"
         "from pydantic import BaseModel\n"
-        "from mcp.server.fastmcp import FastMCP\n"
+        "from mcp.server.fastmcp import FastMCP, Context\n"
         f"{import_requests}\n"
         f"{import_responses}\n\n"
         "def serve(\n"
@@ -91,10 +91,16 @@ def gen_serve(openapi: dict) -> str:
         "    async def _call_endpoint(\n"
         "        endpoint: str,\n"
         "        params: P,\n"
-        "        response_model: Type[R]\n"
+        "        response_model: Type[R],\n"
+        "        ctx: Context\n"
         "    ) -> R:\n"
-        "        if apikey:\n"
-        "            params.apikey = apikey\n\n"
+        "        if transport == 'stdio' and apikey:\n"
+        "            params.apikey = apikey\n"
+        "        elif transport == \"streamable-http\":\n"
+        "            apikey_header = ctx.request_context.request.headers.get('Authorization')\n"
+        "            split_header = apikey_header.split(' ') if apikey_header else []\n"
+        "            if len(split_header) == 2:\n"
+        "                params.apikey = split_header[1]\n"
         "        async with httpx.AsyncClient() as client:\n"
         "            resp = await client.get(\n"
         "                f\"{api_base}/{endpoint}\",\n"
@@ -113,7 +119,6 @@ def main():
     code = gen_serve(spec)
     Path(OUTPUT_PATH).write_text(code, encoding="utf-8")
     print(f"Готово: {OUTPUT_PATH}")
-
 
 if __name__ == "__main__":
     main()

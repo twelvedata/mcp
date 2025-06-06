@@ -88,7 +88,28 @@ Add the following snippet to your `claude_desktop_config.json`:
   "mcpServers": {
     "twelvedata": {
       "command": "uvx",
-      "args": ["mcp-server-twelve-data", "--apikey", "YOUR_API_KEY"]
+      "args": ["--reinstall", "mcp-server-twelve-data", "--apikey", "YOUR_API_KEY"]
+    }
+  }
+}
+```
+
+
+or this one, to use our remote http server
+
+```json
+{
+  "mcpServers": {
+    "twelvedata-remote": {
+      "command": "npx",
+      "args":    [
+        "mcp-remote", "https://mcp.twelvedata.com/mcp/",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
+      ],
+      "env": {
+        "AUTH_HEADER": "apikey YOUR_API_KEY"
+      }
     }
   }
 }
