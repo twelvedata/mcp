@@ -27,7 +27,9 @@ from mcp_server_twelve_data.request_models import GetTimeSeriesRequest, GetPrice
     GetMutualFundsWorldCompositionRequest, GetTimeSeriesAdxrRequest, GetETFsWorldRiskRequest, \
     GetMutualFundsWorldRiskRequest, GetMutualFundsWorldSustainabilityRequest, GetETFsWorldPerformanceRequest, \
     GetTimeSeriesMaxRequest, GetTimeSeriesWillRRequest, GetETFsListRequest, GetTimeSeriesHeikinashiCandlesRequest, \
-    GetTimeSeriesTemaRequest, GetTimeSeriesPpoRequest
+    GetTimeSeriesTemaRequest, GetTimeSeriesPpoRequest, GetEarningsCalendarRequest, GetETFsWorldSummaryRequest, \
+    GetCryptocurrenciesRequest, GetFundsRequest, GetTimeSeriesBetaRequest, GetTimeSeriesMomRequest, \
+    GetTimeSeriesMacdExtRequest, GetMutualFundsWorldRatingsRequest, GetTimeSeriesNatrRequest, GetTimeSeriesApoRequest
 from mcp_server_twelve_data.response_models import GetTimeSeries200Response, GetPrice200Response, GetEod200Response, \
     GetQuote200Response, GetMarketState200Response, GetEarnings200Response, GetTimeSeriesRsi200Response, \
     GetStocks200Response, GetTimeSeriesMacd200Response, GetExchangeRate200Response, GetProfile200Response, \
@@ -54,13 +56,17 @@ from mcp_server_twelve_data.response_models import GetTimeSeries200Response, Get
     GetTimeSeriesAdxr200Response, GetETFsWorldRisk200Response, GetMutualFundsWorldRisk200Response, \
     GetMutualFundsWorldSustainability200Response, GetETFsWorldPerformance200Response, GetTimeSeriesMax200Response, \
     GetTimeSeriesWillR200Response, GetETFsList200Response, GetTimeSeriesHeikinashiCandles200Response, \
-    GetMutualFundsWorldComposition200Response, GetTimeSeriesTema200Response, GetTimeSeriesPpo200Response
+    GetMutualFundsWorldComposition200Response, GetTimeSeriesTema200Response, GetTimeSeriesPpo200Response, \
+    GetEarningsCalendar200Response, GetETFsWorldSummary200Response, GetCryptocurrencies200Response, GetFunds200Response, \
+    GetTimeSeriesBeta200Response, GetTimeSeriesMom200Response, GetTimeSeriesMacdExt200Response, \
+    GetMutualFundsWorldRatings200Response, GetTimeSeriesNatr200Response, GetTimeSeriesApo200Response
 
 
 def serve(
     api_base: str,
     transport: Literal["stdio", "sse", "streamable-http"],
     apikey: str,
+    number_of_tools: int,
 ) -> None:
     logger = logging.getLogger(__name__)
 
@@ -458,5 +464,47 @@ def serve(
     async def GetTimeSeriesPpo(params: GetTimeSeriesPpoRequest,  ctx: Context) -> GetTimeSeriesPpo200Response:
         return await _call_endpoint("ppo", params, GetTimeSeriesPpo200Response, ctx)
 
+    @server.tool(name="GetEarningsCalendar", description="This API method returns earning data as a calendar for a given date range. By default todays earning is returned. To call custom period, use start_date and end_date parameters.")
+    async def GetEarningsCalendar(params: GetEarningsCalendarRequest, ctx: Context) -> GetEarningsCalendar200Response:
+        return await _call_endpoint("earnings_calendar", params, GetEarningsCalendar200Response, ctx)
+
+    @server.tool(name="GetETFsWorldSummary", description="This API request returns a brief summary of a etf.")
+    async def GetETFsWorldSummary(params: GetETFsWorldSummaryRequest, ctx: Context) -> GetETFsWorldSummary200Response:
+        return await _call_endpoint("etfs/world/summary", params, GetETFsWorldSummary200Response, ctx)
+
+    @server.tool(name="GetCryptocurrencies", description="This API call returns an array of cryptocurrencies available at Twelve Data API. This list is updated daily.")
+    async def GetCryptocurrencies(params: GetCryptocurrenciesRequest, ctx: Context) -> GetCryptocurrencies200Response:
+        return await _call_endpoint("cryptocurrencies", params, GetCryptocurrencies200Response, ctx)
+
+    @server.tool(name="GetFunds", description="This API call returns an array of funds available at Twelve Data API. This list is updated daily.")
+    async def GetFunds(params: GetFundsRequest, ctx: Context) -> GetFunds200Response:
+        return await _call_endpoint("funds", params, GetFunds200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesBeta", description="The Beta indicator measures a security's sensitivity to market movements, comparing its price changes to a benchmark index to assess systematic risk.")
+    async def GetTimeSeriesBeta(params: GetTimeSeriesBetaRequest, ctx: Context) -> GetTimeSeriesBeta200Response:
+        return await _call_endpoint("beta", params, GetTimeSeriesBeta200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMom", description="The Momentum (MOM) indicator measures the rate of change of a security's price over a specified period, helping traders identify potential price trends and reversals.")
+    async def GetTimeSeriesMom(params: GetTimeSeriesMomRequest, ctx: Context) -> GetTimeSeriesMom200Response:
+        return await _call_endpoint("mom", params, GetTimeSeriesMom200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMacdExt", description="The MACD Extension (MACDEXT) is a customizable version of the MACD indicator, allowing traders to choose different moving average types and parameters for increased flexibility.")
+    async def GetTimeSeriesMacdExt(params: GetTimeSeriesMacdExtRequest, ctx: Context) -> GetTimeSeriesMacdExt200Response:
+        return await _call_endpoint("macdext", params, GetTimeSeriesMacdExt200Response, ctx)
+
+    @server.tool(name="GetMutualFundsWorldRatings", description="This API request returns ratings of a mutual fund.")
+    async def GetMutualFundsWorldRatings(params: GetMutualFundsWorldRatingsRequest, ctx: Context) -> GetMutualFundsWorldRatings200Response:
+        return await _call_endpoint("mutual_funds/world/ratings", params, GetMutualFundsWorldRatings200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesNatr", description="The Normalized Average True Range (NATR) is a volatility indicator that measures the average range of price movement over a specified period, expressed as a percentage of the security's price, allowing for comparisons across different securities.")
+    async def GetTimeSeriesNatr(params: GetTimeSeriesNatrRequest, ctx: Context) -> GetTimeSeriesNatr200Response:
+        return await _call_endpoint("natr", params, GetTimeSeriesNatr200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesApo", description="The Absolute Price Oscillator (APO) is a momentum indicator that measures the difference between two moving averages, helping traders identify potential price trends and reversals.")
+    async def GetTimeSeriesApo(params: GetTimeSeriesApoRequest, ctx: Context) -> GetTimeSeriesApo200Response:
+        return await _call_endpoint("apo", params, GetTimeSeriesApo200Response, ctx)
+
+    all_tools = server._tool_manager._tools
+    server._tool_manager._tools = dict(list(all_tools.items())[:number_of_tools])
 
     server.run(transport=transport)
