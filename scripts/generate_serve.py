@@ -1,8 +1,10 @@
 import json
 from pathlib import Path
 import re
+import csv
 
-OPENAPI_PATH = "../data/openapi_clean.json"
+OPENAPI_PATH = "../extra/openapi_clean.json"
+ENDPOINTS_PATH = "../extra/endpoints_spec_en.csv"
 OUTPUT_PATH = "../data/serve_autogen.py"
 REQUESTS_MODULE = "request_models"
 RESPONSES_MODULE = "response_models"
@@ -24,26 +26,44 @@ def make_tool_desc(path: str, op: dict) -> str:
         return f"Get list of {clean}."
     return f"Get {clean}."
 
-def gen_serve(openapi: dict) -> str:
+def load_endpoint_list(path):
+    endpoints = []
+    with open(path, encoding='utf-8') as f:
+        for row in csv.reader(f, delimiter=","):
+            ep = row[0].strip()
+            if ep:
+                endpoints.append(ep)
+    return endpoints
+
+def gen_serve(openapi: dict, endpoints_order: list) -> str:
     paths = openapi.get("paths", {})
     request_types = set()
     response_types = set()
     endpoint_blocks = []
 
+    # Соберём все get-эндпоинты из спецификации
+    path_map = {}
     for path, ops in paths.items():
         for method, op in ops.items():
             if method.lower() != "get":
                 continue
-            endpoint = path.lstrip('/')
+            path_map[path] = (method, op)
+
+    # Эндпоинты, которых нет в списке из файла, добавим в конец (отсортированы)
+    specified = set(endpoints_order)
+    rest_endpoints = [ep for ep in path_map if ep not in specified]
+    rest_endpoints.sort()
+    final_endpoints = endpoints_order + rest_endpoints
+
+    for endpoint in final_endpoints:
+        if endpoint in path_map:
+            method, op = path_map[endpoint]
             opid = op.get("operationId")
             if not opid:
-                # fallback: делаем operationId из endpoint по snake_case→PascalCase
-                parts = [p for p in re.split(r'[-_/]', endpoint.replace('/', '_').replace('-', '_')) if p]
+                parts = [p for p in re.split(r'[-_/]', endpoint.strip("/").replace('/', '_').replace('-', '_')) if p]
                 opid = parts[0][0].upper() + parts[0][1:] + ''.join(p.capitalize() for p in parts[1:])
-
             class_req = canonical_class_name(opid, "Request")
             request_types.add(class_req)
-
             responses = op.get("responses", {})
             status_code = None
             for code in responses:
@@ -54,18 +74,16 @@ def gen_serve(openapi: dict) -> str:
                 status_code = next(iter(responses.keys()))
             class_resp = canonical_class_name(opid, f"{status_code}Response")
             response_types.add(class_resp)
-
             tool_name = opid
-            tool_desc = make_tool_desc(path, op)
-
+            tool_desc = make_tool_desc(endpoint, op)
             endpoint_blocks.append(
                 f'    @server.tool(name="{tool_name}", description="{tool_desc}")\n'
                 f'    async def {tool_name}(params: {class_req}, ctx: Context) -> {class_resp}:\n'
-                f'        return await _call_endpoint("{endpoint}", params, {class_resp}, ctx)\n\n'
+                f'        return await _call_endpoint("{endpoint.lstrip("/")}", params, {class_resp}, ctx)\n\n'
             )
 
-    import_requests = "\n".join(f"from {REQUESTS_MODULE} import {t}" for t in sorted(request_types))
-    import_responses = "\n".join(f"from {RESPONSES_MODULE} import {t}" for t in sorted(response_types))
+    import_requests = "\n".join(f"from .{REQUESTS_MODULE} import {t}" for t in sorted(request_types))
+    import_responses = "\n".join(f"from .{RESPONSES_MODULE} import {t}" for t in sorted(response_types))
 
     code = (
         "import logging\n"
@@ -79,6 +97,7 @@ def gen_serve(openapi: dict) -> str:
         "    api_base: str,\n"
         "    transport: Literal[\"stdio\", \"sse\", \"streamable-http\"],\n"
         "    apikey: str,\n"
+        "    number_of_tools: int,\n"
         ") -> None:\n"
         "    logger = logging.getLogger(__name__)\n\n"
         "    server = FastMCP(\n"
@@ -109,6 +128,8 @@ def gen_serve(openapi: dict) -> str:
         "            resp.raise_for_status()\n"
         "            return response_model.model_validate(resp.json())\n\n"
         f"{''.join(endpoint_blocks)}"
+        "    all_tools = server._tool_manager._tools\n"
+        "    server._tool_manager._tools = dict(list(all_tools.items())[:number_of_tools])\n"
         "    server.run(transport=transport)\n"
     )
     return code
@@ -116,7 +137,8 @@ def gen_serve(openapi: dict) -> str:
 def main():
     with open(OPENAPI_PATH, "r", encoding="utf-8") as f:
         spec = json.load(f)
-    code = gen_serve(spec)
+    endpoints = load_endpoint_list(ENDPOINTS_PATH)
+    code = gen_serve(spec, endpoints)
     Path(OUTPUT_PATH).write_text(code, encoding="utf-8")
     print(f"Готово: {OUTPUT_PATH}")
 

@@ -1,7 +1,7 @@
 from datamodel_code_generator import InputFileType, generate, PythonVersion
 from pathlib import Path
 
-openapi_path = '../data/openapi_clean.json'   # путь к спецификации
+openapi_path = '../extra/openapi_clean.json'   # путь к спецификации
 output_path = '../data/response_models.py'        # куда сохранить
 
 # Чтение исходного файла

@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 import keyword
 
-OPENAPI_PATH = "../data/openapi_clean.json"
+OPENAPI_PATH = "../extra/openapi_clean.json"
 REQUESTS_FILE = "../data/request_models.py"
 
 PRIMITIVES = {

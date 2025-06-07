@@ -14,8 +14,8 @@ from .server import serve
 @click.option("-t", "--transport", default="stdio", help="stdio, streamable-http")
 @click.option("-k", "--apikey", default="", help="if set, then override a query parameter")
 @click.option(
-    "-n", "--number-of-tools", default=30,
-    help="limit number of tools to prevent problems with mcp clients, max n value is 100, default is 30"
+    "-n", "--number-of-tools", default=35,
+    help="limit number of tools to prevent problems with mcp clients, max n value is 193, default is 35"
 )
 def main(
     verbose: bool,
