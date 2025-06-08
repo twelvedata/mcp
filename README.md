@@ -115,6 +115,10 @@ or this one, to use our remote http server
 }
 ```
 
+See how easy it is to connect Claude Desktop to Twelve Data MCP Server:
+
+![Example usage with Claude Desktop](./example.gif)
+
 ### VS Code integration
 
 #### Automatic setup (with UV)
