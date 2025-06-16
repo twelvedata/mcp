@@ -17,9 +17,12 @@ classifiers = [
 ]
 dependencies = [
     "click==8.2.1",
-    "mcp[cli]>=1.9.2",
+    "lancedb>=0.23.0",
+    "mcp[cli]>=1.9.4",
+    "openai>=1.86.0",
     "pydantic==2.11.5",
     "pyyml>=0.0.2",
+    "spacy>=3.8.7",
 ]
 
 [project.scripts]
@@ -30,10 +33,20 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv]
-dev-dependencies = ["pyright>=1.1.389", "ruff>=0.7.3", "pytest>=8.0.0", "datamodel-codegen"]
+dev-dependencies = [
+    "pyright>=1.1.389",
+    "ruff>=0.7.3",
+    "pytest>=8.0.0",
+    "datamodel-code-generator>=0.16.0",
+    "pytest-asyncio>=1.0.0",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "-s"
+log_cli = true
+log_cli_level = "INFO"

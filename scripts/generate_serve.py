@@ -9,10 +9,12 @@ OUTPUT_PATH = "../data/serve_autogen.py"
 REQUESTS_MODULE = "request_models"
 RESPONSES_MODULE = "response_models"
 
+
 def canonical_class_name(opid: str, suffix: str) -> str:
     if not opid:
         return ""
     return opid[0].upper() + opid[1:] + suffix
+
 
 def make_tool_desc(path: str, op: dict) -> str:
     desc = op.get("description", "").strip()
@@ -26,6 +28,7 @@ def make_tool_desc(path: str, op: dict) -> str:
         return f"Get list of {clean}."
     return f"Get {clean}."
 
+
 def load_endpoint_list(path):
     endpoints = []
     with open(path, encoding='utf-8') as f:
@@ -34,6 +37,7 @@ def load_endpoint_list(path):
             if ep:
                 endpoints.append(ep)
     return endpoints
+
 
 def gen_serve(openapi: dict, endpoints_order: list) -> str:
     paths = openapi.get("paths", {})
@@ -98,6 +102,7 @@ def gen_serve(openapi: dict, endpoints_order: list) -> str:
         "    transport: Literal[\"stdio\", \"sse\", \"streamable-http\"],\n"
         "    apikey: str,\n"
         "    number_of_tools: int,\n"
+        "    u_tool_open_ai_api_key: str,\n"
         ") -> None:\n"
         "    logger = logging.getLogger(__name__)\n\n"
         "    server = FastMCP(\n"
@@ -128,11 +133,15 @@ def gen_serve(openapi: dict, endpoints_order: list) -> str:
         "            resp.raise_for_status()\n"
         "            return response_model.model_validate(resp.json())\n\n"
         f"{''.join(endpoint_blocks)}"
-        "    all_tools = server._tool_manager._tools\n"
-        "    server._tool_manager._tools = dict(list(all_tools.items())[:number_of_tools])\n"
-        "    server.run(transport=transport)\n"
+        "        if u_tool_open_ai_api_key is None:\n"
+        "            all_tools = server._tool_manager._tools\n"
+        "            server._tool_manager._tools = dict(list(all_tools.items())[:number_of_tools])\n"
+        "       else:\n"
+        "           register_u_tool(server=server, u_tool_open_ai_api_key=u_tool_open_ai_api_key)\n"
+        "       server.run(transport=transport)\n"
     )
     return code
+
 
 def main():
     with open(OPENAPI_PATH, "r", encoding="utf-8") as f:
@@ -141,6 +150,7 @@ def main():
     code = gen_serve(spec, endpoints)
     Path(OUTPUT_PATH).write_text(code, encoding="utf-8")
     print(f"Готово: {OUTPUT_PATH}")
+
 
 if __name__ == "__main__":
     main()

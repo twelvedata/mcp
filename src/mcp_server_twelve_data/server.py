@@ -3,6 +3,7 @@ from typing import Type, TypeVar, Literal
 import httpx
 from pydantic import BaseModel
 from mcp.server.fastmcp import FastMCP, Context
+from .u_tool import register_u_tool
 from .request_models import GetAnalystRatingsLightRequest
 from .request_models import GetAnalystRatingsUsEquitiesRequest
 from .request_models import GetApiUsageRequest
@@ -390,11 +391,13 @@ from .response_models import GetTimeSeriesWclPrice200Response
 from .response_models import GetTimeSeriesWillR200Response
 from .response_models import GetTimeSeriesWma200Response
 
+
 def serve(
     api_base: str,
     transport: Literal["stdio", "sse", "streamable-http"],
     apikey: str,
     number_of_tools: int,
+    u_tool_open_ai_api_key: str,
 ) -> None:
     logger = logging.getLogger(__name__)
 
@@ -420,7 +423,13 @@ def serve(
             split_header = apikey_header.split(' ') if apikey_header else []
             if len(split_header) == 2:
                 params.apikey = split_header[1]
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(
+            trust_env=False,
+            headers={
+                "Accept": "application/json",
+                "User-Agent": "python-httpx/0.24.0"
+            },
+        ) as client:
             resp = await client.get(
                 f"{api_base}/{endpoint}",
                 params=params.model_dump(exclude_none=True)
@@ -1200,6 +1209,10 @@ def serve(
     async def GetTimeSeriesVar(params: GetTimeSeriesVarRequest, ctx: Context) -> GetTimeSeriesVar200Response:
         return await _call_endpoint("var", params, GetTimeSeriesVar200Response, ctx)
 
-    all_tools = server._tool_manager._tools
-    server._tool_manager._tools = dict(list(all_tools.items())[:number_of_tools])
+    if u_tool_open_ai_api_key is None:
+        all_tools = server._tool_manager._tools
+        server._tool_manager._tools = dict(list(all_tools.items())[:number_of_tools])
+    else:
+        register_u_tool(server=server, u_tool_open_ai_api_key=u_tool_open_ai_api_key)
+
     server.run(transport=transport)

@@ -1288,12 +1288,12 @@ class GetAnalystRatingsUsEquities200ResponseRatingsInner(BaseModel):
         description='Action that firm took towards target price',
         examples=['Raises'],
     )
-    price_target_current: Optional[int] = Field(
+    price_target_current: Optional[float] = Field(
         None,
         description="Current firm's price target for the instrument",
         examples=[185],
     )
-    price_target_prior: Optional[int] = Field(
+    price_target_prior: Optional[float] = Field(
         None, description="Prior firm's price target for the instrument", examples=[177]
     )
 
