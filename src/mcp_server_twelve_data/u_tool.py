@@ -1,4 +1,5 @@
 import os
+import importlib.util
 from pathlib import Path
 
 import openai
@@ -12,12 +13,15 @@ from openai.types.chat import ChatCompletionSystemMessageParam
 
 
 def register_u_tool(server: FastMCP, u_tool_open_ai_api_key: str):
-    # LLM_MODEL = "gpt-4o"
-    LLM_MODEL = "gpt-4-turbo"
+    # LLM_MODEL = "gpt-4o"         # Input $2.5,   Output $10
+    # LLM_MODEL = "gpt-4-turbo"    # Input $10.00, Output $30
+    LLM_MODEL = "gpt-4o-mini"      # Input $0.15,  Output $0.60
 
     EMBEDDING_MODEL = "text-embedding-3-small"
-    BASE_DIR = Path(__file__).resolve().parents[2]
-    DB_PATH = str(BASE_DIR / "extra" / "endpoints.lancedb")
+    spec = importlib.util.find_spec("mcp_server_twelve_data")
+    MODULE_PATH = Path(spec.origin).resolve()
+    PACKAGE_ROOT = MODULE_PATH.parent  # src/mcp_server_twelve_data
+    DB_PATH = str(PACKAGE_ROOT / "resources" / "endpoints.lancedb")
     TOP_N = 35
 
     class UToolResponse(BaseModel):
@@ -131,6 +135,9 @@ def register_u_tool(server: FastMCP, u_tool_open_ai_api_key: str):
             call = response.choices[0].message.tool_calls[0]
             name = call.function.name
             arguments = json.loads(call.function.arguments)
+            # all tools require single parameter with nested attributes, but sometimes LLM flattens it
+            if "params" not in arguments:
+                arguments = {"params": arguments}
             choice = response.choices[0].message
             motivation_text = choice.content.strip() if choice.content else None
 

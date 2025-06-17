@@ -40,9 +40,11 @@ async def test_embedding_and_utool_async(user_query, expected_op_id):
     error = payload.get("error")
     motivation = payload.get("motivation")
     selected_tool = payload.get("selected_tool")
+    response = payload.get("response")
     print(motivation)
     assert expected_op_id in top_cands, f"{expected_op_id!r} not in {top_cands!r}"
     assert error is None, f"u-tool error: {error}"
     assert selected_tool == expected_op_id, (
         f"selected_tool {payload.get('selected_tool')!r} != expected {expected_op_id!r}"
     )
+    assert response is not None

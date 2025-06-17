@@ -88,7 +88,7 @@ Add the following snippet to your `claude_desktop_config.json`:
   "mcpServers": {
     "twelvedata": {
       "command": "uvx",
-      "args": ["--reinstall", "mcp-server-twelve-data", "--apikey", "YOUR_API_KEY"]
+      "args": ["--reinstall", "mcp-server-twelve-data@latest", "--apikey", "YOUR_API_KEY"]
     }
   }
 }
@@ -135,7 +135,7 @@ For manual configuration, add to your **User Settings (JSON)**:
     "servers": {
       "twelvedata": {
         "command": "uvx",
-        "args": ["mcp-server-twelve-data", "-t", "streamable-http"]
+        "args": ["mcp-server-twelve-data@latest", "-t", "streamable-http"]
       }
     }
   }
@@ -162,6 +162,39 @@ Build and run the server using Docker:
 ```bash
 docker build -t mcp-server-twelve-data .
 docker run --rm mcp-server-twelve-data --apikey YOUR_API_KEY
+```
+
+## U-tool
+u-tool is an AI-powered universal router for the Twelve Data API that transforms how you access financial data. Instead of navigating 100+ individual endpoints and complex documentation, simply describe what you need in plain English.
+
+How it works:
+🧠 Natural Language Processing: Understands your request in conversational English
+🔍 Smart Routing: Uses vector search to find the most relevant endpoints from Twelve Data's entire API catalog
+🎯 Intelligent Selection: Leverages OpenAI GPT-4o to choose the optimal method and generate correct parameters
+⚡ Automatic Execution: Calls the appropriate endpoint and returns formatted results
+
+What you can ask:
+📈 "Show me Apple stock performance this week"
+📊 "Calculate RSI for Bitcoin with 14-day period" 
+💰 "Get Tesla's financial ratios and balance sheet"
+🌍 "Compare EUR/USD exchange rates over 6 months"
+🏦 "Find top-performing tech ETFs"
+
+Supported data categories:
+- Market data & quotes • Technical indicators (100+)
+- Fundamental data & financials • Currencies & crypto
+- Mutual funds & ETFs • Economic calendars & events
+
+One tool, entire Twelve Data ecosystem. No API documentation required.
+```json
+{
+  "mcpServers": {
+    "twelvedata": {
+      "command": "uvx",
+      "args": ["mcp-server-twelve-data@latest", "--apikey", "YOUR_TD_API_KEY", "-u", "YOUR_OPEN_AI_APIKEY"]
+    }
+  }
+}
 ```
 
 ## License

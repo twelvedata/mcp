@@ -1,4 +1,3 @@
-data/
 dist/
 publish.md
 .idea
@@ -7,3 +6,4 @@ src/mcp_server_twelve_data/requests/__pycache__/
 src/mcp_server_twelve_data/responses/__pycache__/
 scripts/__pycache__/
 test/__pycache__/
+/data/

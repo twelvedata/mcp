@@ -14,15 +14,18 @@ PRIMITIVES = {
     "array": "list",
 }
 
+
 def canonical_class_name(opid: str, suffix: str) -> str:
     if not opid:
         return ""
     return opid[0].upper() + opid[1:] + suffix
 
+
 def safe_field_name(name):
     if keyword.iskeyword(name):
         return name + "_"
     return name
+
 
 def python_type(schema, components):
     if "$ref" in schema:
@@ -35,6 +38,7 @@ def python_type(schema, components):
     if t == "array":
         return f"list[{python_type(schema.get('items', {}), components)}]"
     return PRIMITIVES.get(t, "Any")
+
 
 def resolve_schema(schema, components):
     if "$ref" in schema:
@@ -52,6 +56,7 @@ def resolve_schema(schema, components):
         merged["description"] = merged["description"].strip() or None
         return merged
     return schema
+
 
 def collect_examples(param, sch):
     examples = []
@@ -75,6 +80,7 @@ def collect_examples(param, sch):
             examples.extend(exs)
     return [e for i, e in enumerate(examples) if e is not None and e not in examples[:i]]
 
+
 def gen_field(name, typ, required, desc, examples, default):
     name = safe_field_name(name)
     field_args = []
@@ -88,6 +94,7 @@ def gen_field(name, typ, required, desc, examples, default):
         field_args.append(f'examples={repr(examples)}')
     args = ", ".join(field_args)
     return f"    {name}: {typ} = Field({args})"
+
 
 def gen_class(name, props, desc):
     lines = [f"class {name}(BaseModel):"]
@@ -104,6 +111,7 @@ def gen_class(name, props, desc):
             default = fdict["default"]
             lines.append(gen_field(pname, typ, required, dsc, exs, default))
     return "\n".join(lines)
+
 
 def main():
     with open(OPENAPI_PATH, "r", encoding="utf-8") as f:
@@ -171,7 +179,8 @@ def main():
         + "\n\n".join(request_models),
         encoding="utf-8"
     )
-    print(f"Сгенерированы модели запросов: {REQUESTS_FILE}")
+    print(f"Generated request models: {REQUESTS_FILE}")
+
 
 if __name__ == "__main__":
     main()

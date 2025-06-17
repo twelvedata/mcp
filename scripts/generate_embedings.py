@@ -119,7 +119,7 @@ def save_descriptions(path: str, data: dict):
 def main():
     spec_path = os.getenv('OPENAPI_SPEC', '../extra/openapi_clean.json')
     db_path = os.getenv('LANCEDB_PATH', '../data/endpoints.lancedb')
-    desc_path = os.getenv('DESC_JSON_PATH', '../data/full_descriptions.json')
+    desc_path = os.getenv('DESC_JSON_PATH', '../extra/full_descriptions.json')
 
     spec = load_spec(spec_path)
     endpoints = extract_endpoints(spec)
