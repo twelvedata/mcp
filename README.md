@@ -1,9 +1,10 @@
-
 # Twelve Data MCP Server
 
-## Overview
-
 The Twelve Data MCP Server provides a seamless integration with the Twelve Data API to access financial market data. It enables retrieval of historical time series, real-time quotes, and instrument metadata for stocks, forex pairs, and cryptocurrencies.
+
+<a href="https://glama.ai/mcp/servers/@twelvedata/mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@twelvedata/mcp/badge" alt="Twelve Data Server MCP server" />
+</a>
 
 > Note: This server is currently in early-stage development; features and tools may evolve alongside updates to the Twelve Data API.
 
@@ -93,7 +94,6 @@ Add the following snippet to your `claude_desktop_config.json`:
   }
 }
 ```
-
 
 or this one, to use our remote http server
 
