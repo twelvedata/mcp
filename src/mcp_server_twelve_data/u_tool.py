@@ -22,7 +22,7 @@ def register_u_tool(server: FastMCP, u_tool_open_ai_api_key: str):
     MODULE_PATH = Path(spec.origin).resolve()
     PACKAGE_ROOT = MODULE_PATH.parent  # src/mcp_server_twelve_data
     DB_PATH = str(PACKAGE_ROOT / "resources" / "endpoints.lancedb")
-    TOP_N = 35
+    TOP_N = 30
 
     class UToolResponse(BaseModel):
         """Response object returned by the u-tool."""
@@ -98,6 +98,8 @@ def register_u_tool(server: FastMCP, u_tool_open_ai_api_key: str):
 
             results = table.search(embedding).metric("cosine").limit(TOP_N).to_list()  # type: ignore[attr-defined]
             candidate_ids = [r["id"] for r in results]
+            if "GetTimeSeries" not in candidate_ids:
+                candidate_ids.append('GetTimeSeries')
 
         except Exception as e:
             return UToolResponse(
@@ -125,7 +127,14 @@ def register_u_tool(server: FastMCP, u_tool_open_ai_api_key: str):
                 model=LLM_MODEL,
                 messages=[
                     cast(ChatCompletionSystemMessageParam, {"role": "system", "content": prompt}),
-                    cast(ChatCompletionSystemMessageParam, {"role": "user", "content": query})
+                    cast(ChatCompletionSystemMessageParam, {"role": "user", "content": query}),
+                    cast(
+                        ChatCompletionSystemMessageParam,
+                        {
+                            "role": "user",
+                            "content": "Explain why you selected this endpoint (2 sentences)."
+                        }
+                    )
                 ],
                 tools=openai_tools,
                 tool_choice="required",

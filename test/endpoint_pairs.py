@@ -1,5 +1,6 @@
 pairs = [
-    ("Show me the Average Directional Movement Index Rating (ADXR) time series for AAPL.", "GetTimeSeriesAdxr")
+    # ("Get MAVP for AAPL using SMA over 2 to 10 periods on daily close prices.", "GetTimeSeriesMaVp"), # error
+    ('Get daily time series stock price data for AAPL for the last 14 days including open, high, low, close prices', 'GetTimeSeries')
 ]
 
 pairs_ = [
@@ -7,7 +8,7 @@ pairs_ = [
     ('Show me add for AAPL.', 'GetTimeSeriesAdd'),
     ('Show me adosc for AAPL.', 'GetTimeSeriesAdOsc'),
     ('Show me adx for AAPL.', 'GetTimeSeriesAdx'),
-    ('Show me adxr for AAPL.', 'GetTimeSeriesAdxr'),
+    ("Show me the Average Directional Movement Index Rating (ADXR) time series for AAPL.", "GetTimeSeriesAdxr"),
     ('Show me analyst ratings - light for AAPL.', 'GetAnalystRatingsLight'),
     ('Show me analyst ratings - us equities for AAPL.', 'GetAnalystRatingsUsEquities'),
     ('How many API requests have I made in the last minute', 'GetApiUsage'),
@@ -61,7 +62,7 @@ pairs_ = [
     ('Show me eps trend for AAPL.', 'GetEpsTrend'),
     ('Show me ETFs for SPY on NYSE.', 'GetEtf'),
     ('Show me ETFs in the same family as SPY.', 'GetETFsFamily'),
-    ('Show me the list of ETFs related to the IVV ticker.', 'GetETFsList'),
+    ("Show me the list of bond ETFs managed by BlackRock.", "GetETFsList"),
     ('Show me ETF types available in the United States.', 'GetETFsType'),
     ("Give me a complete ETF analysis report for IVV, with all metrics like performance,"
      " summary, volatility, sector weights and country allocations.", "GetETFsWorld"),
@@ -121,14 +122,13 @@ pairs_ = [
     ('Show me market capitalization for AAPL.', 'GetMarketCap'),
     # ("Show me the top market movers in the US stock market.", "GetMarketMovers"),  # skipped-error-path-param
     # ("Is the NASDAQ market currently open?", "GetMarketState"),  # skipped-error
-    ("Show me MA/VP indicator for AAPL.", "GetTimeSeriesMaVp"),
     ('Show me max for AAPL.', 'GetTimeSeriesMax'),
     ('Show me maxindex for AAPL.', 'GetTimeSeriesMaxIndex'),
     ('Show me mcginley_dynamic for AAPL.', 'GetTimeSeriesMcGinleyDynamic'),
     ('Show me medprice for AAPL.', 'GetTimeSeriesMedPrice'),
 
     ('Show me mfi for AAPL.', 'GetTimeSeriesMfi'),
-    ('Show me midpoint for AAPL.', 'GetTimeSeriesMidPoint'),
+    ("Show me the MIDPOINT indicator for AAPL", 'GetTimeSeriesMidPoint'),
     ('Show me midprice for AAPL.', 'GetTimeSeriesMidPrice'),
     ('Show me min for AAPL.', 'GetTimeSeriesMin'),
     ('Show me minimal price index for AAPL.', 'GetTimeSeriesMinIndex'),

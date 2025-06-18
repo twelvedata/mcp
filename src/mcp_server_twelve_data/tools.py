@@ -1,0 +1,1396 @@
+from mcp.server import FastMCP
+from mcp.server.fastmcp import Context
+
+from .request_models import GetAnalystRatingsLightRequest
+from .request_models import GetAnalystRatingsUsEquitiesRequest
+from .request_models import GetApiUsageRequest
+from .request_models import GetBalanceSheetConsolidatedRequest
+from .request_models import GetBalanceSheetRequest
+from .request_models import GetBondsRequest
+from .request_models import GetCashFlowConsolidatedRequest
+from .request_models import GetCashFlowRequest
+from .request_models import GetCommoditiesRequest
+from .request_models import GetCountriesRequest
+from .request_models import GetCrossListingsRequest
+from .request_models import GetCryptocurrenciesRequest
+from .request_models import GetCryptocurrencyExchangesRequest
+from .request_models import GetCurrencyConversionRequest
+from .request_models import GetDirectHoldersRequest
+from .request_models import GetDividendsCalendarRequest
+from .request_models import GetDividendsRequest
+from .request_models import GetETFsFamilyRequest
+from .request_models import GetETFsListRequest
+from .request_models import GetETFsTypeRequest
+from .request_models import GetETFsWorldCompositionRequest
+from .request_models import GetETFsWorldPerformanceRequest
+from .request_models import GetETFsWorldRequest
+from .request_models import GetETFsWorldRiskRequest
+from .request_models import GetETFsWorldSummaryRequest
+from .request_models import GetEarliestTimestampRequest
+from .request_models import GetEarningsCalendarRequest
+from .request_models import GetEarningsEstimateRequest
+from .request_models import GetEarningsRequest
+from .request_models import GetEdgarFilingsArchiveRequest
+from .request_models import GetEodRequest
+from .request_models import GetEpsRevisionsRequest
+from .request_models import GetEpsTrendRequest
+from .request_models import GetEtfRequest
+from .request_models import GetExchangeRateRequest
+from .request_models import GetExchangeScheduleRequest
+from .request_models import GetExchangesRequest
+from .request_models import GetForexPairsRequest
+from .request_models import GetFundHoldersRequest
+from .request_models import GetFundsRequest
+from .request_models import GetGrowthEstimatesRequest
+from .request_models import GetIncomeStatementConsolidatedRequest
+from .request_models import GetIncomeStatementRequest
+from .request_models import GetInsiderTransactionsRequest
+from .request_models import GetInstitutionalHoldersRequest
+from .request_models import GetInstrumentTypeRequest
+from .request_models import GetIntervalsRequest
+from .request_models import GetIpoCalendarRequest
+from .request_models import GetKeyExecutivesRequest
+from .request_models import GetLastChangesRequest
+from .request_models import GetLogoRequest
+from .request_models import GetMarketCapRequest
+from .request_models import GetMarketMoversRequest
+from .request_models import GetMarketStateRequest
+from .request_models import GetMutualFundsFamilyRequest
+from .request_models import GetMutualFundsListRequest
+from .request_models import GetMutualFundsTypeRequest
+from .request_models import GetMutualFundsWorldCompositionRequest
+from .request_models import GetMutualFundsWorldPerformanceRequest
+from .request_models import GetMutualFundsWorldPurchaseInfoRequest
+from .request_models import GetMutualFundsWorldRatingsRequest
+from .request_models import GetMutualFundsWorldRequest
+from .request_models import GetMutualFundsWorldRiskRequest
+from .request_models import GetMutualFundsWorldSummaryRequest
+from .request_models import GetMutualFundsWorldSustainabilityRequest
+from .request_models import GetPriceRequest
+from .request_models import GetPriceTargetRequest
+from .request_models import GetProfileRequest
+from .request_models import GetQuoteRequest
+from .request_models import GetRecommendationsRequest
+from .request_models import GetRevenueEstimateRequest
+from .request_models import GetSourceSanctionedEntitiesRequest
+from .request_models import GetSplitsCalendarRequest
+from .request_models import GetSplitsRequest
+from .request_models import GetStatisticsRequest
+from .request_models import GetStocksRequest
+from .request_models import GetSymbolSearchRequest
+from .request_models import GetTaxInfoRequest
+from .request_models import GetTechnicalIndicatorsRequest
+from .request_models import GetTimeSeriesAcosRequest
+from .request_models import GetTimeSeriesAdOscRequest
+from .request_models import GetTimeSeriesAdRequest
+from .request_models import GetTimeSeriesAddRequest
+from .request_models import GetTimeSeriesAdxRequest
+from .request_models import GetTimeSeriesAdxrRequest
+from .request_models import GetTimeSeriesApoRequest
+from .request_models import GetTimeSeriesAroonOscRequest
+from .request_models import GetTimeSeriesAroonRequest
+from .request_models import GetTimeSeriesAsinRequest
+from .request_models import GetTimeSeriesAtanRequest
+from .request_models import GetTimeSeriesAtrRequest
+from .request_models import GetTimeSeriesAvgPriceRequest
+from .request_models import GetTimeSeriesAvgRequest
+from .request_models import GetTimeSeriesBBandsRequest
+from .request_models import GetTimeSeriesBetaRequest
+from .request_models import GetTimeSeriesBopRequest
+from .request_models import GetTimeSeriesCciRequest
+from .request_models import GetTimeSeriesCeilRequest
+from .request_models import GetTimeSeriesCmoRequest
+from .request_models import GetTimeSeriesCoppockRequest
+from .request_models import GetTimeSeriesCorrelRequest
+from .request_models import GetTimeSeriesCosRequest
+from .request_models import GetTimeSeriesCoshRequest
+from .request_models import GetTimeSeriesCrossRequest
+from .request_models import GetTimeSeriesCrsiRequest
+from .request_models import GetTimeSeriesDemaRequest
+from .request_models import GetTimeSeriesDivRequest
+from .request_models import GetTimeSeriesDpoRequest
+from .request_models import GetTimeSeriesDxRequest
+from .request_models import GetTimeSeriesEmaRequest
+from .request_models import GetTimeSeriesExpRequest
+from .request_models import GetTimeSeriesFloorRequest
+from .request_models import GetTimeSeriesHeikinashiCandlesRequest
+from .request_models import GetTimeSeriesHlc3Request
+from .request_models import GetTimeSeriesHtDcPeriodRequest
+from .request_models import GetTimeSeriesHtDcPhaseRequest
+from .request_models import GetTimeSeriesHtPhasorRequest
+from .request_models import GetTimeSeriesHtSineRequest
+from .request_models import GetTimeSeriesHtTrendModeRequest
+from .request_models import GetTimeSeriesHtTrendlineRequest
+from .request_models import GetTimeSeriesIchimokuRequest
+from .request_models import GetTimeSeriesKamaRequest
+from .request_models import GetTimeSeriesKeltnerRequest
+from .request_models import GetTimeSeriesKstRequest
+from .request_models import GetTimeSeriesLinearRegAngleRequest
+from .request_models import GetTimeSeriesLinearRegInterceptRequest
+from .request_models import GetTimeSeriesLinearRegRequest
+from .request_models import GetTimeSeriesLinearRegSlopeRequest
+from .request_models import GetTimeSeriesLnRequest
+from .request_models import GetTimeSeriesLog10Request
+from .request_models import GetTimeSeriesMaRequest
+from .request_models import GetTimeSeriesMacdExtRequest
+from .request_models import GetTimeSeriesMacdRequest
+from .request_models import GetTimeSeriesMacdSlopeRequest
+from .request_models import GetTimeSeriesMamaRequest
+from .request_models import GetTimeSeriesMaxIndexRequest
+from .request_models import GetTimeSeriesMaxRequest
+from .request_models import GetTimeSeriesMcGinleyDynamicRequest
+from .request_models import GetTimeSeriesMedPriceRequest
+from .request_models import GetTimeSeriesMfiRequest
+from .request_models import GetTimeSeriesMidPointRequest
+from .request_models import GetTimeSeriesMidPriceRequest
+from .request_models import GetTimeSeriesMinIndexRequest
+from .request_models import GetTimeSeriesMinMaxIndexRequest
+from .request_models import GetTimeSeriesMinMaxRequest
+from .request_models import GetTimeSeriesMinRequest
+from .request_models import GetTimeSeriesMinusDIRequest
+from .request_models import GetTimeSeriesMinusDMRequest
+from .request_models import GetTimeSeriesMomRequest
+from .request_models import GetTimeSeriesMultRequest
+from .request_models import GetTimeSeriesNatrRequest
+from .request_models import GetTimeSeriesObvRequest
+from .request_models import GetTimeSeriesPercent_BRequest
+from .request_models import GetTimeSeriesPivotPointsHLRequest
+from .request_models import GetTimeSeriesPlusDIRequest
+from .request_models import GetTimeSeriesPlusDMRequest
+from .request_models import GetTimeSeriesPpoRequest
+from .request_models import GetTimeSeriesRequest
+from .request_models import GetTimeSeriesRocRequest
+from .request_models import GetTimeSeriesRocpRequest
+from .request_models import GetTimeSeriesRocr100Request
+from .request_models import GetTimeSeriesRocrRequest
+from .request_models import GetTimeSeriesRsiRequest
+from .request_models import GetTimeSeriesRvolRequest
+from .request_models import GetTimeSeriesSarExtRequest
+from .request_models import GetTimeSeriesSarRequest
+from .request_models import GetTimeSeriesSinRequest
+from .request_models import GetTimeSeriesSinhRequest
+from .request_models import GetTimeSeriesSmaRequest
+from .request_models import GetTimeSeriesSqrtRequest
+from .request_models import GetTimeSeriesStdDevRequest
+from .request_models import GetTimeSeriesStochFRequest
+from .request_models import GetTimeSeriesStochRequest
+from .request_models import GetTimeSeriesStochRsiRequest
+from .request_models import GetTimeSeriesSubRequest
+from .request_models import GetTimeSeriesSumRequest
+from .request_models import GetTimeSeriesSuperTrendHeikinAshiCandlesRequest
+from .request_models import GetTimeSeriesSuperTrendRequest
+from .request_models import GetTimeSeriesT3maRequest
+from .request_models import GetTimeSeriesTRangeRequest
+from .request_models import GetTimeSeriesTanRequest
+from .request_models import GetTimeSeriesTanhRequest
+from .request_models import GetTimeSeriesTemaRequest
+from .request_models import GetTimeSeriesTrimaRequest
+from .request_models import GetTimeSeriesTsfRequest
+from .request_models import GetTimeSeriesTypPriceRequest
+from .request_models import GetTimeSeriesUltOscRequest
+from .request_models import GetTimeSeriesVarRequest
+from .request_models import GetTimeSeriesVwapRequest
+from .request_models import GetTimeSeriesWclPriceRequest
+from .request_models import GetTimeSeriesWillRRequest
+from .request_models import GetTimeSeriesWmaRequest
+from .response_models import GetAnalystRatingsLight200Response
+from .response_models import GetAnalystRatingsUsEquities200Response
+from .response_models import GetApiUsage200Response
+from .response_models import GetBalanceSheet200Response
+from .response_models import GetBalanceSheetConsolidated200Response
+from .response_models import GetBonds200Response
+from .response_models import GetCashFlow200Response
+from .response_models import GetCashFlowConsolidated200Response
+from .response_models import GetCommodities200Response
+from .response_models import GetCountries200Response
+from .response_models import GetCrossListings200Response
+from .response_models import GetCryptocurrencies200Response
+from .response_models import GetCryptocurrencyExchanges200Response
+from .response_models import GetCurrencyConversion200Response
+from .response_models import GetDirectHolders200Response
+from .response_models import GetDividends200Response
+from .response_models import GetDividendsCalendar200Response
+from .response_models import GetETFsFamily200Response
+from .response_models import GetETFsList200Response
+from .response_models import GetETFsType200Response
+from .response_models import GetETFsWorld200Response
+from .response_models import GetETFsWorldComposition200Response
+from .response_models import GetETFsWorldPerformance200Response
+from .response_models import GetETFsWorldRisk200Response
+from .response_models import GetETFsWorldSummary200Response
+from .response_models import GetEarliestTimestamp200Response
+from .response_models import GetEarnings200Response
+from .response_models import GetEarningsCalendar200Response
+from .response_models import GetEarningsEstimate200Response
+from .response_models import GetEdgarFilingsArchive200Response
+from .response_models import GetEod200Response
+from .response_models import GetEpsRevisions200Response
+from .response_models import GetEpsTrend200Response
+from .response_models import GetEtf200Response
+from .response_models import GetExchangeRate200Response
+from .response_models import GetExchangeSchedule200Response
+from .response_models import GetExchanges200Response
+from .response_models import GetForexPairs200Response
+from .response_models import GetFundHolders200Response
+from .response_models import GetFunds200Response
+from .response_models import GetGrowthEstimates200Response
+from .response_models import GetIncomeStatement200Response
+from .response_models import GetIncomeStatementConsolidated200Response
+from .response_models import GetInsiderTransactions200Response
+from .response_models import GetInstitutionalHolders200Response
+from .response_models import GetInstrumentType200Response
+from .response_models import GetIntervals200Response
+from .response_models import GetIpoCalendar200Response
+from .response_models import GetKeyExecutives200Response
+from .response_models import GetLastChanges200Response
+from .response_models import GetLogo200Response
+from .response_models import GetMarketCap200Response
+from .response_models import GetMarketMovers200Response
+from .response_models import GetMarketState200Response
+from .response_models import GetMutualFundsFamily200Response
+from .response_models import GetMutualFundsList200Response
+from .response_models import GetMutualFundsType200Response
+from .response_models import GetMutualFundsWorld200Response
+from .response_models import GetMutualFundsWorldComposition200Response
+from .response_models import GetMutualFundsWorldPerformance200Response
+from .response_models import GetMutualFundsWorldPurchaseInfo200Response
+from .response_models import GetMutualFundsWorldRatings200Response
+from .response_models import GetMutualFundsWorldRisk200Response
+from .response_models import GetMutualFundsWorldSummary200Response
+from .response_models import GetMutualFundsWorldSustainability200Response
+from .response_models import GetPrice200Response
+from .response_models import GetPriceTarget200Response
+from .response_models import GetProfile200Response
+from .response_models import GetQuote200Response
+from .response_models import GetRecommendations200Response
+from .response_models import GetRevenueEstimate200Response
+from .response_models import GetSourceSanctionedEntities200Response
+from .response_models import GetSplits200Response
+from .response_models import GetSplitsCalendar200Response
+from .response_models import GetStatistics200Response
+from .response_models import GetStocks200Response
+from .response_models import GetSymbolSearch200Response
+from .response_models import GetTaxInfo200Response
+from .response_models import GetTechnicalIndicators200Response
+from .response_models import GetTimeSeries200Response
+from .response_models import GetTimeSeriesAcos200Response
+from .response_models import GetTimeSeriesAd200Response
+from .response_models import GetTimeSeriesAdOsc200Response
+from .response_models import GetTimeSeriesAdd200Response
+from .response_models import GetTimeSeriesAdx200Response
+from .response_models import GetTimeSeriesAdxr200Response
+from .response_models import GetTimeSeriesApo200Response
+from .response_models import GetTimeSeriesAroon200Response
+from .response_models import GetTimeSeriesAroonOsc200Response
+from .response_models import GetTimeSeriesAsin200Response
+from .response_models import GetTimeSeriesAtan200Response
+from .response_models import GetTimeSeriesAtr200Response
+from .response_models import GetTimeSeriesAvg200Response
+from .response_models import GetTimeSeriesAvgPrice200Response
+from .response_models import GetTimeSeriesBBands200Response
+from .response_models import GetTimeSeriesBeta200Response
+from .response_models import GetTimeSeriesBop200Response
+from .response_models import GetTimeSeriesCci200Response
+from .response_models import GetTimeSeriesCeil200Response
+from .response_models import GetTimeSeriesCmo200Response
+from .response_models import GetTimeSeriesCoppock200Response
+from .response_models import GetTimeSeriesCorrel200Response
+from .response_models import GetTimeSeriesCos200Response
+from .response_models import GetTimeSeriesCosh200Response
+from .response_models import GetTimeSeriesCross200Response
+from .response_models import GetTimeSeriesCrsi200Response
+from .response_models import GetTimeSeriesDema200Response
+from .response_models import GetTimeSeriesDiv200Response
+from .response_models import GetTimeSeriesDpo200Response
+from .response_models import GetTimeSeriesDx200Response
+from .response_models import GetTimeSeriesEma200Response
+from .response_models import GetTimeSeriesExp200Response
+from .response_models import GetTimeSeriesFloor200Response
+from .response_models import GetTimeSeriesHeikinashiCandles200Response
+from .response_models import GetTimeSeriesHlc3200Response
+from .response_models import GetTimeSeriesHtDcPeriod200Response
+from .response_models import GetTimeSeriesHtDcPhase200Response
+from .response_models import GetTimeSeriesHtPhasor200Response
+from .response_models import GetTimeSeriesHtSine200Response
+from .response_models import GetTimeSeriesHtTrendMode200Response
+from .response_models import GetTimeSeriesHtTrendline200Response
+from .response_models import GetTimeSeriesIchimoku200Response
+from .response_models import GetTimeSeriesKama200Response
+from .response_models import GetTimeSeriesKeltner200Response
+from .response_models import GetTimeSeriesKst200Response
+from .response_models import GetTimeSeriesLinearReg200Response
+from .response_models import GetTimeSeriesLinearRegAngle200Response
+from .response_models import GetTimeSeriesLinearRegIntercept200Response
+from .response_models import GetTimeSeriesLinearRegSlope200Response
+from .response_models import GetTimeSeriesLn200Response
+from .response_models import GetTimeSeriesLog10200Response
+from .response_models import GetTimeSeriesMa200Response
+from .response_models import GetTimeSeriesMacd200Response
+from .response_models import GetTimeSeriesMacdExt200Response
+from .response_models import GetTimeSeriesMacdSlope200Response
+from .response_models import GetTimeSeriesMama200Response
+from .response_models import GetTimeSeriesMax200Response
+from .response_models import GetTimeSeriesMaxIndex200Response
+from .response_models import GetTimeSeriesMcGinleyDynamic200Response
+from .response_models import GetTimeSeriesMedPrice200Response
+from .response_models import GetTimeSeriesMfi200Response
+from .response_models import GetTimeSeriesMidPoint200Response
+from .response_models import GetTimeSeriesMidPrice200Response
+from .response_models import GetTimeSeriesMin200Response
+from .response_models import GetTimeSeriesMinIndex200Response
+from .response_models import GetTimeSeriesMinMax200Response
+from .response_models import GetTimeSeriesMinMaxIndex200Response
+from .response_models import GetTimeSeriesMinusDI200Response
+from .response_models import GetTimeSeriesMinusDM200Response
+from .response_models import GetTimeSeriesMom200Response
+from .response_models import GetTimeSeriesMult200Response
+from .response_models import GetTimeSeriesNatr200Response
+from .response_models import GetTimeSeriesObv200Response
+from .response_models import GetTimeSeriesPercent_B200Response
+from .response_models import GetTimeSeriesPivotPointsHL200Response
+from .response_models import GetTimeSeriesPlusDI200Response
+from .response_models import GetTimeSeriesPlusDM200Response
+from .response_models import GetTimeSeriesPpo200Response
+from .response_models import GetTimeSeriesRoc200Response
+from .response_models import GetTimeSeriesRocp200Response
+from .response_models import GetTimeSeriesRocr100200Response
+from .response_models import GetTimeSeriesRocr200Response
+from .response_models import GetTimeSeriesRsi200Response
+from .response_models import GetTimeSeriesRvol200Response
+from .response_models import GetTimeSeriesSar200Response
+from .response_models import GetTimeSeriesSarExt200Response
+from .response_models import GetTimeSeriesSin200Response
+from .response_models import GetTimeSeriesSinh200Response
+from .response_models import GetTimeSeriesSma200Response
+from .response_models import GetTimeSeriesSqrt200Response
+from .response_models import GetTimeSeriesStdDev200Response
+from .response_models import GetTimeSeriesStoch200Response
+from .response_models import GetTimeSeriesStochF200Response
+from .response_models import GetTimeSeriesStochRsi200Response
+from .response_models import GetTimeSeriesSub200Response
+from .response_models import GetTimeSeriesSum200Response
+from .response_models import GetTimeSeriesSuperTrend200Response
+from .response_models import GetTimeSeriesSuperTrendHeikinAshiCandles200Response
+from .response_models import GetTimeSeriesT3ma200Response
+from .response_models import GetTimeSeriesTRange200Response
+from .response_models import GetTimeSeriesTan200Response
+from .response_models import GetTimeSeriesTanh200Response
+from .response_models import GetTimeSeriesTema200Response
+from .response_models import GetTimeSeriesTrima200Response
+from .response_models import GetTimeSeriesTsf200Response
+from .response_models import GetTimeSeriesTypPrice200Response
+from .response_models import GetTimeSeriesUltOsc200Response
+from .response_models import GetTimeSeriesVar200Response
+from .response_models import GetTimeSeriesVwap200Response
+from .response_models import GetTimeSeriesWclPrice200Response
+from .response_models import GetTimeSeriesWillR200Response
+from .response_models import GetTimeSeriesWma200Response
+
+
+def register_all_tools(server: FastMCP, _call_endpoint):
+    @server.tool(name="GetTimeSeries",
+                 description="This API call returns meta and time series for the requested instrument. Metaobject consists of general information about the requested symbol. Time series is the array of objects ordered by time descending with Open, High, Low, Close prices. Non-currency instruments also include volume information.")
+    async def GetTimeSeries(params: GetTimeSeriesRequest, ctx: Context) -> GetTimeSeries200Response:
+        return await _call_endpoint("time_series", params, GetTimeSeries200Response, ctx)
+
+    @server.tool(name="GetPrice",
+                 description="This endpoint is a lightweight method that allows retrieving only the real-time price of the selected instrument.")
+    async def GetPrice(params: GetPriceRequest, ctx: Context) -> GetPrice200Response:
+        return await _call_endpoint("price", params, GetPrice200Response, ctx)
+
+    @server.tool(name="GetQuote",
+                 description="Quote endpoint is an efficient method to retrieve the latest quote of the selected instrument.")
+    async def GetQuote(params: GetQuoteRequest, ctx: Context) -> GetQuote200Response:
+        return await _call_endpoint("quote", params, GetQuote200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesRsi",
+                 description="The Relative Strength Index (RSI) is a momentum oscillator that measures the speed and change of price movements, helping traders identify potential overbought or oversold conditions and trend reversals.")
+    async def GetTimeSeriesRsi(params: GetTimeSeriesRsiRequest, ctx: Context) -> GetTimeSeriesRsi200Response:
+        return await _call_endpoint("rsi", params, GetTimeSeriesRsi200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMacd",
+                 description="The Moving Average Convergence Divergence (MACD) is a momentum indicator that measures the difference between two moving averages, with a signal line used to identify potential trend reversals and trading opportunities.")
+    async def GetTimeSeriesMacd(params: GetTimeSeriesMacdRequest, ctx: Context) -> GetTimeSeriesMacd200Response:
+        return await _call_endpoint("macd", params, GetTimeSeriesMacd200Response, ctx)
+
+    @server.tool(name="GetStocks",
+                 description="This API call returns an array of symbols available at Twelve Data API. This list is updated daily.")
+    async def GetStocks(params: GetStocksRequest, ctx: Context) -> GetStocks200Response:
+        return await _call_endpoint("stocks", params, GetStocks200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesBBands",
+                 description="Bollinger Bands (BBANDS) are volatility bands placed above and below a moving average, measuring price volatility and helping traders identify potential overbought or oversold conditions.")
+    async def GetTimeSeriesBBands(params: GetTimeSeriesBBandsRequest, ctx: Context) -> GetTimeSeriesBBands200Response:
+        return await _call_endpoint("bbands", params, GetTimeSeriesBBands200Response, ctx)
+
+    @server.tool(name="GetExchangeRate",
+                 description="This API call returns real-time exchange rate for currency pair. Works with forex and cryptocurrency.")
+    async def GetExchangeRate(params: GetExchangeRateRequest, ctx: Context) -> GetExchangeRate200Response:
+        return await _call_endpoint("exchange_rate", params, GetExchangeRate200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesEma",
+                 description="The Exponential Moving Average (EMA) is a weighted moving average that gives more importance to recent price data, making it more responsive to new information and helping traders identify trends and potential entry or exit points.")
+    async def GetTimeSeriesEma(params: GetTimeSeriesEmaRequest, ctx: Context) -> GetTimeSeriesEma200Response:
+        return await _call_endpoint("ema", params, GetTimeSeriesEma200Response, ctx)
+
+    @server.tool(name="GetStatistics",
+                 description="Returns current overview of companys main statistics including valuation metrics and financials.")
+    async def GetStatistics(params: GetStatisticsRequest, ctx: Context) -> GetStatistics200Response:
+        return await _call_endpoint("statistics", params, GetStatistics200Response, ctx)
+
+    @server.tool(name="GetProfile", description="Returns general information about the company.")
+    async def GetProfile(params: GetProfileRequest, ctx: Context) -> GetProfile200Response:
+        return await _call_endpoint("profile", params, GetProfile200Response, ctx)
+
+    @server.tool(name="GetMarketState",
+                 description="Check the state of all available exchanges, time to open, and time to close. Returns all available stock exchanges by default.")
+    async def GetMarketState(params: GetMarketStateRequest, ctx: Context) -> GetMarketState200Response:
+        return await _call_endpoint("market_state", params, GetMarketState200Response, ctx)
+
+    @server.tool(name="GetSymbolSearch",
+                 description="This method helps to find the best matching symbol. It can be used as the base for custom lookups. The response is returned in descending order, with the most relevant instrument at the beginning.")
+    async def GetSymbolSearch(params: GetSymbolSearchRequest, ctx: Context) -> GetSymbolSearch200Response:
+        return await _call_endpoint("symbol_search", params, GetSymbolSearch200Response, ctx)
+
+    @server.tool(name="GetEod", description="This endpoint returns the latest End of Day (EOD) price of an instrument.")
+    async def GetEod(params: GetEodRequest, ctx: Context) -> GetEod200Response:
+        return await _call_endpoint("eod", params, GetEod200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesSma",
+                 description="The Simple Moving Average (SMA) is a smoothing indicator that calculates the average price of a security over a specified period, helping traders identify trends and potential support or resistance levels.")
+    async def GetTimeSeriesSma(params: GetTimeSeriesSmaRequest, ctx: Context) -> GetTimeSeriesSma200Response:
+        return await _call_endpoint("sma", params, GetTimeSeriesSma200Response, ctx)
+
+    @server.tool(name="GetForexPairs",
+                 description="This API call returns an array of forex pairs available at Twelve Data API. This list is updated daily.")
+    async def GetForexPairs(params: GetForexPairsRequest, ctx: Context) -> GetForexPairs200Response:
+        return await _call_endpoint("forex_pairs", params, GetForexPairs200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesAtr",
+                 description="The Average True Range (ATR) is a volatility indicator that measures the average range of price movement over a specified period, helping traders assess market volatility.")
+    async def GetTimeSeriesAtr(params: GetTimeSeriesAtrRequest, ctx: Context) -> GetTimeSeriesAtr200Response:
+        return await _call_endpoint("atr", params, GetTimeSeriesAtr200Response, ctx)
+
+    @server.tool(name="GetDividends", description="Returns the amount of dividends paid out for the last 10+ years.")
+    async def GetDividends(params: GetDividendsRequest, ctx: Context) -> GetDividends200Response:
+        return await _call_endpoint("dividends", params, GetDividends200Response, ctx)
+
+    @server.tool(name="GetCryptocurrencies",
+                 description="This API call returns an array of cryptocurrencies available at Twelve Data API. This list is updated daily.")
+    async def GetCryptocurrencies(params: GetCryptocurrenciesRequest, ctx: Context) -> GetCryptocurrencies200Response:
+        return await _call_endpoint("cryptocurrencies", params, GetCryptocurrencies200Response, ctx)
+
+    @server.tool(name="GetEarnings",
+                 description="This API call returns earnings data for a given company, including EPS estimate and EPS actual. Earnings are available for complete company history.")
+    async def GetEarnings(params: GetEarningsRequest, ctx: Context) -> GetEarnings200Response:
+        return await _call_endpoint("earnings", params, GetEarnings200Response, ctx)
+
+    @server.tool(name="GetCurrencyConversion",
+                 description="This API call returns real-time exchange rate and converted amount for currency pair. Works with forex and cryptocurrency.")
+    async def GetCurrencyConversion(params: GetCurrencyConversionRequest,
+                                    ctx: Context) -> GetCurrencyConversion200Response:
+        return await _call_endpoint("currency_conversion", params, GetCurrencyConversion200Response, ctx)
+
+    @server.tool(name="GetExchanges",
+                 description="This API call returns an array of stock or ETF exchanges available at Twelve Data API. This list is updated daily.")
+    async def GetExchanges(params: GetExchangesRequest, ctx: Context) -> GetExchanges200Response:
+        return await _call_endpoint("exchanges", params, GetExchanges200Response, ctx)
+
+    @server.tool(name="GetSplits",
+                 description="Returns the date and the split factor of shares of the company for the last 10+ years.")
+    async def GetSplits(params: GetSplitsRequest, ctx: Context) -> GetSplits200Response:
+        return await _call_endpoint("splits", params, GetSplits200Response, ctx)
+
+    @server.tool(name="GetEarliestTimestamp",
+                 description="This method returns the first available DateTime for a given instrument at the specific interval.")
+    async def GetEarliestTimestamp(params: GetEarliestTimestampRequest,
+                                   ctx: Context) -> GetEarliestTimestamp200Response:
+        return await _call_endpoint("earliest_timestamp", params, GetEarliestTimestamp200Response, ctx)
+
+    @server.tool(name="GetEtf",
+                 description="This API call returns an array of ETFs available at Twelve Data API. This list is updated daily.")
+    async def GetEtf(params: GetEtfRequest, ctx: Context) -> GetEtf200Response:
+        return await _call_endpoint("etfs", params, GetEtf200Response, ctx)
+
+    @server.tool(name="GetCommodities",
+                 description="This API call returns an array of commodity pairs available at Twelve Data API. This list is updated daily.")
+    async def GetCommodities(params: GetCommoditiesRequest, ctx: Context) -> GetCommodities200Response:
+        return await _call_endpoint("commodities", params, GetCommodities200Response, ctx)
+
+    @server.tool(name="GetFunds",
+                 description="This API call returns an array of funds available at Twelve Data API. This list is updated daily.")
+    async def GetFunds(params: GetFundsRequest, ctx: Context) -> GetFunds200Response:
+        return await _call_endpoint("funds", params, GetFunds200Response, ctx)
+
+    @server.tool(name="GetIpoCalendar", description="This endpoint returns past, today, or upcoming IPOs.")
+    async def GetIpoCalendar(params: GetIpoCalendarRequest, ctx: Context) -> GetIpoCalendar200Response:
+        return await _call_endpoint("ipo_calendar", params, GetIpoCalendar200Response, ctx)
+
+    @server.tool(name="GetCryptocurrencyExchanges",
+                 description="This API call returns an array of cryptocurrency exchanges available at Twelve Data API. This list is updated daily.")
+    async def GetCryptocurrencyExchanges(params: GetCryptocurrencyExchangesRequest,
+                                         ctx: Context) -> GetCryptocurrencyExchanges200Response:
+        return await _call_endpoint("cryptocurrency_exchanges", params, GetCryptocurrencyExchanges200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesCross",
+                 description="This API call returns meta and cross rate time series for the requested instruments. Metaobject consists of general information about the requested symbol. Time series is the array of objects ordered by time descending with Open, High, Low, Close prices. Works with stocks, forex and cryptocurrency.")
+    async def GetTimeSeriesCross(params: GetTimeSeriesCrossRequest, ctx: Context) -> GetTimeSeriesCross200Response:
+        return await _call_endpoint("time_series/cross", params, GetTimeSeriesCross200Response, ctx)
+
+    @server.tool(name="GetCrossListings",
+                 description="This API call returns an array of cross listed symbols for a specified instrument. Cross listings are the same securities listed on different exchanges.")
+    async def GetCrossListings(params: GetCrossListingsRequest, ctx: Context) -> GetCrossListings200Response:
+        return await _call_endpoint("cross_listings", params, GetCrossListings200Response, ctx)
+
+    @server.tool(name="GetTechnicalIndicators",
+                 description="This API call returns an array of objects with available technical indicators. This endpoint might be used to build an abstract interface to make more convenient API calls from the application.")
+    async def GetTechnicalIndicators(params: GetTechnicalIndicatorsRequest,
+                                     ctx: Context) -> GetTechnicalIndicators200Response:
+        return await _call_endpoint("technical_indicators", params, GetTechnicalIndicators200Response, ctx)
+
+    @server.tool(name="GetApiUsage",
+                 description="This endpoint will provide information on the current usage of Twelve Data API.")
+    async def GetApiUsage(params: GetApiUsageRequest, ctx: Context) -> GetApiUsage200Response:
+        return await _call_endpoint("api_usage", params, GetApiUsage200Response, ctx)
+
+    @server.tool(name="GetLogo", description="Returns a logo of company, cryptocurrency, or forex pair.")
+    async def GetLogo(params: GetLogoRequest, ctx: Context) -> GetLogo200Response:
+        return await _call_endpoint("logo", params, GetLogo200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesAdx",
+                 description="The Average Directional Index (ADX) measures the strength of a trend, regardless of direction, helping traders determine if a market is trending or ranging.")
+    async def GetTimeSeriesAdx(params: GetTimeSeriesAdxRequest, ctx: Context) -> GetTimeSeriesAdx200Response:
+        return await _call_endpoint("adx", params, GetTimeSeriesAdx200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesVwap",
+                 description="The Volume Weighted Average Price (VWAP) indicator offers an insightful measure of the average trading price weighted by volume, commonly used for trading analysis and execution evaluation.")
+    async def GetTimeSeriesVwap(params: GetTimeSeriesVwapRequest, ctx: Context) -> GetTimeSeriesVwap200Response:
+        return await _call_endpoint("vwap", params, GetTimeSeriesVwap200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesStoch",
+                 description="The Stochastic Oscillator (STOCH) is a momentum indicator that compares a security's closing price to its price range over a specified period, helping traders identify potential overbought or oversold conditions and trend reversals.")
+    async def GetTimeSeriesStoch(params: GetTimeSeriesStochRequest, ctx: Context) -> GetTimeSeriesStoch200Response:
+        return await _call_endpoint("stoch", params, GetTimeSeriesStoch200Response, ctx)
+
+    @server.tool(name="GetIncomeStatement",
+                 description="Returns complete income statement of a company and shows the companys revenues and expenses during a period (annual or quarter).")
+    async def GetIncomeStatement(params: GetIncomeStatementRequest, ctx: Context) -> GetIncomeStatement200Response:
+        return await _call_endpoint("income_statement", params, GetIncomeStatement200Response, ctx)
+
+    @server.tool(name="GetCashFlow",
+                 description="Returns complete cash flow of a company showing the net amount of cash and cash equivalents being transferred into and out of business.")
+    async def GetCashFlow(params: GetCashFlowRequest, ctx: Context) -> GetCashFlow200Response:
+        return await _call_endpoint("cash_flow", params, GetCashFlow200Response, ctx)
+
+    @server.tool(name="GetBalanceSheet",
+                 description="Returns complete balance sheet of a company showing the summary of assets, liabilities, and shareholders equity.")
+    async def GetBalanceSheet(params: GetBalanceSheetRequest, ctx: Context) -> GetBalanceSheet200Response:
+        return await _call_endpoint("balance_sheet", params, GetBalanceSheet200Response, ctx)
+
+    @server.tool(name="GetRecommendations",
+                 description="This API endpoint returns the average of all analyst recommendations and classifies them as Strong Buy, Buy, Hold, or Sell. Also, it returns a recommendation score.")
+    async def GetRecommendations(params: GetRecommendationsRequest, ctx: Context) -> GetRecommendations200Response:
+        return await _call_endpoint("recommendations", params, GetRecommendations200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesObv",
+                 description="The On Balance Volume (OBV) indicator is a cumulative volume-based tool used to measure buying and selling pressure, helping traders identify potential price trends and reversals.")
+    async def GetTimeSeriesObv(params: GetTimeSeriesObvRequest, ctx: Context) -> GetTimeSeriesObv200Response:
+        return await _call_endpoint("obv", params, GetTimeSeriesObv200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesCci",
+                 description="The Commodity Channel Index (CCI) is a momentum oscillator that measures the deviation of a security's price from its average relative to its typical price range, helping traders identify overbought or oversold conditions.")
+    async def GetTimeSeriesCci(params: GetTimeSeriesCciRequest, ctx: Context) -> GetTimeSeriesCci200Response:
+        return await _call_endpoint("cci", params, GetTimeSeriesCci200Response, ctx)
+
+    @server.tool(name="GetPriceTarget",
+                 description="This API endpoint returns the analysts' projection of a security's future price.")
+    async def GetPriceTarget(params: GetPriceTargetRequest, ctx: Context) -> GetPriceTarget200Response:
+        return await _call_endpoint("price_target", params, GetPriceTarget200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMfi",
+                 description="The Money Flow Index (MFI) is a volume-weighted momentum oscillator that measures buying and selling pressure by comparing positive and negative money flow, helping traders identify overbought or oversold conditions.")
+    async def GetTimeSeriesMfi(params: GetTimeSeriesMfiRequest, ctx: Context) -> GetTimeSeriesMfi200Response:
+        return await _call_endpoint("mfi", params, GetTimeSeriesMfi200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMa",
+                 description="The Moving Average (MA) is a smoothing indicator that calculates the average price of a security over a specified period, helping traders identify trends and potential support or resistance levels.")
+    async def GetTimeSeriesMa(params: GetTimeSeriesMaRequest, ctx: Context) -> GetTimeSeriesMa200Response:
+        return await _call_endpoint("ma", params, GetTimeSeriesMa200Response, ctx)
+
+    @server.tool(name="GetSplitsCalendar",
+                 description="This API method returns split data as a calendar for a given date range. To call custom period, use start_date and end_date parameters.")
+    async def GetSplitsCalendar(params: GetSplitsCalendarRequest, ctx: Context) -> GetSplitsCalendar200Response:
+        return await _call_endpoint("splits_calendar", params, GetSplitsCalendar200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesSuperTrend",
+                 description="The Supertrend indicator is a trend-following tool that uses a combination of price, time, and volatility to generate potential entry and exit points in trending markets.")
+    async def GetTimeSeriesSuperTrend(params: GetTimeSeriesSuperTrendRequest,
+                                      ctx: Context) -> GetTimeSeriesSuperTrend200Response:
+        return await _call_endpoint("supertrend", params, GetTimeSeriesSuperTrend200Response, ctx)
+
+    @server.tool(name="GetEarningsCalendar",
+                 description="This API method returns earning data as a calendar for a given date range. By default todays earning is returned. To call custom period, use start_date and end_date parameters.")
+    async def GetEarningsCalendar(params: GetEarningsCalendarRequest, ctx: Context) -> GetEarningsCalendar200Response:
+        return await _call_endpoint("earnings_calendar", params, GetEarningsCalendar200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesWillR",
+                 description="The Williams %R (WILLR) is a momentum oscillator that measures the level of a security's closing price in relation to the high and low range over a specified period, helping traders identify potential overbought or oversold conditions and trend reversals.")
+    async def GetTimeSeriesWillR(params: GetTimeSeriesWillRRequest, ctx: Context) -> GetTimeSeriesWillR200Response:
+        return await _call_endpoint("willr", params, GetTimeSeriesWillR200Response, ctx)
+
+    @server.tool(name="GetDividendsCalendar",
+                 description="This API method returns dividend data as a calendar for a given date range. To call custom period, use start_date and end_date parameters.")
+    async def GetDividendsCalendar(params: GetDividendsCalendarRequest,
+                                   ctx: Context) -> GetDividendsCalendar200Response:
+        return await _call_endpoint("dividends_calendar", params, GetDividendsCalendar200Response, ctx)
+
+    @server.tool(name="GetEarningsEstimate",
+                 description="This API endpoint returns analysts' estimate for a company's future quarterly and annual earnings per share (EPS).")
+    async def GetEarningsEstimate(params: GetEarningsEstimateRequest, ctx: Context) -> GetEarningsEstimate200Response:
+        return await _call_endpoint("earnings_estimate", params, GetEarningsEstimate200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesHeikinashiCandles",
+                 description="Heikin Ashi Candles are a modified form of Japanese candlestick charts, using averaged price data to smooth out noise and better highlight trends and potential trend reversals.")
+    async def GetTimeSeriesHeikinashiCandles(params: GetTimeSeriesHeikinashiCandlesRequest,
+                                             ctx: Context) -> GetTimeSeriesHeikinashiCandles200Response:
+        return await _call_endpoint("heikinashicandles", params, GetTimeSeriesHeikinashiCandles200Response, ctx)
+
+    @server.tool(name="GetAnalystRatingsUsEquities",
+                 description="This API endpoint returns complete information on ratings issued by analyst firms. Works only for US equities.")
+    async def GetAnalystRatingsUsEquities(params: GetAnalystRatingsUsEquitiesRequest,
+                                          ctx: Context) -> GetAnalystRatingsUsEquities200Response:
+        return await _call_endpoint("analyst_ratings/us_equities", params, GetAnalystRatingsUsEquities200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesIchimoku",
+                 description="The Ichimoku Cloud (ICHIMOKU) is a comprehensive trend-following indicator that combines multiple moving averages and support/resistance levels to help traders identify potential entry and exit points, trend direction, and momentum.")
+    async def GetTimeSeriesIchimoku(params: GetTimeSeriesIchimokuRequest,
+                                    ctx: Context) -> GetTimeSeriesIchimoku200Response:
+        return await _call_endpoint("ichimoku", params, GetTimeSeriesIchimoku200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesPercent_B",
+                 description="The Percent B (%B) is a component of the Bollinger Bands indicator, measuring the position of a security's price relative to the bands, helping traders identify potential overbought or oversold conditions.")
+    async def GetTimeSeriesPercent_B(params: GetTimeSeriesPercent_BRequest,
+                                     ctx: Context) -> GetTimeSeriesPercent_B200Response:
+        return await _call_endpoint("percent_b", params, GetTimeSeriesPercent_B200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesSar",
+                 description="The Parabolic SAR (SAR) is a trend-following indicator that calculates potential support and resistance levels based on a security's price and time, helping traders identify potential entry and exit points.")
+    async def GetTimeSeriesSar(params: GetTimeSeriesSarRequest, ctx: Context) -> GetTimeSeriesSar200Response:
+        return await _call_endpoint("sar", params, GetTimeSeriesSar200Response, ctx)
+
+    @server.tool(name="GetAnalystRatingsLight",
+                 description="This API endpoint returns a lightweight version of ratings issued by analyst firms. Works for US and international markets.")
+    async def GetAnalystRatingsLight(params: GetAnalystRatingsLightRequest,
+                                     ctx: Context) -> GetAnalystRatingsLight200Response:
+        return await _call_endpoint("analyst_ratings/light", params, GetAnalystRatingsLight200Response, ctx)
+
+    @server.tool(name="GetRevenueEstimate",
+                 description="This API endpoint returns analysts' estimate for a company's future quarterly and annual sales (total revenue).")
+    async def GetRevenueEstimate(params: GetRevenueEstimateRequest, ctx: Context) -> GetRevenueEstimate200Response:
+        return await _call_endpoint("revenue_estimate", params, GetRevenueEstimate200Response, ctx)
+
+    @server.tool(name="GetInsiderTransactions", description="Returns trading information performed by insiders.")
+    async def GetInsiderTransactions(params: GetInsiderTransactionsRequest,
+                                     ctx: Context) -> GetInsiderTransactions200Response:
+        return await _call_endpoint("insider_transactions", params, GetInsiderTransactions200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesPlusDI",
+                 description="The Plus Directional Indicator (PLUS_DI) is a component of the ADX indicator, measuring the strength of a security's upward price movement.")
+    async def GetTimeSeriesPlusDI(params: GetTimeSeriesPlusDIRequest, ctx: Context) -> GetTimeSeriesPlusDI200Response:
+        return await _call_endpoint("plus_di", params, GetTimeSeriesPlusDI200Response, ctx)
+
+    @server.tool(name="GetInstitutionalHolders",
+                 description="Returns the amount of the companys available stock owned by institutions (pension funds, insurance companies, investment firms, private foundations, endowments, or other large entities that manage funds on behalf of others).")
+    async def GetInstitutionalHolders(params: GetInstitutionalHoldersRequest,
+                                      ctx: Context) -> GetInstitutionalHolders200Response:
+        return await _call_endpoint("institutional_holders", params, GetInstitutionalHolders200Response, ctx)
+
+    @server.tool(name="GetMarketCap", description="Market capitalization history.")
+    async def GetMarketCap(params: GetMarketCapRequest, ctx: Context) -> GetMarketCap200Response:
+        return await _call_endpoint("market_cap", params, GetMarketCap200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMinusDI",
+                 description="The Minus Directional Indicator (MINUS_DI) is a component of the ADX indicator, measuring the strength of a security's downward price movement.")
+    async def GetTimeSeriesMinusDI(params: GetTimeSeriesMinusDIRequest,
+                                   ctx: Context) -> GetTimeSeriesMinusDI200Response:
+        return await _call_endpoint("minus_di", params, GetTimeSeriesMinusDI200Response, ctx)
+
+    @server.tool(name="GetETFsList",
+                 description="This API request returns a list of exchange traded funds available at Twelve Data. Sorting is in descending order by total assets value. The list is updated daily.")
+    async def GetETFsList(params: GetETFsListRequest, ctx: Context) -> GetETFsList200Response:
+        return await _call_endpoint("etfs/list", params, GetETFsList200Response, ctx)
+
+    @server.tool(name="GetBonds",
+                 description="This API call returns an array of bonds available at Twelve Data API. This list is updated daily.")
+    async def GetBonds(params: GetBondsRequest, ctx: Context) -> GetBonds200Response:
+        return await _call_endpoint("bonds", params, GetBonds200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesAd",
+                 description="The Accumulation/Distribution (AD) technical indicator is a volume-based tool used in chart analysis to identify potential buying or selling pressure in a security. It measures the cumulative flow of money into and out of a financial instrument by comparing its closing price to its price range, while considering trading volume. The AD line's trend can help traders gauge the strength of a price move and spot potential reversals.")
+    async def GetTimeSeriesAd(params: GetTimeSeriesAdRequest, ctx: Context) -> GetTimeSeriesAd200Response:
+        return await _call_endpoint("ad", params, GetTimeSeriesAd200Response, ctx)
+
+    @server.tool(name="GetGrowthEstimates",
+                 description="This API endpoint returns consensus analyst estimates over the company's growth rates for various periods. Calculation averages projections of numerous analysts, taking arbitrary parameters, such as earnings per share, revenue, etc.")
+    async def GetGrowthEstimates(params: GetGrowthEstimatesRequest, ctx: Context) -> GetGrowthEstimates200Response:
+        return await _call_endpoint("growth_estimates", params, GetGrowthEstimates200Response, ctx)
+
+    @server.tool(name="GetMutualFundsList",
+                 description="This API request returns a list of mutual funds available at Twelve Data. Sorting is in descending order by total assets value. The list is updated daily.")
+    async def GetMutualFundsList(params: GetMutualFundsListRequest, ctx: Context) -> GetMutualFundsList200Response:
+        return await _call_endpoint("mutual_funds/list", params, GetMutualFundsList200Response, ctx)
+
+    @server.tool(name="GetKeyExecutives", description="Returns key executive information for a specified symbol.")
+    async def GetKeyExecutives(params: GetKeyExecutivesRequest, ctx: Context) -> GetKeyExecutives200Response:
+        return await _call_endpoint("key_executives", params, GetKeyExecutives200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesStochRsi",
+                 description="The Stochastic RSI (STOCHRSI) is an oscillator that applies the Stochastic formula to RSI values, providing a more sensitive indicator for identifying overbought or oversold conditions and potential trend reversals.")
+    async def GetTimeSeriesStochRsi(params: GetTimeSeriesStochRsiRequest,
+                                    ctx: Context) -> GetTimeSeriesStochRsi200Response:
+        return await _call_endpoint("stochrsi", params, GetTimeSeriesStochRsi200Response, ctx)
+
+    @server.tool(name="GetEpsTrend",
+                 description="This API endpoint returns a breakdown of the estimated historical EPS changes at a given period.")
+    async def GetEpsTrend(params: GetEpsTrendRequest, ctx: Context) -> GetEpsTrend200Response:
+        return await _call_endpoint("eps_trend", params, GetEpsTrend200Response, ctx)
+
+    @server.tool(name="GetIncomeStatementConsolidated",
+                 description="Returns consolidated income statement of a company and expenses during a period (annual or quarter).")
+    async def GetIncomeStatementConsolidated(params: GetIncomeStatementConsolidatedRequest,
+                                             ctx: Context) -> GetIncomeStatementConsolidated200Response:
+        return await _call_endpoint("income_statement/consolidated", params, GetIncomeStatementConsolidated200Response,
+                                    ctx)
+
+    @server.tool(name="GetExchangeSchedule", description="This API call return exchanges details and trading hours.")
+    async def GetExchangeSchedule(params: GetExchangeScheduleRequest, ctx: Context) -> GetExchangeSchedule200Response:
+        return await _call_endpoint("exchange_schedule", params, GetExchangeSchedule200Response, ctx)
+
+    @server.tool(name="GetEpsRevisions",
+                 description="This API endpoint returns analysts revisions of a company's future quarterly and annual earnings per share (EPS) over the last week and month.")
+    async def GetEpsRevisions(params: GetEpsRevisionsRequest, ctx: Context) -> GetEpsRevisions200Response:
+        return await _call_endpoint("eps_revisions", params, GetEpsRevisions200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesPivotPointsHL",
+                 description="The Pivot Points High Low (PIVOT_POINTS_HL) indicator calculates support and resistance levels based on the highest high and lowest low of a security's price over a specified period, providing potential entry and exit points.")
+    async def GetTimeSeriesPivotPointsHL(params: GetTimeSeriesPivotPointsHLRequest,
+                                         ctx: Context) -> GetTimeSeriesPivotPointsHL200Response:
+        return await _call_endpoint("pivot_points_hl", params, GetTimeSeriesPivotPointsHL200Response, ctx)
+
+    @server.tool(name="GetETFsWorld",
+                 description="This API request returns a complete breakdown of a etf, including summary, performance, risk and composition.")
+    async def GetETFsWorld(params: GetETFsWorldRequest, ctx: Context) -> GetETFsWorld200Response:
+        return await _call_endpoint("etfs/world", params, GetETFsWorld200Response, ctx)
+
+    @server.tool(name="GetFundHolders",
+                 description="Returns the amount of the companys available stock owned by mutual fund holders.")
+    async def GetFundHolders(params: GetFundHoldersRequest, ctx: Context) -> GetFundHolders200Response:
+        return await _call_endpoint("fund_holders", params, GetFundHolders200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesAvg",
+                 description="The Average (AVG) indicator calculates the arithmetic mean of a data series over a specified period, often used to smooth out data fluctuations.")
+    async def GetTimeSeriesAvg(params: GetTimeSeriesAvgRequest, ctx: Context) -> GetTimeSeriesAvg200Response:
+        return await _call_endpoint("avg", params, GetTimeSeriesAvg200Response, ctx)
+
+    @server.tool(name="GetMutualFundsWorld",
+                 description="This API request returns a complete breakdown of a mutual fund, including summary, performance, risk, ratings, composition, purchase_info, and sustainability.")
+    async def GetMutualFundsWorld(params: GetMutualFundsWorldRequest, ctx: Context) -> GetMutualFundsWorld200Response:
+        return await _call_endpoint("mutual_funds/world", params, GetMutualFundsWorld200Response, ctx)
+
+    @server.tool(name="GetETFsWorldSummary", description="This API request returns a brief summary of a etf.")
+    async def GetETFsWorldSummary(params: GetETFsWorldSummaryRequest, ctx: Context) -> GetETFsWorldSummary200Response:
+        return await _call_endpoint("etfs/world/summary", params, GetETFsWorldSummary200Response, ctx)
+
+    @server.tool(name="GetETFsFamily", description="This API request returns a list of exchange traded funds families.")
+    async def GetETFsFamily(params: GetETFsFamilyRequest, ctx: Context) -> GetETFsFamily200Response:
+        return await _call_endpoint("etfs/family", params, GetETFsFamily200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesAvgPrice",
+                 description="The Average Price (AVGPRICE) indicator computes the average of a security's open, high, low, and close prices, providing a simplified view of price action.")
+    async def GetTimeSeriesAvgPrice(params: GetTimeSeriesAvgPriceRequest,
+                                    ctx: Context) -> GetTimeSeriesAvgPrice200Response:
+        return await _call_endpoint("avgprice", params, GetTimeSeriesAvgPrice200Response, ctx)
+
+    @server.tool(name="GetCountries",
+                 description="This API call returns an array of countries available at Twelve Data API with their ISO codes, names, capital, and currency.")
+    async def GetCountries(params: GetCountriesRequest, ctx: Context) -> GetCountries200Response:
+        return await _call_endpoint("countries", params, GetCountries200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesRvol",
+                 description="The Relative Volume (RVOL) is a ratio that compares a security's current trading volume to its average trading volume over a specified period. By measuring volume activity relative to its historical norm, RVOL helps traders identify unusual market activity, potential breakouts, and the strength of price movements.")
+    async def GetTimeSeriesRvol(params: GetTimeSeriesRvolRequest, ctx: Context) -> GetTimeSeriesRvol200Response:
+        return await _call_endpoint("rvol", params, GetTimeSeriesRvol200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesAdxr",
+                 description="The Average Directional Movement Index Rating (ADXR) is a smoothed version of ADX, providing a more stable measure of trend strength over time.")
+    async def GetTimeSeriesAdxr(params: GetTimeSeriesAdxrRequest, ctx: Context) -> GetTimeSeriesAdxr200Response:
+        return await _call_endpoint("adxr", params, GetTimeSeriesAdxr200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesWma",
+                 description="The Weighted Moving Average (WMA) is a smoothing indicator that calculates the average price of a security over a specified period, with more weight given to recent prices, providing a more responsive view of price action.")
+    async def GetTimeSeriesWma(params: GetTimeSeriesWmaRequest, ctx: Context) -> GetTimeSeriesWma200Response:
+        return await _call_endpoint("wma", params, GetTimeSeriesWma200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMom",
+                 description="The Momentum (MOM) indicator measures the rate of change of a security's price over a specified period, helping traders identify potential price trends and reversals.")
+    async def GetTimeSeriesMom(params: GetTimeSeriesMomRequest, ctx: Context) -> GetTimeSeriesMom200Response:
+        return await _call_endpoint("mom", params, GetTimeSeriesMom200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesBeta",
+                 description="The Beta indicator measures a security's sensitivity to market movements, comparing its price changes to a benchmark index to assess systematic risk.")
+    async def GetTimeSeriesBeta(params: GetTimeSeriesBetaRequest, ctx: Context) -> GetTimeSeriesBeta200Response:
+        return await _call_endpoint("beta", params, GetTimeSeriesBeta200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesCrsi",
+                 description="The Connors RSI is a composite indicator combining the Relative Strength Index (RSI), the Rate of Change (ROC), and the Up/Down Length, providing a more comprehensive view of momentum and potential trend reversals.")
+    async def GetTimeSeriesCrsi(params: GetTimeSeriesCrsiRequest, ctx: Context) -> GetTimeSeriesCrsi200Response:
+        return await _call_endpoint("crsi", params, GetTimeSeriesCrsi200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesAdOsc",
+                 description="The Accumulation/Distribution Oscillator (ADOSC) is a momentum indicator derived from the AD line, used to identify buying or selling pressure and potential trend reversals by comparing short-term and long-term price and volume trends.")
+    async def GetTimeSeriesAdOsc(params: GetTimeSeriesAdOscRequest, ctx: Context) -> GetTimeSeriesAdOsc200Response:
+        return await _call_endpoint("adosc", params, GetTimeSeriesAdOsc200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesRoc",
+                 description="The Rate of Change (ROC) indicator measures the percentage change in a security's price over a specified period, helping traders identify potential price trends and reversals.")
+    async def GetTimeSeriesRoc(params: GetTimeSeriesRocRequest, ctx: Context) -> GetTimeSeriesRoc200Response:
+        return await _call_endpoint("roc", params, GetTimeSeriesRoc200Response, ctx)
+
+    @server.tool(name="GetMutualFundsWorldPerformance",
+                 description="This API request returns detailed performance of a mutual fund, including trailing, annual, quarterly, and load-adjusted returns.")
+    async def GetMutualFundsWorldPerformance(params: GetMutualFundsWorldPerformanceRequest,
+                                             ctx: Context) -> GetMutualFundsWorldPerformance200Response:
+        return await _call_endpoint("mutual_funds/world/performance", params, GetMutualFundsWorldPerformance200Response,
+                                    ctx)
+
+    @server.tool(name="GetBalanceSheetConsolidated",
+                 description="Returns consolidated balance sheet of a company showing the summary of assets, liabilities, and shareholders.")
+    async def GetBalanceSheetConsolidated(params: GetBalanceSheetConsolidatedRequest,
+                                          ctx: Context) -> GetBalanceSheetConsolidated200Response:
+        return await _call_endpoint("balance_sheet/consolidated", params, GetBalanceSheetConsolidated200Response, ctx)
+
+    @server.tool(name="GetMutualFundsWorldRatings", description="This API request returns ratings of a mutual fund.")
+    async def GetMutualFundsWorldRatings(params: GetMutualFundsWorldRatingsRequest,
+                                         ctx: Context) -> GetMutualFundsWorldRatings200Response:
+        return await _call_endpoint("mutual_funds/world/ratings", params, GetMutualFundsWorldRatings200Response, ctx)
+
+    @server.tool(name="GetMutualFundsWorldSummary",
+                 description="This API request returns a brief summary of a mutual fund.")
+    async def GetMutualFundsWorldSummary(params: GetMutualFundsWorldSummaryRequest,
+                                         ctx: Context) -> GetMutualFundsWorldSummary200Response:
+        return await _call_endpoint("mutual_funds/world/summary", params, GetMutualFundsWorldSummary200Response, ctx)
+
+    @server.tool(name="GetETFsType", description="This API request returns a list of exchange traded funds types.")
+    async def GetETFsType(params: GetETFsTypeRequest, ctx: Context) -> GetETFsType200Response:
+        return await _call_endpoint("etfs/type", params, GetETFsType200Response, ctx)
+
+    @server.tool(name="GetDirectHolders",
+                 description="Returns the amount of the stocks owned directly and recorded in the company's share registry.")
+    async def GetDirectHolders(params: GetDirectHoldersRequest, ctx: Context) -> GetDirectHolders200Response:
+        return await _call_endpoint("direct_holders", params, GetDirectHolders200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesLinearReg",
+                 description="The Linear Regression (LINEARREG) indicator calculates the best-fit straight line through a series of data points, helping traders identify trends and potential support or resistance levels.")
+    async def GetTimeSeriesLinearReg(params: GetTimeSeriesLinearRegRequest,
+                                     ctx: Context) -> GetTimeSeriesLinearReg200Response:
+        return await _call_endpoint("linearreg", params, GetTimeSeriesLinearReg200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesTema",
+                 description="The Triple Exponential Moving Average (TEMA) is a smoothing indicator that applies three exponential moving averages to price data, reducing lag and providing a more accurate representation of trends.")
+    async def GetTimeSeriesTema(params: GetTimeSeriesTemaRequest, ctx: Context) -> GetTimeSeriesTema200Response:
+        return await _call_endpoint("tema", params, GetTimeSeriesTema200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesKeltner",
+                 description="The Keltner Channel (KELTNER) is a volatility-based indicator that uses a combination of EMA and the ATR to create a channel around a security's price. The channel helps traders identify potential overbought or oversold conditions, as well as trend direction and potential price breakouts.")
+    async def GetTimeSeriesKeltner(params: GetTimeSeriesKeltnerRequest,
+                                   ctx: Context) -> GetTimeSeriesKeltner200Response:
+        return await _call_endpoint("keltner", params, GetTimeSeriesKeltner200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesKst",
+                 description="The Know Sure Thing (KST) is a momentum oscillator that combines four different smoothed rates of change to generate a single trend-following indicator. By measuring the price momentum across multiple timeframes, KST helps traders identify potential trend reversals, overbought, or oversold conditions, and trading opportunities.")
+    async def GetTimeSeriesKst(params: GetTimeSeriesKstRequest, ctx: Context) -> GetTimeSeriesKst200Response:
+        return await _call_endpoint("kst", params, GetTimeSeriesKst200Response, ctx)
+
+    @server.tool(name="GetMutualFundsWorldComposition",
+                 description="This API request returns portfolio composition of a mutual fund, including sectors, holding details, weighted exposure, and others.")
+    async def GetMutualFundsWorldComposition(params: GetMutualFundsWorldCompositionRequest,
+                                             ctx: Context) -> GetMutualFundsWorldComposition200Response:
+        return await _call_endpoint("mutual_funds/world/composition", params, GetMutualFundsWorldComposition200Response,
+                                    ctx)
+
+    @server.tool(name="GetMutualFundsWorldPurchaseInfo",
+                 description="This API request returns essential information on purchasing a mutual fund, including minimums, pricing, and available brokerages.")
+    async def GetMutualFundsWorldPurchaseInfo(params: GetMutualFundsWorldPurchaseInfoRequest,
+                                              ctx: Context) -> GetMutualFundsWorldPurchaseInfo200Response:
+        return await _call_endpoint("mutual_funds/world/purchase_info", params,
+                                    GetMutualFundsWorldPurchaseInfo200Response, ctx)
+
+    @server.tool(name="GetETFsWorldPerformance",
+                 description="This API request returns detailed performance of a etf, including trailing and annual returns.")
+    async def GetETFsWorldPerformance(params: GetETFsWorldPerformanceRequest,
+                                      ctx: Context) -> GetETFsWorldPerformance200Response:
+        return await _call_endpoint("etfs/world/performance", params, GetETFsWorldPerformance200Response, ctx)
+
+    @server.tool(name="GetEdgarFilingsArchive",
+                 description="Real-time and historical access to all forms, filings, and exhibits directly from the SEC's EDGAR system.")
+    async def GetEdgarFilingsArchive(params: GetEdgarFilingsArchiveRequest,
+                                     ctx: Context) -> GetEdgarFilingsArchive200Response:
+        return await _call_endpoint("edgar_filings/archive", params, GetEdgarFilingsArchive200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesHtTrendMode",
+                 description="The Hilbert Transform Trend vs Cycle Mode (HT_TRENDMODE) distinguishes between trending and cyclical market phases, helping traders adapt their strategies accordingly.\n\nYou can read more about it in the Rocket Science for Traders book by John F. Ehlers.")
+    async def GetTimeSeriesHtTrendMode(params: GetTimeSeriesHtTrendModeRequest,
+                                       ctx: Context) -> GetTimeSeriesHtTrendMode200Response:
+        return await _call_endpoint("ht_trendmode", params, GetTimeSeriesHtTrendMode200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMidPrice",
+                 description="The Midprice (MIDPRICE) indicator calculates the average of a security's high and low prices over a specified period, providing a smoothed view of price action and potential support or resistance levels.")
+    async def GetTimeSeriesMidPrice(params: GetTimeSeriesMidPriceRequest,
+                                    ctx: Context) -> GetTimeSeriesMidPrice200Response:
+        return await _call_endpoint("midprice", params, GetTimeSeriesMidPrice200Response, ctx)
+
+    @server.tool(name="GetInstrumentType",
+                 description="This API call returns a list of instrument types available at Twelve Data API.")
+    async def GetInstrumentType(params: GetInstrumentTypeRequest, ctx: Context) -> GetInstrumentType200Response:
+        return await _call_endpoint("instrument_type", params, GetInstrumentType200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesTrima",
+                 description="The Triangular Moving Average (TRIMA) is a smoothing indicator that calculates the average price of a security over a specified period, weighting prices in the middle of the range more heavily, providing a balanced view of price action.")
+    async def GetTimeSeriesTrima(params: GetTimeSeriesTrimaRequest, ctx: Context) -> GetTimeSeriesTrima200Response:
+        return await _call_endpoint("trima", params, GetTimeSeriesTrima200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesDema",
+                 description="The Double Exponential Moving Average (DEMA) is a more responsive moving average that reduces lag by giving more weight to recent price data, helping traders identify trends and potential entry or exit points.")
+    async def GetTimeSeriesDema(params: GetTimeSeriesDemaRequest, ctx: Context) -> GetTimeSeriesDema200Response:
+        return await _call_endpoint("dema", params, GetTimeSeriesDema200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesBop",
+                 description="The Balance of Power (BOP) indicator measures the balance between buying and selling pressure in a security by comparing its open, high, low, and close prices, helping traders identify potential price trends.")
+    async def GetTimeSeriesBop(params: GetTimeSeriesBopRequest, ctx: Context) -> GetTimeSeriesBop200Response:
+        return await _call_endpoint("bop", params, GetTimeSeriesBop200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMama",
+                 description="The MESA Adaptive Moving Average (MAMA) is a moving average that adapts to price movement based on the dominant market cycle, providing a balance between responsiveness and noise reduction.\nMore about MAMA can be read [here](http://www.mesasoftware.com/papers/MAMA.pdf).")
+    async def GetTimeSeriesMama(params: GetTimeSeriesMamaRequest, ctx: Context) -> GetTimeSeriesMama200Response:
+        return await _call_endpoint("mama", params, GetTimeSeriesMama200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesPpo",
+                 description="The Percentage Price Oscillator (PPO) is a momentum oscillator that measures the percentage difference between two moving averages, helping traders identify potential trend reversals and trading opportunities.")
+    async def GetTimeSeriesPpo(params: GetTimeSeriesPpoRequest, ctx: Context) -> GetTimeSeriesPpo200Response:
+        return await _call_endpoint("ppo", params, GetTimeSeriesPpo200Response, ctx)
+
+    @server.tool(name="GetMutualFundsWorldSustainability",
+                 description="This API request returns brief information on mutual fund sustainability and ESG.")
+    async def GetMutualFundsWorldSustainability(params: GetMutualFundsWorldSustainabilityRequest,
+                                                ctx: Context) -> GetMutualFundsWorldSustainability200Response:
+        return await _call_endpoint("mutual_funds/world/sustainability", params,
+                                    GetMutualFundsWorldSustainability200Response, ctx)
+
+    @server.tool(name="GetETFsWorldComposition",
+                 description="This API request returns portfolio composition of a etf, including sectors, holding details, weighted exposure, and others.")
+    async def GetETFsWorldComposition(params: GetETFsWorldCompositionRequest,
+                                      ctx: Context) -> GetETFsWorldComposition200Response:
+        return await _call_endpoint("etfs/world/composition", params, GetETFsWorldComposition200Response, ctx)
+
+    @server.tool(name="GetMutualFundsWorldRisk",
+                 description="This API request returns core metrics to measure the risk of investing in a mutual fund.")
+    async def GetMutualFundsWorldRisk(params: GetMutualFundsWorldRiskRequest,
+                                      ctx: Context) -> GetMutualFundsWorldRisk200Response:
+        return await _call_endpoint("mutual_funds/world/risk", params, GetMutualFundsWorldRisk200Response, ctx)
+
+    @server.tool(name="GetMutualFundsType", description="This API request returns a list of mutual funds types.")
+    async def GetMutualFundsType(params: GetMutualFundsTypeRequest, ctx: Context) -> GetMutualFundsType200Response:
+        return await _call_endpoint("mutual_funds/type", params, GetMutualFundsType200Response, ctx)
+
+    @server.tool(name="GetMutualFundsFamily", description="This API request returns a list of mutual funds families.")
+    async def GetMutualFundsFamily(params: GetMutualFundsFamilyRequest,
+                                   ctx: Context) -> GetMutualFundsFamily200Response:
+        return await _call_endpoint("mutual_funds/family", params, GetMutualFundsFamily200Response, ctx)
+
+    @server.tool(name="GetCashFlowConsolidated",
+                 description="Returns consolidated cash flow of a company showing the net amount of cash and cash equivalents being transferred into and out of business.")
+    async def GetCashFlowConsolidated(params: GetCashFlowConsolidatedRequest,
+                                      ctx: Context) -> GetCashFlowConsolidated200Response:
+        return await _call_endpoint("cash_flow/consolidated", params, GetCashFlowConsolidated200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesWclPrice",
+                 description="The Weighted Close Price (WCLPRICE) indicator calculates the average of a security's high, low, and close prices, with extra weight given to the close price, providing a balanced view of price action.")
+    async def GetTimeSeriesWclPrice(params: GetTimeSeriesWclPriceRequest,
+                                    ctx: Context) -> GetTimeSeriesWclPrice200Response:
+        return await _call_endpoint("wclprice", params, GetTimeSeriesWclPrice200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesHtDcPeriod",
+                 description="The Hilbert Transform Dominant Cycle Period (HT_DCPERIOD) identifies the dominant market cycle length, helping traders adapt their strategies to different market conditions.\n\nYou can read more about it in the Rocket Science for Traders book by John F. Ehlers.")
+    async def GetTimeSeriesHtDcPeriod(params: GetTimeSeriesHtDcPeriodRequest,
+                                      ctx: Context) -> GetTimeSeriesHtDcPeriod200Response:
+        return await _call_endpoint("ht_dcperiod", params, GetTimeSeriesHtDcPeriod200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMedPrice",
+                 description="The Median Price (MEDPRICE) indicator calculates the midpoint between a security's high and low prices, providing a simplified view of price action.")
+    async def GetTimeSeriesMedPrice(params: GetTimeSeriesMedPriceRequest,
+                                    ctx: Context) -> GetTimeSeriesMedPrice200Response:
+        return await _call_endpoint("medprice", params, GetTimeSeriesMedPrice200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesTypPrice",
+                 description="The Typical Price (TYPPRICE) indicator calculates the average of a security's high, low, and close prices, providing a simplified view of price action.")
+    async def GetTimeSeriesTypPrice(params: GetTimeSeriesTypPriceRequest,
+                                    ctx: Context) -> GetTimeSeriesTypPrice200Response:
+        return await _call_endpoint("typprice", params, GetTimeSeriesTypPrice200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesHtTrendline",
+                 description="The Hilbert Transform Instantaneous Trendline (HT_TRENDLINE) is a smoothed moving average that follows the dominant market cycle, helping traders identify trends and potential entry or exit points.\n\nYou can read more about it in the Rocket Science for Traders book by John F. Ehlers.")
+    async def GetTimeSeriesHtTrendline(params: GetTimeSeriesHtTrendlineRequest,
+                                       ctx: Context) -> GetTimeSeriesHtTrendline200Response:
+        return await _call_endpoint("ht_trendline", params, GetTimeSeriesHtTrendline200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesLinearRegAngle",
+                 description="The Linear Regression Angle (LINEARREGANGLE) measures the angle of the linear regression line, indicating the slope and direction of the underlying trend.")
+    async def GetTimeSeriesLinearRegAngle(params: GetTimeSeriesLinearRegAngleRequest,
+                                          ctx: Context) -> GetTimeSeriesLinearRegAngle200Response:
+        return await _call_endpoint("linearregangle", params, GetTimeSeriesLinearRegAngle200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMinusDM",
+                 description="The Minus Directional Movement (MINUS_DM) is a component of the ADX indicator, measuring the extent of a security's downward price movement.")
+    async def GetTimeSeriesMinusDM(params: GetTimeSeriesMinusDMRequest,
+                                   ctx: Context) -> GetTimeSeriesMinusDM200Response:
+        return await _call_endpoint("minus_dm", params, GetTimeSeriesMinusDM200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesHtDcPhase",
+                 description="The Hilbert Transform Dominant Cycle Phase (HT_DCPHASE) measures the current phase of the dominant market cycle, helping traders identify potential entry and exit points in relation to the cycle.\n\nYou can read more about it in the Rocket Science for Traders book by John F. Ehlers.")
+    async def GetTimeSeriesHtDcPhase(params: GetTimeSeriesHtDcPhaseRequest,
+                                     ctx: Context) -> GetTimeSeriesHtDcPhase200Response:
+        return await _call_endpoint("ht_dcphase", params, GetTimeSeriesHtDcPhase200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMidPoint",
+                 description="The Midpoint (MIDPOINT) indicator calculates the midpoint of a data series over a specified period, often used to smooth out data fluctuations and identify trends.")
+    async def GetTimeSeriesMidPoint(params: GetTimeSeriesMidPointRequest,
+                                    ctx: Context) -> GetTimeSeriesMidPoint200Response:
+        return await _call_endpoint("midpoint", params, GetTimeSeriesMidPoint200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesHtPhasor",
+                 description="The Hilbert Transform Phasor Components (HT_PHASOR) decomposes a price series into in-phase and quadrature components, providing insight into cyclical patterns and trend direction.\n\nYou can read more about it in the Rocket Science for Traders book by John F. Ehlers.")
+    async def GetTimeSeriesHtPhasor(params: GetTimeSeriesHtPhasorRequest,
+                                    ctx: Context) -> GetTimeSeriesHtPhasor200Response:
+        return await _call_endpoint("ht_phasor", params, GetTimeSeriesHtPhasor200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesUltOsc",
+                 description="The Ultimate Oscillator (ULTOSC) is a momentum oscillator that combines short, intermediate, and long-term price action to identify potential overbought or oversold conditions and trend reversals.")
+    async def GetTimeSeriesUltOsc(params: GetTimeSeriesUltOscRequest, ctx: Context) -> GetTimeSeriesUltOsc200Response:
+        return await _call_endpoint("ultosc", params, GetTimeSeriesUltOsc200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesKama",
+                 description="The Kaufman Adaptive Moving Average (KAMA) is a moving average that adjusts its length based on market volatility, providing a balance between responsiveness and noise reduction.")
+    async def GetTimeSeriesKama(params: GetTimeSeriesKamaRequest, ctx: Context) -> GetTimeSeriesKama200Response:
+        return await _call_endpoint("kama", params, GetTimeSeriesKama200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesTRange",
+                 description="The True Range (TRANGE) indicator measures the range of price movement over a specified period, providing a volatility measure that helps traders identify potential trading opportunities and risk management.")
+    async def GetTimeSeriesTRange(params: GetTimeSeriesTRangeRequest, ctx: Context) -> GetTimeSeriesTRange200Response:
+        return await _call_endpoint("trange", params, GetTimeSeriesTRange200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesApo",
+                 description="The Absolute Price Oscillator (APO) is a momentum indicator that measures the difference between two moving averages, helping traders identify potential price trends and reversals.")
+    async def GetTimeSeriesApo(params: GetTimeSeriesApoRequest, ctx: Context) -> GetTimeSeriesApo200Response:
+        return await _call_endpoint("apo", params, GetTimeSeriesApo200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesAroon",
+                 description="The Aroon indicator detects the presence and strength of trends by measuring the time elapsed since the highest high and lowest low within a specific period.")
+    async def GetTimeSeriesAroon(params: GetTimeSeriesAroonRequest, ctx: Context) -> GetTimeSeriesAroon200Response:
+        return await _call_endpoint("aroon", params, GetTimeSeriesAroon200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesPlusDM",
+                 description="The Plus Directional Movement (PLUS_DM) is a component of the ADX indicator, measuring the extent of a security's upward price movement.")
+    async def GetTimeSeriesPlusDM(params: GetTimeSeriesPlusDMRequest, ctx: Context) -> GetTimeSeriesPlusDM200Response:
+        return await _call_endpoint("plus_dm", params, GetTimeSeriesPlusDM200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesDx",
+                 description="The Directional Movement Index (DX) is a component of the ADX indicator, measuring the strength of the positive and negative directional movements in a security's price.")
+    async def GetTimeSeriesDx(params: GetTimeSeriesDxRequest, ctx: Context) -> GetTimeSeriesDx200Response:
+        return await _call_endpoint("dx", params, GetTimeSeriesDx200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesStdDev",
+                 description="The Standard Deviation (STDDEV) indicator measures the dispersion of a data series from its mean, often used as a volatility indicator to identify potential trading opportunities and risk management.")
+    async def GetTimeSeriesStdDev(params: GetTimeSeriesStdDevRequest, ctx: Context) -> GetTimeSeriesStdDev200Response:
+        return await _call_endpoint("stddev", params, GetTimeSeriesStdDev200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMacdExt",
+                 description="The MACD Extension (MACDEXT) is a customizable version of the MACD indicator, allowing traders to choose different moving average types and parameters for increased flexibility.")
+    async def GetTimeSeriesMacdExt(params: GetTimeSeriesMacdExtRequest,
+                                   ctx: Context) -> GetTimeSeriesMacdExt200Response:
+        return await _call_endpoint("macdext", params, GetTimeSeriesMacdExt200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesNatr",
+                 description="The Normalized Average True Range (NATR) is a volatility indicator that measures the average range of price movement over a specified period, expressed as a percentage of the security's price, allowing for comparisons across different securities.")
+    async def GetTimeSeriesNatr(params: GetTimeSeriesNatrRequest, ctx: Context) -> GetTimeSeriesNatr200Response:
+        return await _call_endpoint("natr", params, GetTimeSeriesNatr200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesCmo",
+                 description="The Chande Momentum Oscillator (CMO) is a momentum indicator that measures the relative strength of up and down price movements, helping traders identify overbought or oversold conditions and potential trend reversals.")
+    async def GetTimeSeriesCmo(params: GetTimeSeriesCmoRequest, ctx: Context) -> GetTimeSeriesCmo200Response:
+        return await _call_endpoint("cmo", params, GetTimeSeriesCmo200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesCorrel",
+                 description="The Correlation (CORREL) indicator measures the statistical relationship between two securities, helping traders identify potential diversification opportunities or pairs trading candidates.")
+    async def GetTimeSeriesCorrel(params: GetTimeSeriesCorrelRequest, ctx: Context) -> GetTimeSeriesCorrel200Response:
+        return await _call_endpoint("correl", params, GetTimeSeriesCorrel200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMax",
+                 description="The Maximum (MAX) indicator calculates the highest value of a data series over a specified period, often used to identify potential resistance levels or extreme price movements.")
+    async def GetTimeSeriesMax(params: GetTimeSeriesMaxRequest, ctx: Context) -> GetTimeSeriesMax200Response:
+        return await _call_endpoint("max", params, GetTimeSeriesMax200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesStochF",
+                 description="The Stochastic Fast (STOCHF) is a variation of the Stochastic Oscillator, using fewer periods for calculation, making it more responsive to price changes but also more prone to false signals.")
+    async def GetTimeSeriesStochF(params: GetTimeSeriesStochFRequest, ctx: Context) -> GetTimeSeriesStochF200Response:
+        return await _call_endpoint("stochf", params, GetTimeSeriesStochF200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesHlc3",
+                 description="The High, Low, Close Average (HLC3) indicator calculates the average of a security's high, low, and close prices, providing a simplified view of price action.")
+    async def GetTimeSeriesHlc3(params: GetTimeSeriesHlc3Request, ctx: Context) -> GetTimeSeriesHlc3200Response:
+        return await _call_endpoint("hlc3", params, GetTimeSeriesHlc3200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesAcos",
+                 description="The Arccosine (ACOS) indicator calculates the inverse cosine of a given input value, typically used in trigonometric and harmonic pattern analysis within financial markets.")
+    async def GetTimeSeriesAcos(params: GetTimeSeriesAcosRequest, ctx: Context) -> GetTimeSeriesAcos200Response:
+        return await _call_endpoint("acos", params, GetTimeSeriesAcos200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesAdd",
+                 description="The Addition (ADD) indicator performs a simple arithmetic addition of two input data series, typically used to combine multiple technical indicators or price data.")
+    async def GetTimeSeriesAdd(params: GetTimeSeriesAddRequest, ctx: Context) -> GetTimeSeriesAdd200Response:
+        return await _call_endpoint("add", params, GetTimeSeriesAdd200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesAroonOsc",
+                 description="The Aroon Oscillator is the difference between the Aroon Up and Aroon Down lines, indicating trend strength and potential reversals.")
+    async def GetTimeSeriesAroonOsc(params: GetTimeSeriesAroonOscRequest,
+                                    ctx: Context) -> GetTimeSeriesAroonOsc200Response:
+        return await _call_endpoint("aroonosc", params, GetTimeSeriesAroonOsc200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesAsin",
+                 description="The Arcsine (ASIN) indicator calculates the inverse sine of a given input value, primarily used in trigonometric and harmonic pattern analysis in financial markets.")
+    async def GetTimeSeriesAsin(params: GetTimeSeriesAsinRequest, ctx: Context) -> GetTimeSeriesAsin200Response:
+        return await _call_endpoint("asin", params, GetTimeSeriesAsin200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesAtan",
+                 description="The Arctangent (ATAN) indicator calculates the inverse tangent of a given input value, mainly used in trigonometric and harmonic pattern analysis in financial markets.")
+    async def GetTimeSeriesAtan(params: GetTimeSeriesAtanRequest, ctx: Context) -> GetTimeSeriesAtan200Response:
+        return await _call_endpoint("atan", params, GetTimeSeriesAtan200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesCeil",
+                 description="The Ceiling (CEIL) indicator rounds input data up to the nearest integer, often used in conjunction with other indicators for data analysis or calculation purposes.")
+    async def GetTimeSeriesCeil(params: GetTimeSeriesCeilRequest, ctx: Context) -> GetTimeSeriesCeil200Response:
+        return await _call_endpoint("ceil", params, GetTimeSeriesCeil200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesCoppock",
+                 description="The Coppock Curve is a momentum oscillator that measures the rate of change in a security's price, helping traders identify potential long-term trend reversals, especially in bottoming markets.")
+    async def GetTimeSeriesCoppock(params: GetTimeSeriesCoppockRequest,
+                                   ctx: Context) -> GetTimeSeriesCoppock200Response:
+        return await _call_endpoint("coppock", params, GetTimeSeriesCoppock200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesCos",
+                 description="The Cosine (COS) indicator calculates the cosine of a given input value, primarily used in trigonometric and harmonic pattern analysis within financial markets.")
+    async def GetTimeSeriesCos(params: GetTimeSeriesCosRequest, ctx: Context) -> GetTimeSeriesCos200Response:
+        return await _call_endpoint("cos", params, GetTimeSeriesCos200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesCosh",
+                 description="The Hyperbolic Cosine (COSH) indicator calculates the hyperbolic cosine of a given input value, often used in advanced mathematical analysis or calculations in financial markets.")
+    async def GetTimeSeriesCosh(params: GetTimeSeriesCoshRequest, ctx: Context) -> GetTimeSeriesCosh200Response:
+        return await _call_endpoint("cosh", params, GetTimeSeriesCosh200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesDiv",
+                 description="The Division (DIV) indicator performs arithmetic division between two input data series, typically used to combine or normalize multiple technical indicators or price data.")
+    async def GetTimeSeriesDiv(params: GetTimeSeriesDivRequest, ctx: Context) -> GetTimeSeriesDiv200Response:
+        return await _call_endpoint("div", params, GetTimeSeriesDiv200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesDpo",
+                 description="The Detrended Price Oscillator (DPO) is a momentum oscillator that removes the underlying trend from price data, helping traders identify potential cyclical patterns and overbought or oversold conditions.")
+    async def GetTimeSeriesDpo(params: GetTimeSeriesDpoRequest, ctx: Context) -> GetTimeSeriesDpo200Response:
+        return await _call_endpoint("dpo", params, GetTimeSeriesDpo200Response, ctx)
+
+    @server.tool(name="GetETFsWorldRisk",
+                 description="This API request returns core metrics to measure the risk of investing in a etf.")
+    async def GetETFsWorldRisk(params: GetETFsWorldRiskRequest, ctx: Context) -> GetETFsWorldRisk200Response:
+        return await _call_endpoint("etfs/world/risk", params, GetETFsWorldRisk200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesExp",
+                 description="The Exponential (EXP) indicator calculates the exponential value of a given input, often used in advanced mathematical analysis or calculations in financial markets.")
+    async def GetTimeSeriesExp(params: GetTimeSeriesExpRequest, ctx: Context) -> GetTimeSeriesExp200Response:
+        return await _call_endpoint("exp", params, GetTimeSeriesExp200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesFloor",
+                 description="The Floor (FLOOR) indicator rounds input data down to the nearest integer, often used in conjunction with other indicators for data analysis or calculation purposes.")
+    async def GetTimeSeriesFloor(params: GetTimeSeriesFloorRequest, ctx: Context) -> GetTimeSeriesFloor200Response:
+        return await _call_endpoint("floor", params, GetTimeSeriesFloor200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesHtSine",
+                 description="The Hilbert Transform Sine Wave (HT_SINE) indicator calculates sine and cosine wave components based on the dominant market cycle, helping traders identify potential turning points and trend direction.\n\nYou can read more about it in the Rocket Science for Traders book by John F. Ehlers.")
+    async def GetTimeSeriesHtSine(params: GetTimeSeriesHtSineRequest, ctx: Context) -> GetTimeSeriesHtSine200Response:
+        return await _call_endpoint("ht_sine", params, GetTimeSeriesHtSine200Response, ctx)
+
+    @server.tool(name="GetIntervals", description="Returns a list of available time intervals for data requests.")
+    async def GetIntervals(params: GetIntervalsRequest, ctx: Context) -> GetIntervals200Response:
+        return await _call_endpoint("intervals", params, GetIntervals200Response, ctx)
+
+    @server.tool(name="GetLastChanges",
+                 description="Returns the latest changes of fundamental data. This endpoint helps consume API credits more efficiently and request new data once it is updated.")
+    async def GetLastChanges(params: GetLastChangesRequest, ctx: Context) -> GetLastChanges200Response:
+        return await _call_endpoint("last_change/{endpoint}", params, GetLastChanges200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesLinearRegIntercept",
+                 description="The Linear Regression Intercept (LINEARREGINTERCEPT) calculates the point where the linear regression line intersects the vertical axis, providing a reference point for trend analysis.")
+    async def GetTimeSeriesLinearRegIntercept(params: GetTimeSeriesLinearRegInterceptRequest,
+                                              ctx: Context) -> GetTimeSeriesLinearRegIntercept200Response:
+        return await _call_endpoint("linearregintercept", params, GetTimeSeriesLinearRegIntercept200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesLinearRegSlope",
+                 description="The Linear Regression Slope (LINEARREGSLOPE) measures the steepness of the linear regression line, indicating the rate of change of the underlying trend.")
+    async def GetTimeSeriesLinearRegSlope(params: GetTimeSeriesLinearRegSlopeRequest,
+                                          ctx: Context) -> GetTimeSeriesLinearRegSlope200Response:
+        return await _call_endpoint("linearregslope", params, GetTimeSeriesLinearRegSlope200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesLn",
+                 description="The Natural Logarithm (LN) indicator calculates the natural logarithm of a given input value, often used in advanced mathematical analysis or calculations in financial markets.")
+    async def GetTimeSeriesLn(params: GetTimeSeriesLnRequest, ctx: Context) -> GetTimeSeriesLn200Response:
+        return await _call_endpoint("ln", params, GetTimeSeriesLn200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesLog10",
+                 description="The Base-10 Logarithm (LOG10) indicator calculates the base-10 logarithm of a given input value, commonly used in advanced mathematical analysis or calculations in financial markets.")
+    async def GetTimeSeriesLog10(params: GetTimeSeriesLog10Request, ctx: Context) -> GetTimeSeriesLog10200Response:
+        return await _call_endpoint("log10", params, GetTimeSeriesLog10200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMacdSlope",
+                 description="The MACD Slope is the rate of change of the MACD line, helping traders identify the acceleration or deceleration of momentum in a security's price.")
+    async def GetTimeSeriesMacdSlope(params: GetTimeSeriesMacdSlopeRequest,
+                                     ctx: Context) -> GetTimeSeriesMacdSlope200Response:
+        return await _call_endpoint("macd_slope", params, GetTimeSeriesMacdSlope200Response, ctx)
+
+    @server.tool(name="GetMarketMovers",
+                 description="Get the list of the top gaining or losing stocks today.\n\nTop gainers are ordered by the highest rate of price increase since the previous day''s close. Top losers are ordered by the highest percentage of price decrease since the last day.\n\nData is available for all international equities, forex, crypto.")
+    async def GetMarketMovers(params: GetMarketMoversRequest, ctx: Context) -> GetMarketMovers200Response:
+        return await _call_endpoint("market_movers/{market}", params, GetMarketMovers200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMaxIndex",
+                 description="The Maximum Index (MAXINDEX) returns the index of the highest value in a data series over a specified period, providing information about the timing of extreme price movements.")
+    async def GetTimeSeriesMaxIndex(params: GetTimeSeriesMaxIndexRequest,
+                                    ctx: Context) -> GetTimeSeriesMaxIndex200Response:
+        return await _call_endpoint("maxindex", params, GetTimeSeriesMaxIndex200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMcGinleyDynamic",
+                 description="The McGinley Dynamic (MCGINLEY_DYNAMIC) indicator is a smoothing tool designed to minimize the lag between the indicator and price action. It adjusts its speed based on the volatility of the security, providing a more accurate representation of price trends and potential support or resistance levels compared to traditional moving averages.")
+    async def GetTimeSeriesMcGinleyDynamic(params: GetTimeSeriesMcGinleyDynamicRequest,
+                                           ctx: Context) -> GetTimeSeriesMcGinleyDynamic200Response:
+        return await _call_endpoint("mcginley_dynamic", params, GetTimeSeriesMcGinleyDynamic200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMin",
+                 description="The Minimum (MIN) indicator calculates the lowest value of a data series over a specified period, often used to identify potential support levels or extreme price movements.")
+    async def GetTimeSeriesMin(params: GetTimeSeriesMinRequest, ctx: Context) -> GetTimeSeriesMin200Response:
+        return await _call_endpoint("min", params, GetTimeSeriesMin200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMinIndex",
+                 description="The Minimum Index (MININDEX) returns the index of the lowest value in a data series over a specified period, providing information about the timing of extreme price movements.")
+    async def GetTimeSeriesMinIndex(params: GetTimeSeriesMinIndexRequest,
+                                    ctx: Context) -> GetTimeSeriesMinIndex200Response:
+        return await _call_endpoint("minindex", params, GetTimeSeriesMinIndex200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMinMax",
+                 description="The Minimum and Maximum (MINMAX) indicator calculates the lowest and highest values of a data series over a specified period, often used to identify potential support and resistance levels or extreme price movements.")
+    async def GetTimeSeriesMinMax(params: GetTimeSeriesMinMaxRequest, ctx: Context) -> GetTimeSeriesMinMax200Response:
+        return await _call_endpoint("minmax", params, GetTimeSeriesMinMax200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMinMaxIndex",
+                 description="The Minimum and Maximum Index (MINMAXINDEX) returns the indices of the lowest and highest values in a data series over a specified period, providing information about the timing of extreme price movements.")
+    async def GetTimeSeriesMinMaxIndex(params: GetTimeSeriesMinMaxIndexRequest,
+                                       ctx: Context) -> GetTimeSeriesMinMaxIndex200Response:
+        return await _call_endpoint("minmaxindex", params, GetTimeSeriesMinMaxIndex200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesMult",
+                 description="The Multiplication (MULT) indicator performs arithmetic multiplication of two input data series, typically used to combine or normalize multiple technical indicators or price data.")
+    async def GetTimeSeriesMult(params: GetTimeSeriesMultRequest, ctx: Context) -> GetTimeSeriesMult200Response:
+        return await _call_endpoint("mult", params, GetTimeSeriesMult200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesRocp",
+                 description="The Rate of Change Percentage (ROCP) indicator calculates the percentage change in a security's price over a specified period, providing insight into momentum and potential trend reversals.")
+    async def GetTimeSeriesRocp(params: GetTimeSeriesRocpRequest, ctx: Context) -> GetTimeSeriesRocp200Response:
+        return await _call_endpoint("rocp", params, GetTimeSeriesRocp200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesRocr",
+                 description="The Rate of Change Ratio (ROCR) indicator measures the ratio of a security's current price to its price a specified number of periods ago, helping traders identify potential price trends and reversals.")
+    async def GetTimeSeriesRocr(params: GetTimeSeriesRocrRequest, ctx: Context) -> GetTimeSeriesRocr200Response:
+        return await _call_endpoint("rocr", params, GetTimeSeriesRocr200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesRocr100",
+                 description="The Rate of Change Ratio 100 (ROCR100) indicator measures the percentage change in a security's price over a specified period, expressed as a ratio to 100, providing insight into momentum and potential trend reversals.")
+    async def GetTimeSeriesRocr100(params: GetTimeSeriesRocr100Request,
+                                   ctx: Context) -> GetTimeSeriesRocr100200Response:
+        return await _call_endpoint("rocr100", params, GetTimeSeriesRocr100200Response, ctx)
+
+    @server.tool(name="GetSourceSanctionedEntities",
+                 description="This API endpoint returns a list of sanctioned entities for a given sanction source (ofac, uk, eu, au, etc)")
+    async def GetSourceSanctionedEntities(params: GetSourceSanctionedEntitiesRequest,
+                                          ctx: Context) -> GetSourceSanctionedEntities200Response:
+        return await _call_endpoint("sanctions/{source}", params, GetSourceSanctionedEntities200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesSarExt",
+                 description="The Parabolic SAR Extended (SAREXT) is a customizable version of the Parabolic SAR indicator, allowing traders to choose different parameters for increased flexibility in identifying potential entry and exit points.")
+    async def GetTimeSeriesSarExt(params: GetTimeSeriesSarExtRequest, ctx: Context) -> GetTimeSeriesSarExt200Response:
+        return await _call_endpoint("sarext", params, GetTimeSeriesSarExt200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesSin",
+                 description="The Sine (SIN) indicator calculates the sine of a given input value, primarily used in trigonometric and harmonic pattern analysis within financial markets.")
+    async def GetTimeSeriesSin(params: GetTimeSeriesSinRequest, ctx: Context) -> GetTimeSeriesSin200Response:
+        return await _call_endpoint("sin", params, GetTimeSeriesSin200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesSinh",
+                 description="The Hyperbolic Sine (SINH) indicator calculates the hyperbolic sine of a given input value, often used in advanced mathematical analysis or calculations in financial markets.")
+    async def GetTimeSeriesSinh(params: GetTimeSeriesSinhRequest, ctx: Context) -> GetTimeSeriesSinh200Response:
+        return await _call_endpoint("sinh", params, GetTimeSeriesSinh200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesSqrt",
+                 description="The Square Root (SQRT) indicator calculates the square root of a given input value, often used in advanced mathematical analysis or calculations in financial markets.")
+    async def GetTimeSeriesSqrt(params: GetTimeSeriesSqrtRequest, ctx: Context) -> GetTimeSeriesSqrt200Response:
+        return await _call_endpoint("sqrt", params, GetTimeSeriesSqrt200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesSub",
+                 description="The Subtraction (SUB) indicator performs arithmetic subtraction of two input data series, typically used to combine or normalize multiple technical indicators or price data.")
+    async def GetTimeSeriesSub(params: GetTimeSeriesSubRequest, ctx: Context) -> GetTimeSeriesSub200Response:
+        return await _call_endpoint("sub", params, GetTimeSeriesSub200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesSum",
+                 description="The Summation (SUM) indicator calculates the sum of a data series over a specified period, often used in conjunction with other indicators for data analysis or calculation purposes.")
+    async def GetTimeSeriesSum(params: GetTimeSeriesSumRequest, ctx: Context) -> GetTimeSeriesSum200Response:
+        return await _call_endpoint("sum", params, GetTimeSeriesSum200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesSuperTrendHeikinAshiCandles",
+                 description="The Supertrend and Heikin Ashi Candles indicator delivers a combined analysis of trend-following signals and smoothed price action visualization, widely used for identifying trends and potential entry or exit points in trading.")
+    async def GetTimeSeriesSuperTrendHeikinAshiCandles(params: GetTimeSeriesSuperTrendHeikinAshiCandlesRequest,
+                                                       ctx: Context) -> GetTimeSeriesSuperTrendHeikinAshiCandles200Response:
+        return await _call_endpoint("supertrend_heikinashicandles", params,
+                                    GetTimeSeriesSuperTrendHeikinAshiCandles200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesT3ma",
+                 description="The Triple Exponential Moving Average (T3MA) is a smoothing indicator that applies three exponential moving averages to price data, reducing lag and providing a more accurate representation of trends.")
+    async def GetTimeSeriesT3ma(params: GetTimeSeriesT3maRequest, ctx: Context) -> GetTimeSeriesT3ma200Response:
+        return await _call_endpoint("t3ma", params, GetTimeSeriesT3ma200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesTan",
+                 description="The Tangent (TAN) indicator calculates the tangent of a given input value, primarily used in trigonometric and harmonic pattern analysis within financial markets.")
+    async def GetTimeSeriesTan(params: GetTimeSeriesTanRequest, ctx: Context) -> GetTimeSeriesTan200Response:
+        return await _call_endpoint("tan", params, GetTimeSeriesTan200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesTanh",
+                 description="The Hyperbolic Tangent (TANH) indicator calculates the hyperbolic tangent of a given input value, often used in advanced mathematical analysis or calculations in financial markets.")
+    async def GetTimeSeriesTanh(params: GetTimeSeriesTanhRequest, ctx: Context) -> GetTimeSeriesTanh200Response:
+        return await _call_endpoint("tanh", params, GetTimeSeriesTanh200Response, ctx)
+
+    @server.tool(name="GetTaxInfo", description="This API endpoint returns tax information for the instrument.")
+    async def GetTaxInfo(params: GetTaxInfoRequest, ctx: Context) -> GetTaxInfo200Response:
+        return await _call_endpoint("tax_info", params, GetTaxInfo200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesTsf",
+                 description="The Time Series Forecast (TSF) indicator projects future price levels based on linear regression analysis, helping traders identify potential support, resistance, and trend direction.")
+    async def GetTimeSeriesTsf(params: GetTimeSeriesTsfRequest, ctx: Context) -> GetTimeSeriesTsf200Response:
+        return await _call_endpoint("tsf", params, GetTimeSeriesTsf200Response, ctx)
+
+    @server.tool(name="GetTimeSeriesVar",
+                 description="The Variance (VAR) indicator measures the dispersion of a data series from its mean, often used as a volatility indicator to identify potential trading opportunities and risk management.")
+    async def GetTimeSeriesVar(params: GetTimeSeriesVarRequest, ctx: Context) -> GetTimeSeriesVar200Response:
+        return await _call_endpoint("var", params, GetTimeSeriesVar200Response, ctx)

@@ -48,3 +48,6 @@ async def test_embedding_and_utool_async(user_query, expected_op_id):
         f"selected_tool {payload.get('selected_tool')!r} != expected {expected_op_id!r}"
     )
     assert response is not None
+    if "GetTimeSeries" in selected_tool:
+        values = response['values']
+        assert values is not None and len(values) > 0
