@@ -1,6 +1,9 @@
-import os
 import importlib.util
 from pathlib import Path
+
+import httpx
+from mcp.client.streamable_http import RequestContext
+from starlette.requests import Request
 
 import openai
 import lancedb
@@ -8,11 +11,58 @@ import json
 
 from mcp.server.fastmcp import FastMCP, Context
 from pydantic import BaseModel, Field
-from typing import Any, Optional, List, cast
+from typing import Any, Optional, List, cast, Literal
 from openai.types.chat import ChatCompletionSystemMessageParam
+from starlette.responses import JSONResponse
 
 
-def register_u_tool(server: FastMCP, u_tool_open_ai_api_key: str):
+def create_dummy_request_context(request: Request) -> RequestContext:
+    """Returns a valid RequestContext with Starlette request injected manually."""
+
+    rctx = RequestContext(
+        client=object(),
+        headers=dict(request.headers),
+        session_id="dummy-session-id",
+        session_message=object(),
+        metadata=object(),
+        read_stream_writer=object(),
+        sse_read_timeout=10.0
+    )
+
+    return rctx
+
+
+class TwelvedataTokens:
+    def __init__(self, twelve_data_api_key: str, open_ai_api_key: str):
+        self.twelve_data_api_key = twelve_data_api_key
+        self.open_ai_api_key = open_ai_api_key
+
+
+async def get_user_tokens(bearer_token: str) -> TwelvedataTokens:
+    url = "https://twelvedata.com/api/v1/user/user"
+    headers = {
+        "authorization": f"Bearer {bearer_token}",
+        "accept": "application/json",
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, headers=headers)
+        response.raise_for_status()
+
+        payload = response.json()
+        data = payload.get("data", {})
+
+        open_ai_api_key = data.get("openai_apikey")
+        twelve_data_api_key = data.get("api_token")
+
+        return TwelvedataTokens(twelve_data_api_key, open_ai_api_key)
+
+
+def register_u_tool(
+    server: FastMCP,
+    u_tool_open_ai_api_key: Optional[str],
+    transport: Literal["stdio", "sse", "streamable-http"],
+):
     # LLM_MODEL = "gpt-4o"         # Input $2.5,   Output $10
     # LLM_MODEL = "gpt-4-turbo"    # Input $10.00, Output $30
     LLM_MODEL = "gpt-4o-mini"      # Input $0.15,  Output $0.60
@@ -59,7 +109,6 @@ def register_u_tool(server: FastMCP, u_tool_open_ai_api_key: str):
             })
         return tools
 
-    os.environ["OPENAI_API_KEY"] = u_tool_open_ai_api_key
     all_tools = server._tool_manager._tools
     server._tool_manager._tools = {}  # leave only u-tool
 
@@ -87,7 +136,53 @@ def register_u_tool(server: FastMCP, u_tool_open_ai_api_key: str):
         - Mutual Funds / ETFs: funds, mutual_funds/type, mutual_funds/world
         - Misc Utilities: logo, calendar endpoints, time_series_calendar, etc.
         """
-        client = openai.OpenAI()
+        if transport == 'stdio':
+            if u_tool_open_ai_api_key is not None:
+                client = openai.OpenAI(api_key=u_tool_open_ai_api_key)
+            else:
+                # It's not a possible case
+                return UToolResponse(
+                    top_candidates=[],
+                    selected_tool=None,
+                    param=None,
+                    response=None,
+                    error=(
+                        f"Transport is stdio and u_tool_open_ai_api_key is None. "
+                        f"Something goes wrong. Please contact support."
+                    ),
+                    motivation=None,
+                )
+        elif transport == "streamable-http":
+            if u_tool_open_ai_api_key is not None:
+                client = openai.OpenAI(api_key=u_tool_open_ai_api_key)
+            else:
+                rc: RequestContext = ctx.request_context
+                auth_header = rc.headers.get('authorization')
+                split_header = auth_header.split(' ') if auth_header else []
+                if len(split_header) == 2:
+                    access_token = split_header[1]
+                    tokens = await get_user_tokens(bearer_token=access_token)
+                    rc.headers["authorization"] = f"apikey {tokens.twelve_data_api_key}"
+                    client = openai.OpenAI(api_key=tokens.open_ai_api_key)
+                else:
+                    return UToolResponse(
+                        top_candidates=[],
+                        selected_tool=None,
+                        param=None,
+                        response=None,
+                        error=f"Access token is not provided",
+                        motivation=None,
+                    )
+        else:
+            return UToolResponse(
+                top_candidates=[],
+                selected_tool=None,
+                param=None,
+                response=None,
+                error=f"This transport is not supported",
+                motivation=None,
+            )
+
         candidate_ids: List[str]
 
         try:
@@ -194,3 +289,15 @@ def register_u_tool(server: FastMCP, u_tool_open_ai_api_key: str):
                 error=str(e),
                 motivation=None,
             )
+
+    if transport == "streamable-http":
+        @server.custom_route("/utool", ["GET"])
+        async def u_tool_http(request: Request):
+            query = request.query_params.get("query")
+            if not query:
+                return JSONResponse({"error": "Missing 'query' query parameter"}, status_code=400)
+
+            request_context = create_dummy_request_context(request)
+            ctx = Context(request_context=request_context)
+            result = await u_tool(query=query, ctx=ctx)
+            return JSONResponse(content=result.model_dump())

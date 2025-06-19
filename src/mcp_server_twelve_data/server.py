@@ -1,6 +1,6 @@
-import logging
-from typing import Type, TypeVar, Literal
+from typing import Type, TypeVar, Literal, Optional
 import httpx
+from mcp.client.streamable_http import RequestContext
 from pydantic import BaseModel
 from mcp.server.fastmcp import FastMCP, Context
 
@@ -11,11 +11,12 @@ from .u_tool import register_u_tool
 def serve(
     api_base: str,
     transport: Literal["stdio", "sse", "streamable-http"],
-    apikey: str,
+    twelve_data_apikey: Optional[str],
     number_of_tools: int,
-    u_tool_open_ai_api_key: str,
+    u_tool_open_ai_api_key: Optional[str],
+    u_tool_oauth2: bool
 ) -> None:
-    logger = logging.getLogger(__name__)
+    # logger = logging.getLogger(__name__)
 
     server = FastMCP(
         "mcp-twelve-data",
@@ -32,18 +33,22 @@ def serve(
         response_model: Type[R],
         ctx: Context
     ) -> R:
-        if transport == 'stdio' and apikey:
-            params.apikey = apikey
-        elif transport == "streamable-http":
-            apikey_header = ctx.request_context.request.headers.get('Authorization')
+        if transport == 'stdio' and twelve_data_apikey:
+            params.apikey = twelve_data_apikey
+        elif transport == "streamable-http" and twelve_data_apikey:
+            params.apikey = twelve_data_apikey
+        else:
+            rc: RequestContext = ctx.request_context
+            apikey_header = rc.headers.get('authorization')
             split_header = apikey_header.split(' ') if apikey_header else []
             if len(split_header) == 2:
                 params.apikey = split_header[1]
+
         async with httpx.AsyncClient(
             trust_env=False,
             headers={
-                "Accept": "application/json",
-                "User-Agent": "python-httpx/0.24.0"
+                "accept": "application/json",
+                "user-agent": "python-httpx/0.24.0"
             },
         ) as client:
             resp = await client.get(
@@ -55,10 +60,15 @@ def serve(
 
     register_all_tools(server=server, _call_endpoint=_call_endpoint)
 
-    if u_tool_open_ai_api_key is None:
+    if u_tool_oauth2 or u_tool_open_ai_api_key is not None:
+        # if u_tool_oauth2 is True, then u_tool_open_ai_api_key is None and will be received via Twelve data server
+        register_u_tool(
+            server=server,
+            u_tool_open_ai_api_key=u_tool_open_ai_api_key,
+            transport=transport
+        )
+    else:
         all_tools = server._tool_manager._tools
         server._tool_manager._tools = dict(list(all_tools.items())[:number_of_tools])
-    else:
-        register_u_tool(server=server, u_tool_open_ai_api_key=u_tool_open_ai_api_key)
 
     server.run(transport=transport)

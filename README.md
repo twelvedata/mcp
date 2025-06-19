@@ -88,7 +88,7 @@ Add the following snippet to your `claude_desktop_config.json`:
   "mcpServers": {
     "twelvedata": {
       "command": "uvx",
-      "args": ["--reinstall", "mcp-server-twelve-data@latest", "--apikey", "YOUR_API_KEY"]
+      "args": ["mcp-server-twelve-data@latest", "-k", "YOUR_API_KEY"]
     }
   }
 }
@@ -123,7 +123,7 @@ See how easy it is to connect Claude Desktop to Twelve Data MCP Server:
 
 #### Automatic setup (with UV)
 
-[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square\&logo=visualstudiocode\&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=twelvedata&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22mcp-server-twelve-data%22%2C%22--apikey%22%2C%22YOUR_API_KEY%22%5D%7D)
+[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square\&logo=visualstudiocode\&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=twelvedata&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22mcp-server-twelve-data%22%2C%22-k%22%2C%22YOUR_API_KEY%22%5D%7D)
 
 #### Manual setup
 
@@ -161,7 +161,7 @@ Build and run the server using Docker:
 
 ```bash
 docker build -t mcp-server-twelve-data .
-docker run --rm mcp-server-twelve-data --apikey YOUR_API_KEY
+docker run --rm mcp-server-twelve-data -k YOUR_API_KEY
 ```
 
 ## U-tool
@@ -191,7 +191,7 @@ One tool, entire Twelve Data ecosystem. No API documentation required.
   "mcpServers": {
     "twelvedata": {
       "command": "uvx",
-      "args": ["mcp-server-twelve-data@latest", "--apikey", "YOUR_TD_API_KEY", "-u", "YOUR_OPEN_AI_APIKEY"]
+      "args": ["mcp-server-twelve-data@latest", "-k", "YOUR_TD_API_KEY", "-u", "YOUR_OPEN_AI_APIKEY"]
     }
   }
 }
