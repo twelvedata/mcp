@@ -88,7 +88,7 @@ Add the following snippet to your `claude_desktop_config.json`:
   "mcpServers": {
     "twelvedata": {
       "command": "uvx",
-      "args": ["mcp-server-twelve-data@latest", "-k", "YOUR_API_KEY"]
+      "args": ["mcp-server-twelve-data@latest", "-k", "YOUR_TWELVE_DATA_API_KEY"]
     }
   }
 }
@@ -105,10 +105,12 @@ or this one, to use our remote http server
       "args":    [
         "mcp-remote", "https://mcp.twelvedata.com/mcp/",
         "--header",
-        "Authorization:${AUTH_HEADER}"
+        "Authorization:${AUTH_HEADER}",
+        "X-OpenAPI-Key:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTH_HEADER": "apikey YOUR_API_KEY"
+        "AUTH_HEADER": "apikey YOUR_TWELVE_DATA_API_KEY",
+        "OPEN_API_KEY": "YOUR_OPEN_API_KEY"
       }
     }
   }
@@ -123,7 +125,7 @@ See how easy it is to connect Claude Desktop to Twelve Data MCP Server:
 
 #### Automatic setup (with UV)
 
-[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square\&logo=visualstudiocode\&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=twelvedata&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22mcp-server-twelve-data%22%2C%22-k%22%2C%22YOUR_API_KEY%22%5D%7D)
+[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square\&logo=visualstudiocode\&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=twelvedata&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22mcp-server-twelve-data%22%2C%22-k%22%2C%YOUR_TWELVE_DATA_API_KEY%22%5D%7D)
 
 #### Manual setup
 
@@ -135,7 +137,11 @@ For manual configuration, add to your **User Settings (JSON)**:
     "servers": {
       "twelvedata": {
         "command": "uvx",
-        "args": ["mcp-server-twelve-data@latest", "-t", "streamable-http"]
+        "args": [
+          "mcp-server-twelve-data@latest",
+          "-t", "streamable-http",
+          "-k", "YOUR_TWELVE_DATA_API_KEY"
+        ]
       }
     }
   }
@@ -147,7 +153,7 @@ For manual configuration, add to your **User Settings (JSON)**:
 Use the MCP Inspector for troubleshooting:
 
 ```bash
-npx @modelcontextprotocol/inspector uvx mcp-server-twelve-data
+npx @modelcontextprotocol/inspector uvx mcp-server-twelve-data@latest -k YOUR_TWELVE_DATA_API_KEY
 ```
 
 ## Development guide
@@ -161,7 +167,7 @@ Build and run the server using Docker:
 
 ```bash
 docker build -t mcp-server-twelve-data .
-docker run --rm mcp-server-twelve-data -k YOUR_API_KEY
+docker run --rm mcp-server-twelve-data -k YOUR_TWELVE_DATA_API_KEY
 ```
 
 ## U-tool
@@ -191,7 +197,7 @@ One tool, entire Twelve Data ecosystem. No API documentation required.
   "mcpServers": {
     "twelvedata": {
       "command": "uvx",
-      "args": ["mcp-server-twelve-data@latest", "-k", "YOUR_TD_API_KEY", "-u", "YOUR_OPEN_AI_APIKEY"]
+      "args": ["mcp-server-twelve-data@latest", "-k", "YOUR_TWELVE_DATA_API_KEY", "-u", "YOUR_OPEN_AI_APIKEY"]
     }
   }
 }

@@ -3,9 +3,11 @@ import httpx
 from mcp.client.streamable_http import RequestContext
 from pydantic import BaseModel
 from mcp.server.fastmcp import FastMCP, Context
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from .tools import register_all_tools
-from .u_tool import register_u_tool
+from .u_tool import register_u_tool, get_tokens_from_rc
 
 
 def serve(
@@ -39,10 +41,8 @@ def serve(
             params.apikey = twelve_data_apikey
         else:
             rc: RequestContext = ctx.request_context
-            apikey_header = rc.headers.get('authorization')
-            split_header = apikey_header.split(' ') if apikey_header else []
-            if len(split_header) == 2:
-                params.apikey = split_header[1]
+            tokens = get_tokens_from_rc(rc=rc)
+            params.apikey = tokens.twelve_data_api_key
 
         async with httpx.AsyncClient(
             trust_env=False,
@@ -70,5 +70,9 @@ def serve(
     else:
         all_tools = server._tool_manager._tools
         server._tool_manager._tools = dict(list(all_tools.items())[:number_of_tools])
+
+    @server.custom_route("/health", ["GET"])
+    async def health(request: Request):
+        return JSONResponse({"status": "ok"})
 
     server.run(transport=transport)

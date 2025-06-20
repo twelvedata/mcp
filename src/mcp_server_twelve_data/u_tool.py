@@ -1,7 +1,9 @@
+import functools
 import importlib.util
 from pathlib import Path
 
 import httpx
+from cachetools import TTLCache
 from mcp.client.streamable_http import RequestContext
 from starlette.requests import Request
 
@@ -11,7 +13,7 @@ import json
 
 from mcp.server.fastmcp import FastMCP, Context
 from pydantic import BaseModel, Field
-from typing import Any, Optional, List, cast, Literal
+from typing import Any, Optional, List, cast, Literal, Callable, Awaitable
 from openai.types.chat import ChatCompletionSystemMessageParam
 from starlette.responses import JSONResponse
 
@@ -33,11 +35,59 @@ def create_dummy_request_context(request: Request) -> RequestContext:
 
 
 class TwelvedataTokens:
-    def __init__(self, twelve_data_api_key: str, open_ai_api_key: str):
+    def __init__(
+        self, twelve_data_api_key: Optional[str] = None,
+        open_ai_api_key: Optional[str] = None,
+        oauth2_access_token: Optional[str] = None,
+        error: Optional[str] = None,
+    ):
         self.twelve_data_api_key = twelve_data_api_key
         self.open_ai_api_key = open_ai_api_key
+        self.oauth2_access_token = oauth2_access_token
+        self.error = error
 
 
+def get_tokens_from_rc(rc: RequestContext) -> TwelvedataTokens:
+    if hasattr(rc, "headers"):
+        headers = rc.headers
+    elif hasattr(rc, "request"):
+        headers = rc.request.headers
+    else:
+        return TwelvedataTokens(error="Headers were not found in a request context.")
+    auth_header = headers.get('authorization')
+    split_header = auth_header.split(' ') if auth_header else []
+    if len(split_header) == 2:
+        prefix = split_header[0]
+        access_token = split_header[1]
+        open_ai_api_key=headers.get('x-openapi-key')
+        if prefix == 'Bearer':
+            return TwelvedataTokens(oauth2_access_token=access_token)
+        else:
+            # in this case user provide both api keys via headers
+            return TwelvedataTokens(
+                twelve_data_api_key=access_token,
+                open_ai_api_key=open_ai_api_key
+            )
+    return TwelvedataTokens(error=f"Bad authorization header: {auth_header}.")
+
+
+_token_cache: TTLCache = TTLCache(maxsize=1024, ttl=60)
+
+
+def cache_by_bearer_token(func: Callable[[str], Awaitable[Any]]):
+    @functools.wraps(func)
+    async def wrapper(bearer_token: str) -> Any:
+        if bearer_token in _token_cache:
+            return _token_cache[bearer_token]
+
+        result = await func(bearer_token)
+        _token_cache[bearer_token] = result
+        return result
+
+    return wrapper
+
+
+@cache_by_bearer_token
 async def get_user_tokens(bearer_token: str) -> TwelvedataTokens:
     url = "https://twelvedata.com/api/v1/user/user"
     headers = {
@@ -45,17 +95,20 @@ async def get_user_tokens(bearer_token: str) -> TwelvedataTokens:
         "accept": "application/json",
     }
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers=headers)
-        response.raise_for_status()
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=headers)
+            response.raise_for_status()
 
-        payload = response.json()
-        data = payload.get("data", {})
+            payload = response.json()
+            data = payload.get("data", {})
 
-        open_ai_api_key = data.get("openai_apikey")
-        twelve_data_api_key = data.get("api_token")
+            open_ai_api_key = data.get("openai_apikey")
+            twelve_data_api_key = data.get("api_token")
 
-        return TwelvedataTokens(twelve_data_api_key, open_ai_api_key)
+            return TwelvedataTokens(twelve_data_api_key, open_ai_api_key)
+    except (httpx.RequestError, httpx.HTTPStatusError, ValueError, KeyError) as e:
+        return TwelvedataTokens(error=f"Error getting user tokens: {e}")
 
 
 def register_u_tool(
@@ -77,7 +130,7 @@ def register_u_tool(
     class UToolResponse(BaseModel):
         """Response object returned by the u-tool."""
 
-        top_candidates: List[str] = Field(
+        top_candidates: Optional[List[str]] = Field(
             ..., description="List of tool operationIds considered by the vector search."
         )
         selected_tool: Optional[str] = Field(
@@ -94,6 +147,23 @@ def register_u_tool(
         )
         motivation: Optional[str] = Field(
             None, description="Brief explanation why the LLM chose this tool."
+        )
+
+    def constructor_for_utool(
+        top_candidates=None,
+        selected_tool=None,
+        param=None,
+        response=None,
+        error=None,
+        motivation=None,
+    ):
+        return UToolResponse(
+            top_candidates=top_candidates,
+            selected_tool=selected_tool,
+            param=param,
+            response=response,
+            error=error,
+            motivation=motivation,
         )
 
     def build_openai_tools_subset(tool_list):
@@ -136,53 +206,42 @@ def register_u_tool(
         - Mutual Funds / ETFs: funds, mutual_funds/type, mutual_funds/world
         - Misc Utilities: logo, calendar endpoints, time_series_calendar, etc.
         """
+        o_ai_api_key_to_use: Optional[str]
         if transport == 'stdio':
             if u_tool_open_ai_api_key is not None:
-                client = openai.OpenAI(api_key=u_tool_open_ai_api_key)
+                o_ai_api_key_to_use = u_tool_open_ai_api_key
             else:
                 # It's not a possible case
-                return UToolResponse(
-                    top_candidates=[],
-                    selected_tool=None,
-                    param=None,
-                    response=None,
+                return constructor_for_utool(
                     error=(
                         f"Transport is stdio and u_tool_open_ai_api_key is None. "
                         f"Something goes wrong. Please contact support."
                     ),
-                    motivation=None,
                 )
         elif transport == "streamable-http":
             if u_tool_open_ai_api_key is not None:
-                client = openai.OpenAI(api_key=u_tool_open_ai_api_key)
+                o_ai_api_key_to_use=u_tool_open_ai_api_key
             else:
                 rc: RequestContext = ctx.request_context
-                auth_header = rc.headers.get('authorization')
-                split_header = auth_header.split(' ') if auth_header else []
-                if len(split_header) == 2:
-                    access_token = split_header[1]
-                    tokens = await get_user_tokens(bearer_token=access_token)
+                token_from_rc = get_tokens_from_rc(rc=rc)
+                if token_from_rc.error is not None:
+                    return constructor_for_utool(error=token_from_rc.error)
+                elif token_from_rc.oauth2_access_token is not None:
+                    tokens = await get_user_tokens(bearer_token=token_from_rc.oauth2_access_token )
+                    if tokens.error is not None:
+                        return constructor_for_utool(error=tokens.error)
+                    if tokens.open_ai_api_key is None:
+                        return constructor_for_utool(error=f"Set OPEN API KEY in your Twelve Data profile")
                     rc.headers["authorization"] = f"apikey {tokens.twelve_data_api_key}"
-                    client = openai.OpenAI(api_key=tokens.open_ai_api_key)
+                    o_ai_api_key_to_use=tokens.open_ai_api_key
+                elif token_from_rc.twelve_data_api_key and token_from_rc.open_ai_api_key:
+                    o_ai_api_key_to_use = token_from_rc.open_ai_api_key
                 else:
-                    return UToolResponse(
-                        top_candidates=[],
-                        selected_tool=None,
-                        param=None,
-                        response=None,
-                        error=f"Access token is not provided",
-                        motivation=None,
-                    )
+                    return constructor_for_utool(error=f"Either OPEN API KEY or TWELVE Data API key is not provided.")
         else:
-            return UToolResponse(
-                top_candidates=[],
-                selected_tool=None,
-                param=None,
-                response=None,
-                error=f"This transport is not supported",
-                motivation=None,
-            )
+            return constructor_for_utool(error=f"This transport is not supported")
 
+        client = openai.OpenAI(api_key=o_ai_api_key_to_use)
         candidate_ids: List[str]
 
         try:
@@ -197,14 +256,7 @@ def register_u_tool(
                 candidate_ids.append('GetTimeSeries')
 
         except Exception as e:
-            return UToolResponse(
-                top_candidates=[],
-                selected_tool=None,
-                param=None,
-                response=None,
-                error=f"Embedding or vector search failed: {e}",
-                motivation=None,
-            )
+            return constructor_for_utool(error=f"Embedding or vector search failed: {e}")
 
         filtered_tools = [tool for tool in all_tools.values() if tool.name in candidate_ids]  # type: ignore
         openai_tools = build_openai_tools_subset(filtered_tools)
@@ -246,24 +298,18 @@ def register_u_tool(
             motivation_text = choice.content.strip() if choice.content else None
 
         except Exception as e:
-            return UToolResponse(
+            return constructor_for_utool(
                 top_candidates=candidate_ids,
-                selected_tool=None,
-                param=None,
-                response=None,
                 error=f"LLM did not return valid tool call: {e}",
-                motivation=None,
             )
 
         tool = all_tools.get(name)
         if not tool:
-            return UToolResponse(
+            return constructor_for_utool(
                 top_candidates=candidate_ids,
                 selected_tool=name,
                 param=arguments,
-                response=None,
                 error=f"Tool '{name}' not found in MCP",
-                motivation=None,
             )
 
         try:
@@ -272,22 +318,19 @@ def register_u_tool(
             arguments['ctx'] = ctx
 
             result = await tool.fn(**arguments)
-            return UToolResponse(
+            return constructor_for_utool(
                 top_candidates=candidate_ids,
                 selected_tool=name,
                 param=arguments,
                 response=result,
-                error=None,
                 motivation=motivation_text,
             )
         except Exception as e:
-            return UToolResponse(
+            return constructor_for_utool(
                 top_candidates=candidate_ids,
                 selected_tool=name,
                 param=arguments,
-                response=None,
                 error=str(e),
-                motivation=None,
             )
 
     if transport == "streamable-http":
