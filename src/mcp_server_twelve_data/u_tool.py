@@ -2,7 +2,6 @@ import functools
 import importlib.util
 from pathlib import Path
 
-import httpx
 from cachetools import TTLCache
 from mcp.client.streamable_http import RequestContext
 from starlette.requests import Request
@@ -38,12 +37,10 @@ class TwelvedataTokens:
     def __init__(
         self, twelve_data_api_key: Optional[str] = None,
         open_ai_api_key: Optional[str] = None,
-        oauth2_access_token: Optional[str] = None,
         error: Optional[str] = None,
     ):
         self.twelve_data_api_key = twelve_data_api_key
         self.open_ai_api_key = open_ai_api_key
-        self.oauth2_access_token = oauth2_access_token
         self.error = error
 
 
@@ -57,17 +54,13 @@ def get_tokens_from_rc(rc: RequestContext) -> TwelvedataTokens:
     auth_header = headers.get('authorization')
     split_header = auth_header.split(' ') if auth_header else []
     if len(split_header) == 2:
-        prefix = split_header[0]
         access_token = split_header[1]
         open_ai_api_key=headers.get('x-openapi-key')
-        if prefix == 'Bearer':
-            return TwelvedataTokens(oauth2_access_token=access_token)
-        else:
-            # in this case user provide both api keys via headers
-            return TwelvedataTokens(
-                twelve_data_api_key=access_token,
-                open_ai_api_key=open_ai_api_key
-            )
+        # in this case user provide both api keys via headers
+        return TwelvedataTokens(
+            twelve_data_api_key=access_token,
+            open_ai_api_key=open_ai_api_key
+        )
     return TwelvedataTokens(error=f"Bad authorization header: {auth_header}.")
 
 
@@ -85,30 +78,6 @@ def cache_by_bearer_token(func: Callable[[str], Awaitable[Any]]):
         return result
 
     return wrapper
-
-
-@cache_by_bearer_token
-async def get_user_tokens(bearer_token: str) -> TwelvedataTokens:
-    url = "https://twelvedata.com/api/v1/user/user"
-    headers = {
-        "authorization": f"Bearer {bearer_token}",
-        "accept": "application/json",
-    }
-
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers=headers)
-            response.raise_for_status()
-
-            payload = response.json()
-            data = payload.get("data", {})
-
-            open_ai_api_key = data.get("openai_apikey")
-            twelve_data_api_key = data.get("api_token")
-
-            return TwelvedataTokens(twelve_data_api_key, open_ai_api_key)
-    except (httpx.RequestError, httpx.HTTPStatusError, ValueError, KeyError) as e:
-        return TwelvedataTokens(error=f"Error getting user tokens: {e}")
 
 
 def register_u_tool(
@@ -226,14 +195,6 @@ def register_u_tool(
                 token_from_rc = get_tokens_from_rc(rc=rc)
                 if token_from_rc.error is not None:
                     return constructor_for_utool(error=token_from_rc.error)
-                elif token_from_rc.oauth2_access_token is not None:
-                    tokens = await get_user_tokens(bearer_token=token_from_rc.oauth2_access_token )
-                    if tokens.error is not None:
-                        return constructor_for_utool(error=tokens.error)
-                    if tokens.open_ai_api_key is None:
-                        return constructor_for_utool(error=f"Set OPEN API KEY in your Twelve Data profile")
-                    rc.headers["authorization"] = f"apikey {tokens.twelve_data_api_key}"
-                    o_ai_api_key_to_use=tokens.open_ai_api_key
                 elif token_from_rc.twelve_data_api_key and token_from_rc.open_ai_api_key:
                     o_ai_api_key_to_use = token_from_rc.open_ai_api_key
                 else:

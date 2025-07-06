@@ -67,29 +67,10 @@ async def test_call_utool(run_server_factory):
             )
         assert response.status_code == 200
         data = response.json()
-        assert "response" in data and data["response"] is not None
-    finally:
-        await stop_server()
-
-
-@pytest.mark.asyncio
-async def test_call_utool_oauth2(run_server_factory):
-    stop_server = await run_server_factory(
-        "-t", "streamable-http", "-ua"
-    )
-
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                f"{server_url}/utool?query={urllib.parse.quote('show me RSI for AAPL')}",
-                timeout=30,
-                headers={
-                    'Authorization': f'Bearer {test_oauth2_access_token}',
-                }
-            )
-        assert response.status_code == 200
-        data = response.json()
-        assert "response" in data and data["response"] is not None
+        response = data.get("response")
+        assert response
+        assert "values" in response
+        assert len(response["values"]) > 0
     finally:
         await stop_server()
 
@@ -106,13 +87,16 @@ async def test_call_utool_both_keys_in_header(run_server_factory):
                 f"{server_url}/utool?query={urllib.parse.quote('show me RSI for AAPL')}",
                 timeout=30,
                 headers={
-                    'Authorization': f'apikey {test_oauth2_access_token}',
+                    'Authorization': f'apikey {td_api_key}',
                     'X-OpenAPI-Key': open_api_key,
                 }
             )
         assert response.status_code == 200
         data = response.json()
-        assert "response" in data and data["response"] is not None
+        response = data.get("response")
+        assert response
+        assert "values" in response
+        assert len(response["values"]) > 0
     finally:
         await stop_server()
 
@@ -134,8 +118,10 @@ async def test_call_utool_stdio():
             await session.initialize()
             result = await session.call_tool("u-tool", arguments={"query": "show me RSI for AAPL"})
             data = json.loads(result.content[0].text)
-            assert "response" in data
-            assert data["response"]
+            response = data.get("response")
+            assert response
+            assert "values" in response
+            assert len(response["values"]) > 0
 
 
 @pytest.mark.asyncio
