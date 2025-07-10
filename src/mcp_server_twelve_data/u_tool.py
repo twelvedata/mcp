@@ -1,8 +1,6 @@
-import functools
 import importlib.util
 from pathlib import Path
 
-from cachetools import TTLCache
 from mcp.client.streamable_http import RequestContext
 from starlette.requests import Request
 
@@ -64,20 +62,40 @@ def get_tokens_from_rc(rc: RequestContext) -> TwelvedataTokens:
     return TwelvedataTokens(error=f"Bad authorization header: {auth_header}.")
 
 
-_token_cache: TTLCache = TTLCache(maxsize=1024, ttl=60)
+def get_md_response(
+    client: openai.OpenAI,
+    llm_model: str,
+    query: str,
+    result: BaseModel
+) -> str:
+    prompt = """
+    You are a Markdown report generator.
+    
+    Your task is to generate a clear, well-structured and readable response in Markdown format based on:
+    1. A user query
+    2. A JSON object containing the data relevant to the query
+    
+    Instructions:
+    - Do NOT include raw JSON.
+    - Instead, extract relevant information and present it using Markdown structure: headings, bullet points, tables,
+      bold/italic text, etc.
+    - Be concise, accurate, and helpful.
+    - If the data is insufficient to fully answer the query, say so clearly.
+    
+    Respond only with Markdown. Do not explain or include extra commentary outside of the Markdown response.
+    """
 
+    llm_response = client.chat.completions.create(
+        model=llm_model,
+        messages=[
+            cast(ChatCompletionSystemMessageParam, {"role": "system", "content": prompt}),
+            cast(ChatCompletionSystemMessageParam, {"role": "user", "content": f"User query:\n{query}"}),
+            cast(ChatCompletionSystemMessageParam, {"role": "user", "content": f"Data:\n{result.model_dump_json(indent=2)}"}),
+        ],
+        temperature=0,
+    )
 
-def cache_by_bearer_token(func: Callable[[str], Awaitable[Any]]):
-    @functools.wraps(func)
-    async def wrapper(bearer_token: str) -> Any:
-        if bearer_token in _token_cache:
-            return _token_cache[bearer_token]
-
-        result = await func(bearer_token)
-        _token_cache[bearer_token] = result
-        return result
-
-    return wrapper
+    return llm_response.choices[0].message.content.strip()
 
 
 def register_u_tool(
@@ -85,9 +103,9 @@ def register_u_tool(
     u_tool_open_ai_api_key: Optional[str],
     transport: Literal["stdio", "sse", "streamable-http"],
 ):
-    # LLM_MODEL = "gpt-4o"         # Input $2.5,   Output $10
-    # LLM_MODEL = "gpt-4-turbo"    # Input $10.00, Output $30
-    LLM_MODEL = "gpt-4o-mini"      # Input $0.15,  Output $0.60
+    # llm_model = "gpt-4o"         # Input $2.5,   Output $10
+    # llm_model = "gpt-4-turbo"    # Input $10.00, Output $30
+    llm_model = "gpt-4o-mini"      # Input $0.15,  Output $0.60
 
     EMBEDDING_MODEL = "text-embedding-3-small"
     spec = importlib.util.find_spec("mcp_server_twelve_data")
@@ -114,9 +132,6 @@ def register_u_tool(
         error: Optional[str] = Field(
             None, description="Error message, if tool resolution or execution fails."
         )
-        motivation: Optional[str] = Field(
-            None, description="Brief explanation why the LLM chose this tool."
-        )
 
     def constructor_for_utool(
         top_candidates=None,
@@ -124,7 +139,6 @@ def register_u_tool(
         param=None,
         response=None,
         error=None,
-        motivation=None,
     ):
         return UToolResponse(
             top_candidates=top_candidates,
@@ -132,7 +146,6 @@ def register_u_tool(
             param=param,
             response=response,
             error=error,
-            motivation=motivation,
         )
 
     def build_openai_tools_subset(tool_list):
@@ -155,7 +168,7 @@ def register_u_tool(
     table = db.open_table("endpoints")
 
     @server.tool(name="u-tool")
-    async def u_tool(query: str, ctx: Context) -> UToolResponse:
+    async def u_tool(query: str, ctx: Context, format_param: Optional[str] = None) -> UToolResponse:
         """
         A universal tool router for the MCP system, designed for the Twelve Data API.
 
@@ -231,32 +244,23 @@ def register_u_tool(
         )
 
         try:
-            response = client.chat.completions.create(
-                model=LLM_MODEL,
+            llm_response = client.chat.completions.create(
+                model=llm_model,
                 messages=[
                     cast(ChatCompletionSystemMessageParam, {"role": "system", "content": prompt}),
                     cast(ChatCompletionSystemMessageParam, {"role": "user", "content": query}),
-                    cast(
-                        ChatCompletionSystemMessageParam,
-                        {
-                            "role": "user",
-                            "content": "Explain why you selected this endpoint (2 sentences)."
-                        }
-                    )
                 ],
                 tools=openai_tools,
                 tool_choice="required",
                 temperature=0,
             )
 
-            call = response.choices[0].message.tool_calls[0]
+            call = llm_response.choices[0].message.tool_calls[0]
             name = call.function.name
             arguments = json.loads(call.function.arguments)
             # all tools require single parameter with nested attributes, but sometimes LLM flattens it
             if "params" not in arguments:
                 arguments = {"params": arguments}
-            choice = response.choices[0].message
-            motivation_text = choice.content.strip() if choice.content else None
 
         except Exception as e:
             return constructor_for_utool(
@@ -279,12 +283,20 @@ def register_u_tool(
             arguments['ctx'] = ctx
 
             result = await tool.fn(**arguments)
+
+            if format_param == "md":
+                result = get_md_response(
+                    client=client,
+                    llm_model=llm_model,
+                    query=query,
+                    result=result,
+                )
+
             return constructor_for_utool(
                 top_candidates=candidate_ids,
                 selected_tool=name,
                 param=arguments,
                 response=result,
-                motivation=motivation_text,
             )
         except Exception as e:
             return constructor_for_utool(
@@ -298,10 +310,12 @@ def register_u_tool(
         @server.custom_route("/utool", ["GET"])
         async def u_tool_http(request: Request):
             query = request.query_params.get("query")
+            format_param = request.query_params.get("format", default="json").lower()
             if not query:
                 return JSONResponse({"error": "Missing 'query' query parameter"}, status_code=400)
 
             request_context = create_dummy_request_context(request)
             ctx = Context(request_context=request_context)
-            result = await u_tool(query=query, ctx=ctx)
+            result = await u_tool(query=query, ctx=ctx, format_param=format_param, )
+
             return JSONResponse(content=result.model_dump())

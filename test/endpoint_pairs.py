@@ -1,6 +1,12 @@
 pairs = [
-    # ("Get MAVP for AAPL using SMA over 2 to 10 periods on daily close prices.", "GetTimeSeriesMaVp"), # error
-    ('Get daily time series stock price data for AAPL for the last 14 days including open, high, low, close prices', 'GetTimeSeries')
+    # ('Show me batches for AAPL.', 'advanced'),  # skipped-error,
+    # ('Show me dividends calendar for AAPL.', 'GetDividendsCalendar'),  # skipped-error
+    # ('Show me the list of available time intervals.', 'GetIntervals'),  # skipped-error
+    # ('Show me the IPO calendar for upcoming companies.', 'GetIpoCalendar'),  # skipped-error
+    # ('Show me last changes for AAPL.', 'GetLastChanges'),  # skipped-error
+    # ("Show me the top market movers in the US stock market.", "GetMarketMovers"),  # skipped-error-path-param
+    # ("Is the NASDAQ market currently open?", "GetMarketState"),  # skipped-error
+    # ('Show me splits calendar for AAPL.', 'GetSplitsCalendar'),   # skipped-error
 ]
 
 pairs_ = [
@@ -81,8 +87,6 @@ pairs_ = [
     ('Show me funds list for AAPL.', 'GetFunds'),
     ('Show me growth estimates for AAPL.', 'GetGrowthEstimates'),
     ('Show me heikinashicandles for AAPL.', 'GetTimeSeriesHeikinashiCandles'),
-
-    ####################
 
     ('Show me hlc3 for AAPL.', 'GetTimeSeriesHlc3'),
     ('Show me ht_dcperiod for AAPL.', 'GetTimeSeriesHtDcPeriod'),
