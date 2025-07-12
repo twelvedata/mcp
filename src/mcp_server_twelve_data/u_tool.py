@@ -149,16 +149,43 @@ def register_u_tool(
         )
 
     def build_openai_tools_subset(tool_list):
+        def expand_parameters(params):
+            if (
+                "properties" in params and
+                "params" in params["properties"] and
+                "$ref" in params["properties"]["params"] and
+                "$defs" in params
+            ):
+                ref_path = params["properties"]["params"]["$ref"]
+                ref_name = ref_path.split("/")[-1]
+                schema = params["$defs"].get(ref_name, {})
+                return {
+                    "type": "object",
+                    "properties": {
+                        "params": {
+                            "type": "object",
+                            "properties": schema.get("properties", {}),
+                            "required": schema.get("required", []),
+                            "description": schema.get("description", "")
+                        }
+                    },
+                    "required": ["params"]
+                }
+            else:
+                return params
+
         tools = []
         for tool in tool_list:
+            expanded_parameters = expand_parameters(tool.parameters)
             tools.append({
                 "type": "function",
                 "function": {
                     "name": tool.name,
                     "description": tool.description or "No description provided.",
-                    "parameters": tool.parameters
+                    "parameters": expanded_parameters
                 }
             })
+        # [t for t in tools if t["function"]["name"] in ["GetTimeSeriesAdd", "GetTimeSeriesAd"]]
         return tools
 
     all_tools = server._tool_manager._tools

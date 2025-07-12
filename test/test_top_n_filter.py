@@ -38,7 +38,7 @@ async def run_server():
         stderr=asyncio.subprocess.DEVNULL,
     )
 
-    for _ in range(20):
+    for _ in range(40):
         try:
             import httpx
             async with httpx.AsyncClient() as client:
@@ -74,10 +74,8 @@ async def test_embedding_and_utool_async(user_query, expected_op_id, run_server)
     payload = json.loads(raw)
     top_cands = payload.get("top_candidates", [])
     error = payload.get("error")
-    motivation = payload.get("motivation")
     selected_tool = payload.get("selected_tool")
     response = payload.get("response")
-    print(motivation)
     assert expected_op_id in top_cands, f"{expected_op_id!r} not in {top_cands!r}"
     assert error is None, f"u-tool error: {error}"
     assert selected_tool == expected_op_id, (

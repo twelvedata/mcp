@@ -1,16 +1,12 @@
-pairs = [
+pairs_ = [
+
     # ('Show me batches for AAPL.', 'advanced'),  # skipped-error,
-    # ('Show me dividends calendar for AAPL.', 'GetDividendsCalendar'),  # skipped-error
-    # ('Show me the list of available time intervals.', 'GetIntervals'),  # skipped-error
-    # ('Show me the IPO calendar for upcoming companies.', 'GetIpoCalendar'),  # skipped-error
-    # ('Show me last changes for AAPL.', 'GetLastChanges'),  # skipped-error
-    # ("Show me the top market movers in the US stock market.", "GetMarketMovers"),  # skipped-error-path-param
-    # ("Is the NASDAQ market currently open?", "GetMarketState"),  # skipped-error
-    # ('Show me splits calendar for AAPL.', 'GetSplitsCalendar'),   # skipped-error
+    # ('Show me technical indicators interface for AAPL.', 'GetTechnicalIndicators'),  # skipped-error, fixed-manually
+    ('Show me ad for AAPL.', 'GetTimeSeriesAd'),
 ]
 
-pairs_ = [
-    ('Show me ad for AAPL.', 'GetTimeSeriesAd'),
+pairs = [
+    ('Give me the accumulation/distribution indicator for AAPL.', 'GetTimeSeriesAd'),
     ('Show me add for AAPL.', 'GetTimeSeriesAdd'),
     ('Show me adosc for AAPL.', 'GetTimeSeriesAdOsc'),
     ('Show me adx for AAPL.', 'GetTimeSeriesAdx'),
@@ -52,7 +48,7 @@ pairs_ = [
     ('Show me direct holders for AAPL.', 'GetDirectHolders'),
     ('Calculate DIV indicator for AAPL.', 'GetTimeSeriesDiv'),
     ('Show me dividends for AAPL.', 'GetDividends'),
-    # ('Show me dividends calendar for AAPL.', 'GetDividendsCalendar'),  # skipped-error
+    ('Show me dividends calendar for AAPL.', 'GetDividendsCalendar'),
 
     ('Show me dpo for AAPL.', 'GetTimeSeriesDpo'),
     ('Show me dx for AAPL.', 'GetTimeSeriesDx'),
@@ -68,7 +64,7 @@ pairs_ = [
     ('Show me eps trend for AAPL.', 'GetEpsTrend'),
     ('Show me ETFs for SPY on NYSE.', 'GetEtf'),
     ('Show me ETFs in the same family as SPY.', 'GetETFsFamily'),
-    ("Show me the list of bond ETFs managed by BlackRock.", "GetETFsList"),
+    ("Show me the full list of bond-type exchange-traded funds issued by BlackRock investment company.", "GetETFsList"),
     ('Show me ETF types available in the United States.', 'GetETFsType'),
     ("Give me a complete ETF analysis report for IVV, with all metrics like performance,"
      " summary, volatility, sector weights and country allocations.", "GetETFsWorld"),
@@ -102,13 +98,13 @@ pairs_ = [
     ('Show me insider transactions for AAPL.', 'GetInsiderTransactions'),
     ('Show me institutional holders for AAPL.', 'GetInstitutionalHolders'),
     ('Show me instrument type for AAPL.', 'GetInstrumentType'),
-    # ('Show me the list of available time intervals.', 'GetIntervals'),  # skipped-error
-    # ('Show me the IPO calendar for upcoming companies.', 'GetIpoCalendar'),  # skipped-error
+    ('Show me the list of available time intervals.', 'GetIntervals'),
+    ('Show me the IPO calendar for upcoming companies.', 'GetIpoCalendar'),
     ('Show me kama for AAPL.', 'GetTimeSeriesKama'),
     ('Show me keltner for AAPL.', 'GetTimeSeriesKeltner'),
     ('Show me key executives for AAPL.', 'GetKeyExecutives'),
     ('Show me kst for AAPL.', 'GetTimeSeriesKst'),
-    # ('Show me last changes for AAPL.', 'GetLastChanges'),  # skipped-error
+    ('Show me last changes for AAPL.', 'GetLastChanges'),
 
     ('Show me linearreg for AAPL.', 'GetTimeSeriesLinearReg'),
     ('Show me linearregangle for AAPL.', 'GetTimeSeriesLinearRegAngle'),
@@ -124,8 +120,8 @@ pairs_ = [
     ('Show me macdext for AAPL.', 'GetTimeSeriesMacdExt'),
     ('Show me mama for AAPL.', 'GetTimeSeriesMama'),
     ('Show me market capitalization for AAPL.', 'GetMarketCap'),
-    # ("Show me the top market movers in the US stock market.", "GetMarketMovers"),  # skipped-error-path-param
-    # ("Is the NASDAQ market currently open?", "GetMarketState"),  # skipped-error
+    ("Show me the top market movers in the US stock market.", "GetMarketMovers"),
+    ("Is the NASDAQ market currently open?", "GetMarketState"),
     ('Show me max for AAPL.', 'GetTimeSeriesMax'),
     ('Show me maxindex for AAPL.', 'GetTimeSeriesMaxIndex'),
     ('Show me mcginley_dynamic for AAPL.', 'GetTimeSeriesMcGinleyDynamic'),
@@ -181,7 +177,7 @@ pairs_ = [
     ('Show me extended SAR indicator for AAPL.', 'GetTimeSeriesSarExt'),
     ('Show me SMA indicator for AAPL.', 'GetTimeSeriesSma'),
     ('Show me stock splits for AAPL.', 'GetSplits'),
-    # ('Show me splits calendar for AAPL.', 'GetSplitsCalendar'),   # skipped-error
+    ('Show me splits calendar for AAPL.', 'GetSplitsCalendar'),
     ('Show me SQRT indicator for AAPL.', 'GetTimeSeriesSqrt'),
     ('Show me statistics for AAPL.', 'GetStatistics'),
     ('Show me standard deviation for AAPL.', 'GetTimeSeriesStdDev'),
@@ -201,7 +197,7 @@ pairs_ = [
     ('Show me technical indicators interface for AAPL.', 'GetTechnicalIndicators'),
     ('Show me tema for AAPL.', 'GetTimeSeriesTema'),
     ('Show me time series for AAPL.', 'GetTimeSeries'),
-    ('Show me cross indicator time series for AAPL.', 'GetTimeSeriesCross'),
+    ('Get cross rate time series for USD/BTC', 'GetTimeSeriesCross'),
     ('Show me trange for AAPL.', 'GetTimeSeriesTRange'),
     ('Show me trima for AAPL.', 'GetTimeSeriesTrima'),
     ('Show me tsf for AAPL.', 'GetTimeSeriesTsf'),

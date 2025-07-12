@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 import keyword
+from typing import Any, List, Optional
 
 OPENAPI_PATH = "../extra/openapi_clean.json"
 REQUESTS_FILE = "../data/request_models.py"
@@ -21,26 +22,31 @@ def canonical_class_name(opid: str, suffix: str) -> str:
     return opid[0].upper() + opid[1:] + suffix
 
 
-def safe_field_name(name):
+def safe_field_name(name: str) -> str:
+    # Append underscore if name is a Python keyword
     if keyword.iskeyword(name):
         return name + "_"
     return name
 
 
-def python_type(schema, components):
+def python_type(schema: dict, components: dict) -> str:
+    # Resolve $ref to the corresponding model class name
     if "$ref" in schema:
         ref_name = schema["$ref"].split("/")[-1]
         return canonical_class_name(ref_name, "")
+    # Handle allOf by delegating to the first subschema
     if "allOf" in schema:
         for subschema in schema["allOf"]:
             return python_type(subschema, components)
     t = schema.get("type", "string")
     if t == "array":
+        # Construct type for lists recursively
         return f"list[{python_type(schema.get('items', {}), components)}]"
     return PRIMITIVES.get(t, "Any")
 
 
-def resolve_schema(schema, components):
+def resolve_schema(schema: dict, components: dict) -> dict:
+    # Fully resolve $ref and allOf compositions into a merged schema
     if "$ref" in schema:
         ref = schema["$ref"].split("/")[-1]
         return resolve_schema(components.get(ref, {}), components)
@@ -58,8 +64,9 @@ def resolve_schema(schema, components):
     return schema
 
 
-def collect_examples(param, sch):
-    examples = []
+def collect_examples(param: dict, sch: dict) -> List[Any]:
+    # Collect all examples from parameter, schema, and enums without deduplication
+    examples: List[Any] = []
     if "example" in param:
         examples.append(param["example"])
     if "examples" in param:
@@ -78,59 +85,69 @@ def collect_examples(param, sch):
                 examples.append(v["value"] if isinstance(v, dict) and "value" in v else v)
         elif isinstance(exs, list):
             examples.extend(exs)
-    return [e for i, e in enumerate(examples) if e is not None and e not in examples[:i]]
+    # Include enum values as examples if present
+    if "enum" in sch and isinstance(sch["enum"], list):
+        examples.extend(sch["enum"])
+    return [e for e in examples if e is not None]
 
 
-def gen_field(name, typ, required, desc, examples, default):
+def gen_field(name: str, typ: str, required: bool, desc: Optional[str],
+              examples: List[Any], default: Any) -> str:
     name = safe_field_name(name)
-    field_args = []
+    # Wrap in Optional[...] if default is None and field is not required
+    if default is None and not required:
+        typ = f"Optional[{typ}]"
+    args: List[str] = []
     if required:
-        field_args.append("...")
+        args.append("...")
     else:
-        field_args.append(f"default={repr(default)}")
+        args.append(f"default={repr(default)}")
     if desc:
-        field_args.append(f'description={repr(desc)}')
+        args.append(f"description={repr(desc)}")
     if examples:
-        field_args.append(f'examples={repr(examples)}')
-    args = ", ".join(field_args)
-    return f"    {name}: {typ} = Field({args})"
+        args.append(f"examples={repr(examples)}")
+    return f"    {name}: {typ} = Field({', '.join(args)})"
 
 
-def gen_class(name, props, desc):
+def gen_class(name: str, props: dict, desc: Optional[str]) -> str:
     lines = [f"class {name}(BaseModel):"]
     if desc:
+        # Add class docstring if description is present
         lines.append(f'    """{desc.replace(chr(34)*3, "")}"""')
     if not props:
         lines.append("    pass")
     else:
         for pname, fdict in props.items():
-            typ = fdict["type"]
-            required = fdict["required"]
-            dsc = fdict["description"]
-            exs = fdict["examples"]
-            default = fdict["default"]
-            lines.append(gen_field(pname, typ, required, dsc, exs, default))
+            lines.append(gen_field(
+                pname,
+                fdict["type"],
+                fdict["required"],
+                fdict["description"],
+                fdict["examples"],
+                fdict["default"]
+            ))
     return "\n".join(lines)
 
 
 def main():
+    # Load the OpenAPI specification
     with open(OPENAPI_PATH, "r", encoding="utf-8") as f:
         spec = json.load(f)
 
     components = spec.get("components", {}).get("schemas", {})
+    request_models: List[str] = []
+    request_names: set = set()
 
-    request_models = []
-    request_names = set()
-    for path, methods in spec["paths"].items():
+    for path, methods in spec.get("paths", {}).items():
         for http_method, op in methods.items():
             opid = op.get("operationId")
             if not opid:
                 continue
             class_name = canonical_class_name(opid, "Request")
-            params = op.get("parameters", [])
-            body = op.get("requestBody", {}).get("content", {}).get("application/json", {}).get("schema")
-            props = {}
-            for param in params:
+
+            # Collect parameters from path, query, header, etc.
+            props: dict = {}
+            for param in op.get("parameters", []):
                 name = param["name"]
                 sch = param.get("schema", {"type": "string"})
                 typ = python_type(sch, components)
@@ -145,6 +162,12 @@ def main():
                     "examples": examples,
                     "default": default,
                 }
+
+            # Collect JSON body properties
+            body = op.get("requestBody", {}) \
+                     .get("content", {}) \
+                     .get("application/json", {}) \
+                     .get("schema")
             if body:
                 body_sch = resolve_schema(body, components)
                 for name, sch in body_sch.get("properties", {}).items():
@@ -160,25 +183,43 @@ def main():
                         "examples": examples,
                         "default": default,
                     }
-            desc = op.get("description", None)
-            # ДОБАВЛЯЕМ apikey:
+
+            # Add outputsize with detailed description and default=10
+            props["outputsize"] = {
+                "type": "int",
+                "required": False,
+                "description": (
+                    "Number of data points to retrieve. Supports values in the range from `1` to `5000`. "
+                    "Default `10` when no date parameters are set, otherwise set to maximum"
+                ),
+                "examples": [10],
+                "default": 10,
+            }
+
+            # Add apikey with default="demo"
             props["apikey"] = {
                 "type": "str",
-                "required": True,
+                "required": False,
                 "description": "API key",
                 "examples": ["demo"],
-                "default": "demo"
+                "default": "demo",
             }
-            code = gen_class(class_name, props, desc)
+
+            if "interval" in props:
+                props["interval"]["required"] = False
+                props["interval"]["default"] = "1day"
+
+            code = gen_class(class_name, props, op.get("description"))
             if class_name not in request_names:
                 request_models.append(code)
                 request_names.add(class_name)
 
-    Path(REQUESTS_FILE).write_text(
-        "from pydantic import BaseModel, Field\nfrom typing import Any, List\n\n"
-        + "\n\n".join(request_models),
-        encoding="utf-8"
+    # Write all generated models to the target file
+    header = (
+        "from pydantic import BaseModel, Field\n"
+        "from typing import Any, List, Optional\n\n"
     )
+    Path(REQUESTS_FILE).write_text(header + "\n\n".join(request_models), encoding="utf-8")
     print(f"Generated request models: {REQUESTS_FILE}")
 
 

@@ -94,7 +94,7 @@ wheels = [
 
 [[package]]
 name = "datamodel-code-generator"
-version = "0.31.0"
+version = "0.31.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "argcomplete" },
@@ -107,9 +107,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "pyyaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/73/e9/a21e18bf33cdbfacc0946c13253cc2c02af06dd4b61bdcb63e170fede594/datamodel_code_generator-0.31.0.tar.gz", hash = "sha256:85a5d5b5f7af2dc307a28ceff4ac3630ffbb297c6ec91937e1899f26a0dc2147", size = 452450, upload-time = "2025-06-12T16:20:58.16Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/07/40/26399980314bedb3a8ec6a31da646d190cd945192410ad3ab6eabe0a1c73/datamodel_code_generator-0.31.2.tar.gz", hash = "sha256:47887b8aa6fd69865e07e2893c1e76e34dae753b9a97f1020357af8337bc4cdb", size = 453381, upload-time = "2025-06-22T17:40:56.491Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/83/14/8979f1dc48adb597b4655d5904dbbc4ef27639681e0c4c28c7b9d1f0b6e3/datamodel_code_generator-0.31.0-py3-none-any.whl", hash = "sha256:d0af3c21586a06ec89789b3caec1ce0cd95eee6137818912821b1e8eecf587bc", size = 119343, upload-time = "2025-06-12T16:20:56.133Z" },
+    { url = "https://files.pythonhosted.org/packages/88/82/9bda726b117967b8056315e51125633ec7a0d2f862c202aed01c3fde2e9f/datamodel_code_generator-0.31.2-py3-none-any.whl", hash = "sha256:78f200a9e673ee4d041e96e82a835273baf4ce15e446d46501c0433d82af3ef5", size = 119369, upload-time = "2025-06-22T17:40:54.615Z" },
 ]
 
 [[package]]
@@ -389,6 +389,7 @@ version = "0.1.29"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
+    { name = "datamodel-code-generator" },
     { name = "lancedb" },
     { name = "mcp", extra = ["cli"] },
     { name = "openai" },
@@ -409,6 +410,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "click", specifier = "==8.2.1" },
+    { name = "datamodel-code-generator", specifier = "==0.31.2" },
     { name = "lancedb", specifier = ">=0.23.0" },
     { name = "mcp", extras = ["cli"], specifier = ">=1.9.4" },
     { name = "openai", specifier = ">=1.86.0" },
@@ -419,7 +421,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "datamodel-code-generator", specifier = ">=0.16.0" },
+    { name = "datamodel-code-generator", specifier = ">=0.31.2" },
     { name = "pyright", specifier = ">=1.1.389" },
     { name = "pytest", specifier = ">=8.0.0" },
     { name = "pytest-asyncio", specifier = ">=1.0.0" },

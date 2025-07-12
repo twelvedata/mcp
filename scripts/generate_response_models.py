@@ -1,20 +1,34 @@
-from datamodel_code_generator import InputFileType, generate, PythonVersion
+import subprocess
 from pathlib import Path
 
-openapi_path = '../extra/openapi_clean.json'   # путь к спецификации
-output_path = '../data/response_models.py'        # куда сохранить
+openapi_path = '../extra/openapi_clean.json'
+output_path = '../data/response_models.py'
 
-# Чтение исходного файла
-with open(openapi_path, 'r', encoding='utf-8') as f:
-    openapi_content = f.read()
+cmd = [
+    'datamodel-codegen',
+    '--input', str(openapi_path),
+    '--input-file-type', 'openapi',
+    '--output', str(output_path),
+    '--output-model-type', 'pydantic_v2.BaseModel',
+    '--reuse-model',
+    '--use-title-as-name',
+    '--disable-timestamp',
+    '--field-constraints',
+    '--use-double-quotes',
+]
 
-# Генерация моделей
-generate(
-    input_=openapi_content,
-    input_file_type=InputFileType.OpenAPI,
-    output=Path(output_path),
-    class_name=None,
-    target_python_version=PythonVersion.PY_313,
-)
+subprocess.run(cmd, check=True)
 
-print(f"Генерация завершена: {output_path}")
+# Append aliases
+alias_lines = [
+    '',
+    '# Aliases for response models',
+    'GetMarketMovers200Response = MarketMoversResponseBody',
+    'GetTimeSeriesPercent_B200Response = GetTimeSeriesPercentB200Response',
+    ''
+]
+
+with open(output_path, 'a', encoding='utf-8') as f:
+    f.write('\n'.join(alias_lines))
+
+print(f"[SUCCESS] Models generated using CLI and aliases added: {output_path}")

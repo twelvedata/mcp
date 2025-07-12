@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from mcp.server.fastmcp import FastMCP, Context
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+import re
 
 from .tools import register_all_tools
 from .u_tool import register_u_tool, get_tokens_from_rc
@@ -18,8 +19,6 @@ def serve(
     u_tool_open_ai_api_key: Optional[str],
     u_tool_oauth2: bool
 ) -> None:
-    # logger = logging.getLogger(__name__)
-
     server = FastMCP(
         "mcp-twelve-data",
         host="0.0.0.0",
@@ -29,20 +28,29 @@ def serve(
     P = TypeVar('P', bound=BaseModel)
     R = TypeVar('R', bound=BaseModel)
 
+    def resolve_path_params(endpoint: str, params_dict: dict) -> str:
+        def replacer(match):
+            key = match.group(1)
+            if key not in params_dict:
+                raise ValueError(f"Missing path parameter: {key}")
+            return str(params_dict.pop(key))
+        return re.sub(r"{(\w+)}", replacer, endpoint)
+
     async def _call_endpoint(
         endpoint: str,
         params: P,
         response_model: Type[R],
         ctx: Context
     ) -> R:
-        if transport == 'stdio' and twelve_data_apikey:
-            params.apikey = twelve_data_apikey
-        elif transport == "streamable-http" and twelve_data_apikey:
+        if transport in {'stdio', 'streamable-http'} and twelve_data_apikey:
             params.apikey = twelve_data_apikey
         else:
             rc: RequestContext = ctx.request_context
             tokens = get_tokens_from_rc(rc=rc)
             params.apikey = tokens.twelve_data_api_key
+
+        params_dict = params.model_dump(exclude_none=True)
+        resolved_endpoint = resolve_path_params(endpoint, params_dict)
 
         async with httpx.AsyncClient(
             trust_env=False,
@@ -52,8 +60,8 @@ def serve(
             },
         ) as client:
             resp = await client.get(
-                f"{api_base}/{endpoint}",
-                params=params.model_dump(exclude_none=True)
+                f"{api_base}/{resolved_endpoint}",
+                params=params_dict
             )
             resp.raise_for_status()
             return response_model.model_validate(resp.json())
@@ -61,7 +69,6 @@ def serve(
     register_all_tools(server=server, _call_endpoint=_call_endpoint)
 
     if u_tool_oauth2 or u_tool_open_ai_api_key is not None:
-        # if u_tool_oauth2 is True, then u_tool_open_ai_api_key is None and will be received via Twelve data server
         register_u_tool(
             server=server,
             u_tool_open_ai_api_key=u_tool_open_ai_api_key,
