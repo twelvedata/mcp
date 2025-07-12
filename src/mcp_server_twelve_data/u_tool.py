@@ -10,56 +10,11 @@ import json
 
 from mcp.server.fastmcp import FastMCP, Context
 from pydantic import BaseModel, Field
-from typing import Any, Optional, List, cast, Literal, Callable, Awaitable
+from typing import Any, Optional, List, cast, Literal
 from openai.types.chat import ChatCompletionSystemMessageParam
 from starlette.responses import JSONResponse
 
-
-def create_dummy_request_context(request: Request) -> RequestContext:
-    """Returns a valid RequestContext with Starlette request injected manually."""
-
-    rctx = RequestContext(
-        client=object(),
-        headers=dict(request.headers),
-        session_id="dummy-session-id",
-        session_message=object(),
-        metadata=object(),
-        read_stream_writer=object(),
-        sse_read_timeout=10.0
-    )
-
-    return rctx
-
-
-class TwelvedataTokens:
-    def __init__(
-        self, twelve_data_api_key: Optional[str] = None,
-        open_ai_api_key: Optional[str] = None,
-        error: Optional[str] = None,
-    ):
-        self.twelve_data_api_key = twelve_data_api_key
-        self.open_ai_api_key = open_ai_api_key
-        self.error = error
-
-
-def get_tokens_from_rc(rc: RequestContext) -> TwelvedataTokens:
-    if hasattr(rc, "headers"):
-        headers = rc.headers
-    elif hasattr(rc, "request"):
-        headers = rc.request.headers
-    else:
-        return TwelvedataTokens(error="Headers were not found in a request context.")
-    auth_header = headers.get('authorization')
-    split_header = auth_header.split(' ') if auth_header else []
-    if len(split_header) == 2:
-        access_token = split_header[1]
-        open_ai_api_key=headers.get('x-openapi-key')
-        # in this case user provide both api keys via headers
-        return TwelvedataTokens(
-            twelve_data_api_key=access_token,
-            open_ai_api_key=open_ai_api_key
-        )
-    return TwelvedataTokens(error=f"Bad authorization header: {auth_header}.")
+from mcp_server_twelve_data.common import get_tokens_from_rc, create_dummy_request_context
 
 
 def get_md_response(
@@ -90,7 +45,7 @@ def get_md_response(
         messages=[
             cast(ChatCompletionSystemMessageParam, {"role": "system", "content": prompt}),
             cast(ChatCompletionSystemMessageParam, {"role": "user", "content": f"User query:\n{query}"}),
-            cast(ChatCompletionSystemMessageParam, {"role": "user", "content": f"Data:\n{result.model_dump_json(indent=2)}"}),
+            cast(ChatCompletionSystemMessageParam, {"role": "user", "content": f"Data:\n{result.model_dump_json()}"}),
         ],
         temperature=0,
     )

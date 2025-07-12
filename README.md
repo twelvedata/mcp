@@ -17,46 +17,28 @@ To use Twelve Data MCP Server, you must first obtain an API key from Twelve Data
 
 Important: Access to specific endpoints or markets may vary depending on your Twelve Data subscription plan.
 
-## Tools
+## U-tool
+u-tool is an AI-powered universal router for the Twelve Data API that transforms how you access financial data. Instead of navigating 100+ individual endpoints and complex documentation, simply describe what you need in plain English.
 
-1. **`time_series`**
-   Fetch historical price data for a symbol.
+How it works:
+🧠 Natural Language Processing: Understands your request in conversational English
+🔍 Smart Routing: Uses vector search to find the most relevant endpoints from Twelve Data's entire API catalog
+🎯 Intelligent Selection: Leverages OpenAI GPT-4o to choose the optimal method and generate correct parameters
+⚡ Automatic Execution: Calls the appropriate endpoint and returns formatted results
 
-   * **Inputs:**
+What you can ask:
+📈 "Show me Apple stock performance this week"
+📊 "Calculate RSI for Bitcoin with 14-day period" 
+💰 "Get Tesla's financial ratios and balance sheet"
+🌍 "Compare EUR/USD exchange rates over 6 months"
+🏦 "Find top-performing tech ETFs"
 
-     * `symbol` (string): Ticker, e.g. `AAPL`
-     * `interval` (string): Data interval, e.g. `1min`, `1day`
-     * `start_date` (string, optional): ISO-8601 start timestamp
-     * `end_date` (string, optional): ISO-8601 end timestamp
-   * **Returns:** Array of OHLCV bars.
+Supported data categories:
+- Market data & quotes • Technical indicators (100+)
+- Fundamental data & financials • Currencies & crypto
+- Mutual funds & ETFs • Economic calendars & events
 
-2. **`price`**
-   Get the latest price for a symbol.
-
-   * **Inputs:**
-
-     * `symbol` (string)
-   * **Returns:** Latest price quote.
-
-3. **`stocks`**
-   List available stock instruments.
-
-   * **Inputs:**
-
-     * `exchange` (string, optional): Exchange code to filter by
-   * **Returns:** Array of stock metadata.
-
-4. **`forex_pairs`**
-   List available forex pairs.
-
-   * **Inputs:** none
-   * **Returns:** Array of forex pair metadata.
-
-5. **`cryptocurrencies`**
-   List available cryptocurrencies.
-
-   * **Inputs:** none
-   * **Returns:** Array of cryptocurrency metadata.
+One tool, entire Twelve Data ecosystem. No API documentation required.
 
 ## Installation
 
@@ -81,21 +63,32 @@ python -m mcp_server_twelve_data --help
 
 ### Claude Desktop integration
 
-Add the following snippet to your `claude_desktop_config.json`:
-
+Add one of the following snippets to your `claude_desktop_config.json`:
+(1) local stdio server configured with utool
 ```json
 {
   "mcpServers": {
     "twelvedata": {
       "command": "uvx",
-      "args": ["mcp-server-twelve-data@latest", "-k", "YOUR_TWELVE_DATA_API_KEY"]
+      "args": ["mcp-server-twelve-data@latest", "-k", "YOUR_TWELVE_DATA_API_KEY", "-u", "YOUR_OPEN_AI_APIKEY"]
     }
   }
 }
 ```
 
+(2) local stdio server only with 30 the most popular endpoints
+```json
+{
+  "mcpServers": {
+    "twelvedata": {
+      "command": "uvx",
+      "args": ["mcp-server-twelve-data@latest", "-k", "YOUR_TWELVE_DATA_API_KEY", "-n", "30"]
+    }
+  }
+}
+```
 
-or this one, to use our remote http server
+(3) twelve data remote mcp server
 
 ```json
 {
@@ -110,7 +103,7 @@ or this one, to use our remote http server
       ],
       "env": {
         "AUTH_HEADER": "apikey YOUR_TWELVE_DATA_API_KEY",
-        "OPEN_API_KEY": "YOUR_OPEN_API_KEY"
+        "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY"
       }
     }
   }
@@ -125,7 +118,7 @@ See how easy it is to connect Claude Desktop to Twelve Data MCP Server:
 
 #### Automatic setup (with UV)
 
-[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square\&logo=visualstudiocode\&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=twelvedata&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22mcp-server-twelve-data%22%2C%22-k%22%2C%YOUR_TWELVE_DATA_API_KEY%22%5D%7D)
+[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=twelvedata&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22mcp-server-twelve-data%22%2C%22-k%22%2C%22YOUR_TWELVE_DATA_API_KEY%22%2C%22-u%22%2C%22YOUR_OPENAI_API_KEY%22%5D%7D)
 
 #### Manual setup
 
@@ -136,13 +129,13 @@ For manual configuration, add to your **User Settings (JSON)**:
   "mcp": {
     "servers": {
       "twelvedata": {
-        "command": "uvx",
-        "args": [
-          "mcp-server-twelve-data@latest",
-          "-t", "streamable-http",
-          "-k", "YOUR_TWELVE_DATA_API_KEY"
-        ]
-      }
+          "command": "uvx",
+          "args": [
+            "mcp-server-twelve-data",
+            "-k", "YOUR_TWELVE_DATA_API_KEY",
+            "-u", "YOUR_OPENAI_API_KEY"
+          ]
+        }
     }
   }
 }
@@ -167,40 +160,11 @@ Build and run the server using Docker:
 
 ```bash
 docker build -t mcp-server-twelve-data .
-docker run --rm mcp-server-twelve-data -k YOUR_TWELVE_DATA_API_KEY
-```
 
-## U-tool
-u-tool is an AI-powered universal router for the Twelve Data API that transforms how you access financial data. Instead of navigating 100+ individual endpoints and complex documentation, simply describe what you need in plain English.
-
-How it works:
-🧠 Natural Language Processing: Understands your request in conversational English
-🔍 Smart Routing: Uses vector search to find the most relevant endpoints from Twelve Data's entire API catalog
-🎯 Intelligent Selection: Leverages OpenAI GPT-4o to choose the optimal method and generate correct parameters
-⚡ Automatic Execution: Calls the appropriate endpoint and returns formatted results
-
-What you can ask:
-📈 "Show me Apple stock performance this week"
-📊 "Calculate RSI for Bitcoin with 14-day period" 
-💰 "Get Tesla's financial ratios and balance sheet"
-🌍 "Compare EUR/USD exchange rates over 6 months"
-🏦 "Find top-performing tech ETFs"
-
-Supported data categories:
-- Market data & quotes • Technical indicators (100+)
-- Fundamental data & financials • Currencies & crypto
-- Mutual funds & ETFs • Economic calendars & events
-
-One tool, entire Twelve Data ecosystem. No API documentation required.
-```json
-{
-  "mcpServers": {
-    "twelvedata": {
-      "command": "uvx",
-      "args": ["mcp-server-twelve-data@latest", "-k", "YOUR_TWELVE_DATA_API_KEY", "-u", "YOUR_OPEN_AI_APIKEY"]
-    }
-  }
-}
+docker run --rm mcp-server-twelve-data \
+  -k YOUR_TWELVE_DATA_API_KEY \
+  -u YOUR_OPENAI_API_KEY \
+  -t streamable-http
 ```
 
 ## License

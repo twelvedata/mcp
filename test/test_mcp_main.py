@@ -16,8 +16,7 @@ dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
 load_dotenv(dotenv_path)
 server_url = os.environ['SERVER_URL']
 td_api_key = os.environ['TWELVE_DATA_API_KEY']
-open_api_key = os.environ['OPEN_API_KEY']
-test_oauth2_access_token = os.environ['TEST_OAUTH2_ACCESS_TOKEN']
+OPENAI_API_KEY = os.environ['OPENAI_API_KEY']
 
 
 @pytest_asyncio.fixture
@@ -57,7 +56,7 @@ async def test_call_utool(run_server_factory):
     stop_server = await run_server_factory(
         "-t", "streamable-http",
         "-k", td_api_key,
-        "-u", open_api_key,
+        "-u", OPENAI_API_KEY,
     )
     try:
         async with httpx.AsyncClient() as client:
@@ -88,7 +87,7 @@ async def test_call_utool_both_keys_in_header(run_server_factory):
                 timeout=30,
                 headers={
                     'Authorization': f'apikey {td_api_key}',
-                    'X-OpenAPI-Key': open_api_key,
+                    'X-OpenAPI-Key': OPENAI_API_KEY,
                 }
             )
         assert response.status_code == 200
@@ -109,7 +108,7 @@ async def test_call_utool_stdio():
             "-m", "mcp_server_twelve_data",
             "-t", "stdio",
             "-k", td_api_key,
-            "-u", open_api_key
+            "-u", OPENAI_API_KEY
         ],
     )
 

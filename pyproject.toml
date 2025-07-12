@@ -1,6 +1,6 @@
 [project]
 name = "mcp-server-twelve-data"
-version = "0.1.30"
+version = "0.1.31"
 description = "A Model Context Protocol server providing tools access Twelve Data."
 readme = "README.md"
 requires-python = ">=3.13"
@@ -16,11 +16,13 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
+    "bs4>=0.0.2",
     "click==8.2.1",
     "datamodel-code-generator==0.31.2",
     "lancedb>=0.23.0",
     "mcp[cli]>=1.9.4",
     "openai>=1.86.0",
+    "pandas>=2.3.1",
     "pydantic==2.11.5",
     "pylint>=3.3.7",
     "pyyml>=0.0.2",

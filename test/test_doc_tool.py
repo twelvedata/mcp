@@ -9,14 +9,8 @@ import pytest_asyncio
 from dotenv import load_dotenv
 from mcp.client.streamable_http import streamablehttp_client
 from mcp import ClientSession
-from test.endpoint_pairs import pairs
 
-
-def _ignore_unraisable(unraisable):
-    """prevent pycharm errors in debug mode"""
-    pass
-
-sys.unraisablehook = _ignore_unraisable
+sys.unraisablehook = lambda unraisable: None
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
 load_dotenv(dotenv_path)
@@ -52,36 +46,36 @@ async def run_server():
         raise RuntimeError("Server did not start")
 
     yield
-
     proc.send_signal(signal.SIGINT)
     await proc.wait()
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("user_query,expected_op_id", pairs)
-async def test_embedding_and_utool_async(user_query, expected_op_id, run_server):
-    headers = {"Authorization": f"apikey {TD_API_KEY}"}
+@pytest.mark.parametrize("query, expected_title_keyword", [
+    ("what does the macd indicator do?", "MACD"),
+    ("how to fetch time series data?", "Time Series"),
+    ("supported intervals for time_series?", "interval"),
+])
+async def test_doc_tool_async(query, expected_title_keyword, run_server):
+    headers = {
+        "Authorization": f"apikey {TD_API_KEY}",
+        "x-openapi-key": OPENAI_API_KEY
+    }
 
     async with streamablehttp_client(MCP_URL, headers=headers) as (read_stream, write_stream, _):
         async with ClientSession(read_stream, write_stream) as session:
             await session.initialize()
-            call_result = await session.call_tool("u-tool", arguments={"query": user_query})
+            call_result = await session.call_tool("doc-tool", arguments={"query": query})
         await read_stream.aclose()
         await write_stream.aclose()
 
-    assert not call_result.isError, f"u-tool error: {call_result.content}"
+    assert not call_result.isError, f"doc-tool error: {call_result.content}"
     raw = call_result.content[0].text
     payload = json.loads(raw)
-    top_cands = payload.get("top_candidates", [])
-    error = payload.get("error")
-    selected_tool = payload.get("selected_tool")
-    response = payload.get("response")
-    assert expected_op_id in top_cands, f"{expected_op_id!r} not in {top_cands!r}"
-    assert error is None, f"u-tool error: {error}"
-    assert selected_tool == expected_op_id, (
-        f"selected_tool {payload.get('selected_tool')!r} != expected {expected_op_id!r}"
+
+    assert payload["error"] is None
+    assert payload["result"] is not None
+    assert expected_title_keyword.lower() in payload["result"].lower(), (
+        f"Expected '{expected_title_keyword}' in result Markdown:\n{payload['result']}"
     )
-    assert response is not None
-    if "GetTimeSeries" in selected_tool:
-        values = response['values']
-        assert values is not None and len(values) > 0
+    assert len(payload["top_candidates"]) > 0

@@ -7,6 +7,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 import re
 
+from .doc_tool import register_doc_tool
 from .tools import register_all_tools
 from .u_tool import register_u_tool, get_tokens_from_rc
 
@@ -74,12 +75,17 @@ def serve(
             u_tool_open_ai_api_key=u_tool_open_ai_api_key,
             transport=transport
         )
+        register_doc_tool(
+            server=server,
+            doc_tool_open_ai_api_key=u_tool_open_ai_api_key,
+            transport=transport
+        )
     else:
         all_tools = server._tool_manager._tools
         server._tool_manager._tools = dict(list(all_tools.items())[:number_of_tools])
 
     @server.custom_route("/health", ["GET"])
-    async def health(request: Request):
+    async def health(_: Request):
         return JSONResponse({"status": "ok"})
 
     server.run(transport=transport)
