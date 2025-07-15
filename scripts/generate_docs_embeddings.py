@@ -13,7 +13,7 @@ load_dotenv('../.env')
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 DB_PATH = os.getenv("LANCEDB_PATH", '../data/docs.lancedb')
-OPENAI_MODEL = 'text-embedding-3-small'
+OPENAI_MODEL = 'text-embedding-3-large'
 DOCS_URL = 'https://twelvedata.com/docs'
 
 client = openai.OpenAI(api_key=OPENAI_API_KEY)

@@ -21,7 +21,7 @@ def register_doc_tool(
     doc_tool_open_ai_api_key: Optional[str],
     transport: Literal["stdio", "sse", "streamable-http"],
 ):
-    EMBEDDING_MODEL = "text-embedding-3-small"
+    EMBEDDING_MODEL = "text-embedding-3-large"
     LLM_MODEL = "gpt-4o-mini"
 
     spec = importlib.util.find_spec("mcp_server_twelve_data")

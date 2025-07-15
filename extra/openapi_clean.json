@@ -10837,6 +10837,58 @@
         "operationId": "GetDividendsCalendar",
         "parameters": [
           {
+            "description": "Symbol ticker of instrument. For preffered stocks use dot(.) delimiter.\nE.g. `BRK.A` or `BRK.B` will be correct",
+            "in": "query",
+            "name": "symbol",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Symbol",
+              "x-order": "1"
+            },
+            "x-go-name": "Symbol",
+            "x-order": "1",
+            "example": "AAPL"
+          },
+          {
+            "description": "Filter by financial instrument global identifier (FIGI)",
+            "in": "query",
+            "name": "figi",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Figi",
+              "x-order": "2"
+            },
+            "x-go-name": "Figi",
+            "x-order": "2",
+            "example": "BBG01293F5X4"
+          },
+          {
+            "description": "Filter by international securities identification number (ISIN)",
+            "in": "query",
+            "name": "isin",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Isin",
+              "x-order": "3"
+            },
+            "x-go-name": "Isin",
+            "x-order": "3",
+            "example": "US0378331005"
+          },
+          {
+            "description": "The CUSIP of an instrument for which data is requested",
+            "in": "query",
+            "name": "cusip",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Cusip",
+              "x-order": "4"
+            },
+            "x-go-name": "Cusip",
+            "x-order": "4",
+            "example": "594918104"
+          },
+          {
             "description": "Exchange where instrument is traded",
             "in": "query",
             "name": "exchange",
@@ -41624,6 +41676,58 @@
         "operationId": "GetSplitsCalendar",
         "parameters": [
           {
+            "description": "Symbol ticker of instrument. For preffered stocks use dot(.) delimiter.\nE.g. `BRK.A` or `BRK.B` will be correct",
+            "in": "query",
+            "name": "symbol",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Symbol",
+              "x-order": "1"
+            },
+            "x-go-name": "Symbol",
+            "x-order": "1",
+            "example": "AAPL"
+          },
+          {
+            "description": "Filter by financial instrument global identifier (FIGI)",
+            "in": "query",
+            "name": "figi",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Figi",
+              "x-order": "2"
+            },
+            "x-go-name": "Figi",
+            "x-order": "2",
+            "example": "BBG01293F5X4"
+          },
+          {
+            "description": "Filter by international securities identification number (ISIN)",
+            "in": "query",
+            "name": "isin",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Isin",
+              "x-order": "3"
+            },
+            "x-go-name": "Isin",
+            "x-order": "3",
+            "example": "US0378331005"
+          },
+          {
+            "description": "The CUSIP of an instrument for which data is requested",
+            "in": "query",
+            "name": "cusip",
+            "schema": {
+              "type": "string",
+              "x-go-name": "Cusip",
+              "x-order": "4"
+            },
+            "x-go-name": "Cusip",
+            "x-order": "4",
+            "example": "594918104"
+          },
+          {
             "description": "Exchange where instrument is traded",
             "in": "query",
             "name": "exchange",
@@ -55741,7 +55845,7 @@
             "x-order": 20
           },
           "bond_breakdown": {
-            "$ref": "#/components/schemas/GetMutualFundsWorld_200_response_mutual_fund_composition_bond_breakdown"
+            "$ref": "#/components/schemas/ResponseMutualFundWorldComposition_bond_breakdown"
           }
         },
         "type": "object",
@@ -62165,15 +62269,6 @@
       },
       "GetEarliestTimestamp_200_response": {
         "properties": {
-          "datetime": {
-            "description": "Earliest datetime, the format depends on interval",
-            "examples": [
-              "1980-12-12"
-            ],
-            "type": "string",
-            "x-go-name": "Datetime",
-            "x-order": 50
-          },
           "unix_time": {
             "description": "Datetime converted to UNIX timestamp",
             "examples": [
@@ -62182,6 +62277,15 @@
             "format": "int64",
             "type": "integer",
             "x-go-name": "UnixTime",
+            "x-order": 50
+          },
+          "datetime": {
+            "description": "Earliest datetime, the format depends on interval",
+            "examples": [
+              "1980-12-12"
+            ],
+            "type": "string",
+            "x-go-name": "Datetime",
             "x-order": 50
           }
         },
@@ -62275,7 +62379,7 @@
         },
         "type": "object"
       },
-      "GetEarningsCalendar_200_response_earnings_value_inner": {
+      "GetEarningsCalendar_200_response_earnings_value": {
         "properties": {
           "symbol": {
             "description": "Instrument symbol (ticker)",
@@ -62387,10 +62491,7 @@
         "properties": {
           "earnings": {
             "additionalProperties": {
-              "items": {
-                "$ref": "#/components/schemas/GetEarningsCalendar_200_response_earnings_value_inner"
-              },
-              "type": "array"
+              "$ref": "#/components/schemas/GetEarningsCalendar_200_response_earnings_value"
             },
             "description": "Map of dates to earnings data",
             "type": "object",
@@ -72927,6 +73028,30 @@
         "x-go-name": "AverageMaturity",
         "x-order": 10
       },
+      "GetMutualFundsWorld_200_response_mutual_fund_composition_bond_breakdown_credit_quality_inner": {
+        "properties": {
+          "grade": {
+            "description": "Rating of bond holding of a fund from AAA to below B",
+            "examples": [
+              "U.S. Government"
+            ],
+            "type": "string",
+            "x-go-name": "Grade",
+            "x-order": 10
+          },
+          "weight": {
+            "description": "Weight of bond holding in fund portfolio",
+            "examples": [
+              0
+            ],
+            "format": "double",
+            "type": "number",
+            "x-go-name": "Weight",
+            "x-order": 20
+          }
+        },
+        "type": "object"
+      },
       "GetMutualFundsWorld_200_response_mutual_fund_composition_bond_breakdown_average_duration": {
         "description": "Average duration of bond holdings for the fund and its category",
         "properties": {
@@ -72954,38 +73079,11 @@
         "x-go-name": "AverageDuration",
         "x-order": 20
       },
-      "GetMutualFundsWorld_200_response_mutual_fund_composition_bond_breakdown_credit_quality_inner": {
-        "properties": {
-          "grade": {
-            "description": "Rating of bond holding of a fund from AAA to below B",
-            "examples": [
-              "U.S. Government"
-            ],
-            "type": "string",
-            "x-go-name": "Grade",
-            "x-order": 10
-          },
-          "weight": {
-            "description": "Weight of bond holding in fund portfolio",
-            "examples": [
-              0
-            ],
-            "format": "double",
-            "type": "number",
-            "x-go-name": "Weight",
-            "x-order": 20
-          }
-        },
-        "type": "object"
-      },
       "GetMutualFundsWorld_200_response_mutual_fund_composition_bond_breakdown": {
         "description": "Breakdown of the fund’s bond holdings by maturity, duration, and credit quality",
         "properties": {
           "average_maturity": {
             "$ref": "#/components/schemas/GetMutualFundsWorld_200_response_mutual_fund_composition_bond_breakdown_average_maturity"
-          },
-          "average_duration": {
-            "$ref": "#/components/schemas/GetMutualFundsWorld_200_response_mutual_fund_composition_bond_breakdown_average_duration"
           },
           "credit_quality": {
             "description": "Breakdown of the fund’s bond holdings by credit rating and their respective portfolio weights",
@@ -72995,6 +73093,9 @@
             "type": "array",
             "x-go-name": "CreditQuality",
             "x-order": 20
+          },
+          "average_duration": {
+            "$ref": "#/components/schemas/GetMutualFundsWorld_200_response_mutual_fund_composition_bond_breakdown_average_duration"
           }
         },
         "type": "object",
@@ -79982,7 +80083,7 @@
         },
         "type": "object"
       },
-      "GetTechnicalIndicators_200_response_data_value_inner": {
+      "GetTechnicalIndicators_200_response_data_value": {
         "properties": {
           "enable": {
             "description": "If the indicator is tested, approved and is recommended for use returns <code>true</code>, otherwise returns <code>false</code>",
@@ -80045,10 +80146,7 @@
         "properties": {
           "data": {
             "additionalProperties": {
-              "items": {
-                "$ref": "#/components/schemas/GetTechnicalIndicators_200_response_data_value_inner"
-              },
-              "type": "array"
+              "$ref": "#/components/schemas/GetTechnicalIndicators_200_response_data_value"
             },
             "description": "Map of technical indicators available at Twelve Data API",
             "type": "object",
@@ -86103,6 +86201,29 @@
         "type": "object",
         "x-go-name": "SpecialIncomeCharges",
         "x-order": 170
+      },
+      "ResponseMutualFundWorldComposition_bond_breakdown": {
+        "description": "Breakdown of the fund’s bond holdings by maturity, duration, and credit quality",
+        "properties": {
+          "average_maturity": {
+            "$ref": "#/components/schemas/GetMutualFundsWorld_200_response_mutual_fund_composition_bond_breakdown_average_maturity"
+          },
+          "average_duration": {
+            "$ref": "#/components/schemas/GetMutualFundsWorld_200_response_mutual_fund_composition_bond_breakdown_average_duration"
+          },
+          "credit_quality": {
+            "description": "Breakdown of the fund’s bond holdings by credit rating and their respective portfolio weights",
+            "items": {
+              "$ref": "#/components/schemas/GetMutualFundsWorld_200_response_mutual_fund_composition_bond_breakdown_credit_quality_inner"
+            },
+            "type": "array",
+            "x-go-name": "CreditQuality",
+            "x-order": 20
+          }
+        },
+        "type": "object",
+        "x-go-name": "BondBreakdown",
+        "x-order": 30
       },
       "inline_object": {
         "properties": {

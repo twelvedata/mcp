@@ -3071,13 +3071,13 @@ class GetTimeSeriesDx200Response(BaseModel):
 
 
 class GetEarliestTimestamp200Response(BaseModel):
+    unix_time: Optional[int] = Field(
+        None, description="Datetime converted to UNIX timestamp", examples=[345479400]
+    )
     datetime: Optional[str] = Field(
         None,
         description="Earliest datetime, the format depends on interval",
         examples=["1980-12-12"],
-    )
-    unix_time: Optional[int] = Field(
-        None, description="Datetime converted to UNIX timestamp", examples=[345479400]
     )
 
 
@@ -3112,7 +3112,7 @@ class GetEarnings200Response(BaseModel):
     status: Optional[str] = Field(None, description="Response status", examples=["ok"])
 
 
-class GetEarningsCalendar200ResponseEarningsValueInner(BaseModel):
+class GetEarningsCalendar200ResponseEarningsValue(BaseModel):
     symbol: Optional[str] = Field(
         None, description="Instrument symbol (ticker)", examples=["BR"]
     )
@@ -3165,9 +3165,9 @@ class GetEarningsCalendar200ResponseEarningsValueInner(BaseModel):
 
 
 class GetEarningsCalendar200Response(BaseModel):
-    earnings: Optional[
-        Dict[str, List[GetEarningsCalendar200ResponseEarningsValueInner]]
-    ] = Field(None, description="Map of dates to earnings data")
+    earnings: Optional[Dict[str, List[GetEarningsCalendar200ResponseEarningsValue]]] = Field(
+        None, description="Map of dates to earnings data"
+    )
     status: Optional[str] = Field(None, description="Response status", examples=["ok"])
 
 
@@ -7676,6 +7676,19 @@ class GetMutualFundsWorld200ResponseMutualFundCompositionBondBreakdownAverageMat
     )
 
 
+class GetMutualFundsWorld200ResponseMutualFundCompositionBondBreakdownCreditQualityInner(
+    BaseModel
+):
+    grade: Optional[str] = Field(
+        None,
+        description="Rating of bond holding of a fund from AAA to below B",
+        examples=["U.S. Government"],
+    )
+    weight: Optional[float] = Field(
+        None, description="Weight of bond holding in fund portfolio", examples=[0]
+    )
+
+
 class GetMutualFundsWorld200ResponseMutualFundCompositionBondBreakdownAverageDuration(
     BaseModel
 ):
@@ -7691,25 +7704,9 @@ class GetMutualFundsWorld200ResponseMutualFundCompositionBondBreakdownAverageDur
     )
 
 
-class GetMutualFundsWorld200ResponseMutualFundCompositionBondBreakdownCreditQualityInner(
-    BaseModel
-):
-    grade: Optional[str] = Field(
-        None,
-        description="Rating of bond holding of a fund from AAA to below B",
-        examples=["U.S. Government"],
-    )
-    weight: Optional[float] = Field(
-        None, description="Weight of bond holding in fund portfolio", examples=[0]
-    )
-
-
 class GetMutualFundsWorld200ResponseMutualFundCompositionBondBreakdown(BaseModel):
     average_maturity: Optional[
         GetMutualFundsWorld200ResponseMutualFundCompositionBondBreakdownAverageMaturity
-    ] = None
-    average_duration: Optional[
-        GetMutualFundsWorld200ResponseMutualFundCompositionBondBreakdownAverageDuration
     ] = None
     credit_quality: Optional[
         List[
@@ -7719,6 +7716,9 @@ class GetMutualFundsWorld200ResponseMutualFundCompositionBondBreakdown(BaseModel
         None,
         description="Breakdown of the fund’s bond holdings by credit rating and their respective portfolio weights",
     )
+    average_duration: Optional[
+        GetMutualFundsWorld200ResponseMutualFundCompositionBondBreakdownAverageDuration
+    ] = None
 
 
 class GetMutualFundsWorld200ResponseMutualFundComposition(BaseModel):
@@ -10646,7 +10646,7 @@ class GetTaxInfo200Response(BaseModel):
     )
 
 
-class GetTechnicalIndicators200ResponseDataValueInner(BaseModel):
+class GetTechnicalIndicators200ResponseDataValue(BaseModel):
     enable: Optional[bool] = Field(
         None,
         description="If the indicator is tested, approved and is recommended for use returns <code>true</code>, otherwise returns <code>false</code>",
@@ -10678,7 +10678,7 @@ class GetTechnicalIndicators200ResponseDataValueInner(BaseModel):
 
 
 class GetTechnicalIndicators200Response(BaseModel):
-    data: Optional[Dict[str, GetTechnicalIndicators200ResponseDataValueInner]] = Field(
+    data: Optional[Dict[str, GetTechnicalIndicators200ResponseDataValue]] = Field(
         None, description="Map of technical indicators available at Twelve Data API"
     )
     status: Optional[str] = Field(None, description="Response status", examples=["ok"])
@@ -12938,6 +12938,23 @@ class IncomeStatementItemSpecialIncomeCharges(BaseModel):
     )
 
 
+class ResponseMutualFundWorldCompositionBondBreakdown(BaseModel):
+    average_maturity: Optional[
+        GetMutualFundsWorld200ResponseMutualFundCompositionBondBreakdownAverageMaturity
+    ] = None
+    average_duration: Optional[
+        GetMutualFundsWorld200ResponseMutualFundCompositionBondBreakdownAverageDuration
+    ] = None
+    credit_quality: Optional[
+        List[
+            GetMutualFundsWorld200ResponseMutualFundCompositionBondBreakdownCreditQualityInner
+        ]
+    ] = Field(
+        None,
+        description="Breakdown of the fund’s bond holdings by credit rating and their respective portfolio weights",
+    )
+
+
 class InlineObject(BaseModel):
     data: List[GetAssetsResponseItem] = Field(
         ..., description="List of assets with their details"
@@ -14072,7 +14089,23 @@ class MarketMoversResponseBody(BaseModel):
     status: Optional[str] = Field(None, description="Response status", examples=["ok"])
 
 
-ResponseMutualFundWorldComposition = GetMutualFundsWorld200ResponseMutualFundComposition
+class ResponseMutualFundWorldComposition(BaseModel):
+    major_market_sectors: Optional[
+        List[GetMutualFundsWorld200ResponseMutualFundCompositionMajorMarketSectorsInner]
+    ] = Field(
+        None,
+        description="Breakdown of the fund’s portfolio by major industry sectors and their respective weights",
+    )
+    asset_allocation: Optional[
+        GetMutualFundsWorld200ResponseMutualFundCompositionAssetAllocation
+    ] = None
+    top_holdings: Optional[
+        List[GetMutualFundsWorld200ResponseMutualFundCompositionTopHoldingsInner]
+    ] = Field(
+        None,
+        description="Top holdings of the fund with their respective weights in the overall portfolio composition",
+    )
+    bond_breakdown: Optional[ResponseMutualFundWorldCompositionBondBreakdown] = None
 
 
 ResponseMutualFundWorldPerformance = GetMutualFundsWorld200ResponseMutualFundPerformance

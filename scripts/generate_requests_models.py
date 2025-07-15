@@ -209,7 +209,15 @@ def main():
                 props["interval"]["required"] = False
                 props["interval"]["default"] = "1day"
 
-            code = gen_class(class_name, props, op.get("description"))
+            # Append plan availability to the description if x-starting-plan is present
+            starting_plan = op.get("x-starting-plan")
+            description = op.get("description", "")
+            if starting_plan:
+                addon = f" Available starting from the `{starting_plan}` plan."
+                description = (description or "") + addon
+
+            code = gen_class(class_name, props, description)
+
             if class_name not in request_names:
                 request_models.append(code)
                 request_names.add(class_name)

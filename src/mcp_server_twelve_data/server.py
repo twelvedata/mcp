@@ -3,6 +3,7 @@ import httpx
 from mcp.client.streamable_http import RequestContext
 from pydantic import BaseModel
 from mcp.server.fastmcp import FastMCP, Context
+from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 import re
@@ -65,7 +66,17 @@ def serve(
                 params=params_dict
             )
             resp.raise_for_status()
-            return response_model.model_validate(resp.json())
+            resp_json = resp.json()
+            status = resp_json.get("status")
+            if status == "error":
+                code = resp_json.get('code')
+                raise HTTPException(
+                    status_code=code,
+                    detail=f"Failed to perform request,"
+                           f" code = {code}, message = {resp_json.get('message')}"
+                )
+
+            return response_model.model_validate(resp_json)
 
     register_all_tools(server=server, _call_endpoint=_call_endpoint)
 

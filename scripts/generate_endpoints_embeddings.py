@@ -5,11 +5,25 @@ from typing import cast
 import yaml
 import openai
 import lancedb
+from dotenv import load_dotenv
 from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam
+
+
+# === CONFIG ===
+load_dotenv('../.env')
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_MODEL = "gpt-4o-mini"
+OPENAI_MODEL_EMBEDDINGS = "text-embedding-3-large"
+spec_path = os.getenv('OPENAPI_SPEC', '../extra/openapi_clean.json')
+db_path = os.getenv('LANCEDB_PATH', '../data/endpoints.lancedb')
+desc_path = os.getenv('DESC_JSON_PATH', '../extra/full_descriptions.json')
+
 
 def load_spec(path: str) -> dict:
     with open(path, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f) if path.lower().endswith(('.yaml', '.yml')) else json.load(f)
+
 
 def extract_endpoints(spec: dict) -> list[dict]:
     paths = spec.get('paths', {})
@@ -70,6 +84,7 @@ def extract_endpoints(spec: dict) -> list[dict]:
 
     return endpoints
 
+
 def generate_llm_description(info: dict) -> str:
     prompt = (
         "You are an OpenAPI endpoint explainer. Your goal is to produce a clear, concise, and "
@@ -92,19 +107,21 @@ def generate_llm_description(info: dict) -> str:
     ]
 
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model=OPENAI_MODEL,
         messages=messages,
         temperature=0.3
     )
 
     return response.choices[0].message.content.strip()
 
+
 def generate_embedding(text: str) -> list[float]:
     response = openai.OpenAI().embeddings.create(
-        model="text-embedding-3-small",
+        model=OPENAI_MODEL_EMBEDDINGS,
         input=[text]
     )
     return response.data[0].embedding
+
 
 def load_existing_descriptions(path: str) -> dict:
     if os.path.exists(path):
@@ -112,15 +129,13 @@ def load_existing_descriptions(path: str) -> dict:
             return json.load(f)
     return {}
 
+
 def save_descriptions(path: str, data: dict):
     with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
-def main():
-    spec_path = os.getenv('OPENAPI_SPEC', '../extra/openapi_clean.json')
-    db_path = os.getenv('LANCEDB_PATH', '../data/endpoints.lancedb')
-    desc_path = os.getenv('DESC_JSON_PATH', '../extra/full_descriptions.json')
 
+def main():
     spec = load_spec(spec_path)
     endpoints = extract_endpoints(spec)
 
@@ -156,6 +171,7 @@ def main():
 
     save_descriptions(desc_path, full_descriptions)
     print(f"Indexed {len(records)} endpoints into '{db_path}' and saved LLM descriptions to '{desc_path}'.")
+
 
 if __name__ == '__main__':
     main()

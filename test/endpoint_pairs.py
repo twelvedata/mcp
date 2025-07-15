@@ -1,8 +1,5 @@
 pairs_ = [
-
     # ('Show me batches for AAPL.', 'advanced'),  # skipped-error,
-    # ('Show me technical indicators interface for AAPL.', 'GetTechnicalIndicators'),  # skipped-error, fixed-manually
-    ('Show me ad for AAPL.', 'GetTimeSeriesAd'),
 ]
 
 pairs = [
@@ -97,7 +94,7 @@ pairs = [
 
     ('Show me insider transactions for AAPL.', 'GetInsiderTransactions'),
     ('Show me institutional holders for AAPL.', 'GetInstitutionalHolders'),
-    ('Show me instrument type for AAPL.', 'GetInstrumentType'),
+    ('What types of instruments are available through the API?', 'GetInstrumentType'),
     ('Show me the list of available time intervals.', 'GetIntervals'),
     ('Show me the IPO calendar for upcoming companies.', 'GetIpoCalendar'),
     ('Show me kama for AAPL.', 'GetTimeSeriesKama'),
@@ -172,7 +169,7 @@ pairs = [
     ('Show me RSI indicator for AAPL.', 'GetTimeSeriesRsi'),
 
     ('Show me RVOL indicator for AAPL.', 'GetTimeSeriesRvol'),
-    ('Show me sanctioned entities related to AAPL.', 'GetSourceSanctionedEntities'),
+    ('List all entities sanctioned by OFAC.', 'GetSourceSanctionedEntities'),
     ('Show me SAR indicator for AAPL.', 'GetTimeSeriesSar'),
     ('Show me extended SAR indicator for AAPL.', 'GetTimeSeriesSarExt'),
     ('Show me SMA indicator for AAPL.', 'GetTimeSeriesSma'),

@@ -138,7 +138,7 @@ class GetTimeSeriesAdxrRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetAnalystRatingsLightRequest(BaseModel):
-    """This API endpoint returns a lightweight version of ratings issued by analyst firms. Works for US and international markets."""
+    """This API endpoint returns a lightweight version of ratings issued by analyst firms. Works for US and international markets. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Filter by symbol', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -150,7 +150,7 @@ class GetAnalystRatingsLightRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetAnalystRatingsUsEquitiesRequest(BaseModel):
-    """This API endpoint returns complete information on ratings issued by analyst firms. Works only for US equities."""
+    """This API endpoint returns complete information on ratings issued by analyst firms. Works only for US equities. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Filter by symbol', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -763,7 +763,7 @@ class GetTimeSeriesDemaRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetDirectHoldersRequest(BaseModel):
-    """Returns the amount of the stocks owned directly and recorded in the company's share registry."""
+    """Returns the amount of the stocks owned directly and recorded in the company's share registry. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of instrument.\nFor preffered stocks use dot(.) delimiter.\nE.g. `BRK.A` or `BRK.B` will be correct', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -803,7 +803,7 @@ class GetTimeSeriesDivRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetDividendsRequest(BaseModel):
-    """Returns the amount of dividends paid out for the last 10+ years."""
+    """Returns the amount of dividends paid out for the last 10+ years. Available starting from the `Grow` plan."""
     symbol: str = Field(..., description='Symbol ticker of instrument. For preffered stocks use dot(.) delimiter.\nE.g. `BRK.A` or `BRK.B` will be correct', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -819,7 +819,11 @@ class GetDividendsRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetDividendsCalendarRequest(BaseModel):
-    """This API method returns dividend data as a calendar for a given date range. To call custom period, use start_date and end_date parameters."""
+    """This API method returns dividend data as a calendar for a given date range. To call custom period, use start_date and end_date parameters. Available starting from the `Grow` plan."""
+    symbol: Optional[str] = Field(default=None, description='Symbol ticker of instrument. For preffered stocks use dot(.) delimiter.\nE.g. `BRK.A` or `BRK.B` will be correct', examples=['AAPL'])
+    figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
+    isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
+    cusip: Optional[str] = Field(default=None, description='The CUSIP of an instrument for which data is requested', examples=['594918104'])
     exchange: Optional[str] = Field(default=None, description='Exchange where instrument is traded', examples=['NASDAQ'])
     mic_code: Optional[str] = Field(default=None, description='Market Identifier Code (MIC) under ISO 10383 standard', examples=['XNAS'])
     country: Optional[str] = Field(default=None, description='Country where instrument is traded, e.g., `United States` or `US`', examples=['US'])
@@ -899,7 +903,7 @@ class GetEarliestTimestampRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetEarningsRequest(BaseModel):
-    """This API call returns earnings data for a given company, including EPS estimate and EPS actual. Earnings are available for complete company history."""
+    """This API call returns earnings data for a given company, including EPS estimate and EPS actual. Earnings are available for complete company history. Available starting from the `Grow` plan."""
     symbol: str = Field(..., description='Symbol ticker of instrument.\nFor preffered stocks use dot(.) delimiter.\nE.g. `BRK.A` or `BRK.B` will be correct', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -918,7 +922,7 @@ class GetEarningsRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetEarningsCalendarRequest(BaseModel):
-    """This API method returns earning data as a calendar for a given date range. By default today’s earning is returned. To call custom period, use start_date and end_date parameters."""
+    """This API method returns earning data as a calendar for a given date range. By default today’s earning is returned. To call custom period, use start_date and end_date parameters. Available starting from the `Grow` plan."""
     exchange: Optional[str] = Field(default=None, description='Exchange where instrument is traded', examples=['NASDAQ'])
     mic_code: Optional[str] = Field(default=None, description='Market Identifier Code (MIC) under ISO 10383 standard', examples=['XNAS'])
     country: Optional[str] = Field(default=None, description='Country where instrument is traded, e.g., `United States` or `US`', examples=['United States'])
@@ -931,7 +935,7 @@ class GetEarningsCalendarRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetEarningsEstimateRequest(BaseModel):
-    """This API endpoint returns analysts' estimate for a company's future quarterly and annual earnings per share (EPS)."""
+    """This API endpoint returns analysts' estimate for a company's future quarterly and annual earnings per share (EPS). Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Filter by symbol', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='The FIGI of an instrument for which data is requested', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -942,7 +946,7 @@ class GetEarningsEstimateRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetEdgarFilingsArchiveRequest(BaseModel):
-    """Real-time and historical access to all forms, filings, and exhibits directly from the SEC's EDGAR system."""
+    """Real-time and historical access to all forms, filings, and exhibits directly from the SEC's EDGAR system. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='The ticker symbol of an instrument for which data is requested', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -1003,7 +1007,7 @@ class GetEodRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetEpsRevisionsRequest(BaseModel):
-    """This API endpoint returns analysts’ revisions of a company's future quarterly and annual earnings per share (EPS) over the last week and month."""
+    """This API endpoint returns analysts’ revisions of a company's future quarterly and annual earnings per share (EPS) over the last week and month. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Filter by symbol', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -1014,7 +1018,7 @@ class GetEpsRevisionsRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetEpsTrendRequest(BaseModel):
-    """This API endpoint returns a breakdown of the estimated historical EPS changes at a given period."""
+    """This API endpoint returns a breakdown of the estimated historical EPS changes at a given period. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Filter by symbol', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -1068,7 +1072,7 @@ class GetETFsTypeRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetETFsWorldRequest(BaseModel):
-    """This API request returns a complete breakdown of a etf, including summary, performance, risk and composition."""
+    """This API request returns a complete breakdown of a etf, including summary, performance, risk and composition. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of etf', examples=['IVV'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG000BVZ697'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US4642872000'])
@@ -1079,7 +1083,7 @@ class GetETFsWorldRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetETFsWorldCompositionRequest(BaseModel):
-    """This API request returns portfolio composition of a etf, including sectors, holding details, weighted exposure, and others."""
+    """This API request returns portfolio composition of a etf, including sectors, holding details, weighted exposure, and others. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of etf', examples=['IVV'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG000BVZ697'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US4642872000'])
@@ -1090,7 +1094,7 @@ class GetETFsWorldCompositionRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetETFsWorldPerformanceRequest(BaseModel):
-    """This API request returns detailed performance of a etf, including trailing and annual returns."""
+    """This API request returns detailed performance of a etf, including trailing and annual returns. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of etf', examples=['IVV'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG000BVZ697'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US4642872000'])
@@ -1101,7 +1105,7 @@ class GetETFsWorldPerformanceRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetETFsWorldRiskRequest(BaseModel):
-    """This API request returns core metrics to measure the risk of investing in a etf."""
+    """This API request returns core metrics to measure the risk of investing in a etf. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of etf', examples=['IVV'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG000BVZ697'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US4642872000'])
@@ -1112,7 +1116,7 @@ class GetETFsWorldRiskRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetETFsWorldSummaryRequest(BaseModel):
-    """This API request returns a brief summary of a etf."""
+    """This API request returns a brief summary of a etf. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of etf', examples=['IVV'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG000BVZ697'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US4642872000'])
@@ -1134,7 +1138,7 @@ class GetExchangeRateRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetExchangeScheduleRequest(BaseModel):
-    """This API call return exchanges details and trading hours."""
+    """This API call return exchanges details and trading hours. Available starting from the `Ultra` plan."""
     mic_name: Optional[str] = Field(default=None, description='Filter by exchange name', examples=['NASDAQ'])
     mic_code: Optional[str] = Field(default=None, description='Filter by market identifier code (MIC) under ISO 10383 standard', examples=['XNGS'])
     country: Optional[str] = Field(default=None, description='Filter by country name or alpha code, e.g., `United States` or `US`', examples=['United States'])
@@ -1219,7 +1223,7 @@ class GetForexPairsRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetFundHoldersRequest(BaseModel):
-    """Returns the amount of the company’s available stock owned by mutual fund holders."""
+    """Returns the amount of the company’s available stock owned by mutual fund holders. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of instrument.\nFor preffered stocks use dot(.) delimiter.\nE.g. `BRK.A` or `BRK.B` will be correct', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -1246,7 +1250,7 @@ class GetFundsRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetGrowthEstimatesRequest(BaseModel):
-    """This API endpoint returns consensus analyst estimates over the company's growth rates for various periods. Calculation averages projections of numerous analysts, taking arbitrary parameters, such as earnings per share, revenue, etc."""
+    """This API endpoint returns consensus analyst estimates over the company's growth rates for various periods. Calculation averages projections of numerous analysts, taking arbitrary parameters, such as earnings per share, revenue, etc. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Filter by symbol', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='The FIGI of an instrument for which data is requested', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -1544,7 +1548,7 @@ class GetIncomeStatementConsolidatedRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetInsiderTransactionsRequest(BaseModel):
-    """Returns trading information performed by insiders."""
+    """Returns trading information performed by insiders. Available starting from the `Pro` plan."""
     symbol: str = Field(..., description='The ticker symbol of an instrument for which data is requested, e.g., `AAPL`, `TSLA`.\nFor preffered stocks use dot(.) delimiter.\nE.g. `BRK.A` or `BRK.B` will be correct', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -1556,7 +1560,7 @@ class GetInsiderTransactionsRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetInstitutionalHoldersRequest(BaseModel):
-    """Returns the amount of the company’s available stock owned by institutions (pension funds, insurance companies, investment firms, private foundations, endowments, or other large entities that manage funds on behalf of others)."""
+    """Returns the amount of the company’s available stock owned by institutions (pension funds, insurance companies, investment firms, private foundations, endowments, or other large entities that manage funds on behalf of others). Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of instrument.\nFor preffered stocks use dot(.) delimiter.\nE.g. `BRK.A` or `BRK.B` will be correct', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -1578,7 +1582,7 @@ class GetIntervalsRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetIpoCalendarRequest(BaseModel):
-    """This endpoint returns past, today, or upcoming IPOs."""
+    """This endpoint returns past, today, or upcoming IPOs. Available starting from the `Grow` plan."""
     exchange: Optional[str] = Field(default=None, description='Exchange where instrument is traded', examples=['NASDAQ'])
     mic_code: Optional[str] = Field(default=None, description='Market Identifier Code (MIC) under ISO 10383 standard', examples=['XNAS'])
     country: Optional[str] = Field(default=None, description='Country where instrument is traded, e.g., `United States` or `US`', examples=['United States'])
@@ -1647,7 +1651,7 @@ class GetTimeSeriesKeltnerRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetKeyExecutivesRequest(BaseModel):
-    """Returns key executive information for a specified symbol."""
+    """Returns key executive information for a specified symbol. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of instrument.\nFor preffered stocks use dot(.) delimiter.\nE.g. `BRK.A` or `BRK.B` will be correct', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -1940,7 +1944,7 @@ class GetTimeSeriesMacdRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetTimeSeriesMacdSlopeRequest(BaseModel):
-    """The MACD Slope is the rate of change of the MACD line, helping traders identify the acceleration or deceleration of momentum in a security's price."""
+    """The MACD Slope is the rate of change of the MACD line, helping traders identify the acceleration or deceleration of momentum in a security's price. Available starting from the `Pro` plan."""
     symbol: str = Field(..., description='Symbol ticker of the instrument. E.g. `AAPL`, `EUR/USD`, `ETH/BTC`, ...', examples=['AAPL'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
     figi: Optional[str] = Field(default=None, description='The FIGI of an instrument for which data is requested', examples=['BBG01293F5X4'])
@@ -2034,7 +2038,7 @@ More about MAMA can be read [here](http://www.mesasoftware.com/papers/MAMA.pdf).
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetMarketCapRequest(BaseModel):
-    """Market capitalization history."""
+    """Market capitalization history. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Filter by symbol', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -2053,7 +2057,7 @@ class GetMarketMoversRequest(BaseModel):
 
 Top gainers are ordered by the highest rate of price increase since the previous day''s close. Top losers are ordered by the highest percentage of price decrease since the last day.
 
-Data is available for all international equities, forex, crypto."""
+Data is available for all international equities, forex, crypto. Available starting from the `Pro` plan."""
     market: str = Field(..., description='Maket type', examples=['stocks', 'stocks', 'etf', 'mutual_funds', 'forex', 'crypto'])
     direction: str = Field(default='gainers', description='Specifies direction of the snapshot gainers or losers', examples=['gainers', 'losers'])
     outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
@@ -2513,7 +2517,7 @@ class GetMutualFundsTypeRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetMutualFundsWorldRequest(BaseModel):
-    """This API request returns a complete breakdown of a mutual fund, including summary, performance, risk, ratings, composition, purchase_info, and sustainability."""
+    """This API request returns a complete breakdown of a mutual fund, including summary, performance, risk, ratings, composition, purchase_info, and sustainability. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of mutual fund', examples=['1535462D'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG00HMMLCH1'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['LU1206782309'])
@@ -2524,7 +2528,7 @@ class GetMutualFundsWorldRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetMutualFundsWorldCompositionRequest(BaseModel):
-    """This API request returns portfolio composition of a mutual fund, including sectors, holding details, weighted exposure, and others."""
+    """This API request returns portfolio composition of a mutual fund, including sectors, holding details, weighted exposure, and others. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of mutual fund', examples=['1535462D'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG00HMMLCH1'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['LU1206782309'])
@@ -2535,7 +2539,7 @@ class GetMutualFundsWorldCompositionRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetMutualFundsWorldPerformanceRequest(BaseModel):
-    """This API request returns detailed performance of a mutual fund, including trailing, annual, quarterly, and load-adjusted returns."""
+    """This API request returns detailed performance of a mutual fund, including trailing, annual, quarterly, and load-adjusted returns. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of mutual fund', examples=['1535462D'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG00HMMLCH1'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['LU1206782309'])
@@ -2546,7 +2550,7 @@ class GetMutualFundsWorldPerformanceRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetMutualFundsWorldPurchaseInfoRequest(BaseModel):
-    """This API request returns essential information on purchasing a mutual fund, including minimums, pricing, and available brokerages."""
+    """This API request returns essential information on purchasing a mutual fund, including minimums, pricing, and available brokerages. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of mutual fund', examples=['1535462D'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG00HMMLCH1'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['LU1206782309'])
@@ -2557,7 +2561,7 @@ class GetMutualFundsWorldPurchaseInfoRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetMutualFundsWorldRatingsRequest(BaseModel):
-    """This API request returns ratings of a mutual fund."""
+    """This API request returns ratings of a mutual fund. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of mutual fund', examples=['1535462D'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG00HMMLCH1'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['LU1206782309'])
@@ -2568,7 +2572,7 @@ class GetMutualFundsWorldRatingsRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetMutualFundsWorldRiskRequest(BaseModel):
-    """This API request returns core metrics to measure the risk of investing in a mutual fund."""
+    """This API request returns core metrics to measure the risk of investing in a mutual fund. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of mutual fund', examples=['1535462D'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG00HMMLCH1'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['LU1206782309'])
@@ -2579,7 +2583,7 @@ class GetMutualFundsWorldRiskRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetMutualFundsWorldSummaryRequest(BaseModel):
-    """This API request returns a brief summary of a mutual fund."""
+    """This API request returns a brief summary of a mutual fund. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of mutual fund', examples=['1535462D'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG00HMMLCH1'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['LU1206782309'])
@@ -2590,7 +2594,7 @@ class GetMutualFundsWorldSummaryRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetMutualFundsWorldSustainabilityRequest(BaseModel):
-    """This API request returns brief information on mutual fund sustainability and ESG."""
+    """This API request returns brief information on mutual fund sustainability and ESG. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Symbol ticker of mutual fund', examples=['1535462D'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG00HMMLCH1'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['LU1206782309'])
@@ -2685,7 +2689,7 @@ class GetTimeSeriesPercent_BRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetTimeSeriesPivotPointsHLRequest(BaseModel):
-    """The Pivot Points High Low (PIVOT_POINTS_HL) indicator calculates support and resistance levels based on the highest high and lowest low of a security's price over a specified period, providing potential entry and exit points."""
+    """The Pivot Points High Low (PIVOT_POINTS_HL) indicator calculates support and resistance levels based on the highest high and lowest low of a security's price over a specified period, providing potential entry and exit points. Available starting from the `Pro` plan."""
     symbol: str = Field(..., description='Symbol ticker of the instrument. E.g. `AAPL`, `EUR/USD`, `ETH/BTC`, ...', examples=['AAPL'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
     figi: Optional[str] = Field(default=None, description='The FIGI of an instrument for which data is requested', examples=['BBG01293F5X4'])
@@ -2813,7 +2817,7 @@ class GetPriceRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetPriceTargetRequest(BaseModel):
-    """This API endpoint returns the analysts' projection of a security's future price."""
+    """This API endpoint returns the analysts' projection of a security's future price. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Filter by symbol', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -2824,7 +2828,7 @@ class GetPriceTargetRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetProfileRequest(BaseModel):
-    """Returns general information about the company."""
+    """Returns general information about the company. Available starting from the `Grow` plan."""
     symbol: str = Field(..., description='Symbol ticker of instrument. For preffered stocks use dot(.) delimiter.\nE.g. `BRK.A` or `BRK.B` will be correct', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -2858,7 +2862,7 @@ class GetQuoteRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetRecommendationsRequest(BaseModel):
-    """This API endpoint returns the average of all analyst recommendations and classifies them as Strong Buy, Buy, Hold, or Sell. Also, it returns a recommendation score."""
+    """This API endpoint returns the average of all analyst recommendations and classifies them as Strong Buy, Buy, Hold, or Sell. Also, it returns a recommendation score. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Filter by symbol', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='The FIGI of an instrument for which data is requested', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -2869,7 +2873,7 @@ class GetRecommendationsRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetRevenueEstimateRequest(BaseModel):
-    """This API endpoint returns analysts' estimate for a company's future quarterly and annual sales (total revenue)."""
+    """This API endpoint returns analysts' estimate for a company's future quarterly and annual sales (total revenue). Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='Filter by symbol', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -3021,7 +3025,7 @@ class GetTimeSeriesRsiRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetTimeSeriesRvolRequest(BaseModel):
-    """The Relative Volume (RVOL) is a ratio that compares a security's current trading volume to its average trading volume over a specified period. By measuring volume activity relative to its historical norm, RVOL helps traders identify unusual market activity, potential breakouts, and the strength of price movements."""
+    """The Relative Volume (RVOL) is a ratio that compares a security's current trading volume to its average trading volume over a specified period. By measuring volume activity relative to its historical norm, RVOL helps traders identify unusual market activity, potential breakouts, and the strength of price movements. Available starting from the `Grow` plan."""
     symbol: str = Field(..., description='Symbol ticker of the instrument. E.g. `AAPL`, `EUR/USD`, `ETH/BTC`, ...', examples=['AAPL'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
     figi: Optional[str] = Field(default=None, description='The FIGI of an instrument for which data is requested', examples=['BBG01293F5X4'])
@@ -3048,13 +3052,13 @@ class GetTimeSeriesRvolRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetSourceSanctionedEntitiesRequest(BaseModel):
-    """This API endpoint returns a list of sanctioned entities for a given sanction source (ofac, uk, eu, au, etc)"""
+    """This API endpoint returns a list of sanctioned entities for a given sanction source (ofac, uk, eu, au, etc) Available starting from the `Ultra` plan."""
     source: str = Field(..., description='Sanctions source', examples=['ofac', 'ofac', 'uk', 'eu', 'au'])
     outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetTimeSeriesSarRequest(BaseModel):
-    """The Parabolic SAR (SAR) is a trend-following indicator that calculates potential support and resistance levels based on a security's price and time, helping traders identify potential entry and exit points."""
+    """The Parabolic SAR (SAR) is a trend-following indicator that calculates potential support and resistance levels based on a security's price and time, helping traders identify potential entry and exit points. Available starting from the `Grow` plan."""
     symbol: str = Field(..., description='Symbol ticker of the instrument. E.g. `AAPL`, `EUR/USD`, `ETH/BTC`, ...', examples=['AAPL'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
     figi: Optional[str] = Field(default=None, description='The FIGI of an instrument for which data is requested', examples=['BBG01293F5X4'])
@@ -3144,7 +3148,7 @@ class GetTimeSeriesSmaRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetSplitsRequest(BaseModel):
-    """Returns the date and the split factor of shares of the company for the last 10+ years."""
+    """Returns the date and the split factor of shares of the company for the last 10+ years. Available starting from the `Grow` plan."""
     symbol: str = Field(..., description='Symbol ticker of instrument. For preffered stocks use dot(.) delimiter. E.g. `BRK.A` or `BRK.B` will be correct', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -3159,7 +3163,11 @@ class GetSplitsRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetSplitsCalendarRequest(BaseModel):
-    """This API method returns split data as a calendar for a given date range. To call custom period, use start_date and end_date parameters."""
+    """This API method returns split data as a calendar for a given date range. To call custom period, use start_date and end_date parameters. Available starting from the `Grow` plan."""
+    symbol: Optional[str] = Field(default=None, description='Symbol ticker of instrument. For preffered stocks use dot(.) delimiter.\nE.g. `BRK.A` or `BRK.B` will be correct', examples=['AAPL'])
+    figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG01293F5X4'])
+    isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
+    cusip: Optional[str] = Field(default=None, description='The CUSIP of an instrument for which data is requested', examples=['594918104'])
     exchange: Optional[str] = Field(default=None, description='Exchange where instrument is traded', examples=['NASDAQ'])
     mic_code: Optional[str] = Field(default=None, description='Market Identifier Code (MIC) under ISO 10383 standard', examples=['XNAS'])
     country: Optional[str] = Field(default=None, description='Country where instrument is traded, e.g., `United States` or `US`', examples=['United States'])
@@ -3197,7 +3205,7 @@ class GetTimeSeriesSqrtRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetStatisticsRequest(BaseModel):
-    """Returns current overview of company’s main statistics including valuation metrics and financials."""
+    """Returns current overview of company’s main statistics including valuation metrics and financials. Available starting from the `Pro` plan."""
     symbol: str = Field(..., description='Symbol ticker of instrument.\nFor preffered stocks use dot(.) delimiter.\nE.g. `BRK.A` or `BRK.B` will be correct', examples=['AAPL'])
     figi: Optional[str] = Field(default=None, description='Filter by financial instrument global identifier (FIGI)', examples=['BBG000B9Y5X2'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
@@ -3432,7 +3440,7 @@ class GetTimeSeriesSuperTrendRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetTimeSeriesSuperTrendHeikinAshiCandlesRequest(BaseModel):
-    """The Supertrend and Heikin Ashi Candles indicator delivers a combined analysis of trend-following signals and smoothed price action visualization, widely used for identifying trends and potential entry or exit points in trading."""
+    """The Supertrend and Heikin Ashi Candles indicator delivers a combined analysis of trend-following signals and smoothed price action visualization, widely used for identifying trends and potential entry or exit points in trading. Available starting from the `Grow` plan."""
     symbol: str = Field(..., description='Symbol ticker of the instrument. E.g. `AAPL`, `EUR/USD`, `ETH/BTC`, ...', examples=['AAPL'])
     isin: Optional[str] = Field(default=None, description='Filter by international securities identification number (ISIN)', examples=['US0378331005'])
     figi: Optional[str] = Field(default=None, description='The FIGI of an instrument for which data is requested', examples=['BBG01293F5X4'])
@@ -3496,7 +3504,7 @@ class GetTimeSeriesT3maRequest(BaseModel):
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetTaxInfoRequest(BaseModel):
-    """This API endpoint returns tax information for the instrument."""
+    """This API endpoint returns tax information for the instrument. Available starting from the `Ultra` plan."""
     symbol: str = Field(..., description='The ticker symbol of an instrument for which data is requested, e.g., `SKYQ`, `AIRE`, `ALM:BME`, `HSI:HKEX`.', examples=['SKYQ'])
     isin: Optional[str] = Field(default=None, description='The ISIN of an instrument for which data is requested', examples=['US5949181045'])
     figi: Optional[str] = Field(default=None, description='The FIGI of an instrument for which data is requested', examples=['BBG019XJT9D6'])

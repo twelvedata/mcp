@@ -373,7 +373,6 @@ from .response_models import GetTaxInfo200Response
 from .response_models import GetTimeSeriesTsf200Response
 from .response_models import GetTimeSeriesVar200Response
 
-
 def register_all_tools(server: FastMCP, _call_endpoint):
     @server.tool(name="GetTimeSeries",
                  description="This API call returns meta and time series for the requested instrument. Metaobject consists of general information about the requested symbol. Time series is the array of objects ordered by time descending with Open, High, Low, Close prices. Non-currency instruments also include volume information.")
