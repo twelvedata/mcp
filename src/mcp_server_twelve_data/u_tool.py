@@ -60,7 +60,8 @@ def register_u_tool(
 ):
     # llm_model = "gpt-4o"         # Input $2.5,   Output $10
     # llm_model = "gpt-4-turbo"    # Input $10.00, Output $30
-    llm_model = "gpt-4o-mini"      # Input $0.15,  Output $0.60
+    llm_model = "gpt-4o-mini"    # Input $0.15,  Output $0.60
+    # llm_model = "gpt-4.1-nano"     # Input $0.10,  Output $0.40
 
     EMBEDDING_MODEL = "text-embedding-3-large"
     spec = importlib.util.find_spec("mcp_server_twelve_data")

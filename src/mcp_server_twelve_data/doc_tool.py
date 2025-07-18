@@ -22,7 +22,8 @@ def register_doc_tool(
     transport: Literal["stdio", "sse", "streamable-http"],
 ):
     EMBEDDING_MODEL = "text-embedding-3-large"
-    LLM_MODEL = "gpt-4o-mini"
+    llm_model = "gpt-4o-mini"
+    # llm_model = "gpt-4.1-nano"
 
     spec = importlib.util.find_spec("mcp_server_twelve_data")
     module_path = Path(spec.origin).resolve()
@@ -81,7 +82,7 @@ def register_doc_tool(
             )
 
             llm_response = client.chat.completions.create(
-                model=LLM_MODEL,
+                model=llm_model,
                 messages=[
                     cast(ChatCompletionSystemMessageParam, {"role": "system", "content": prompt}),
                     cast(ChatCompletionSystemMessageParam, {"role": "user", "content": f"User query:\n{query}"}),

@@ -67,14 +67,16 @@ def serve(
             )
             resp.raise_for_status()
             resp_json = resp.json()
-            status = resp_json.get("status")
-            if status == "error":
-                code = resp_json.get('code')
-                raise HTTPException(
-                    status_code=code,
-                    detail=f"Failed to perform request,"
-                           f" code = {code}, message = {resp_json.get('message')}"
-                )
+
+            if isinstance(resp_json, dict):
+                status = resp_json.get("status")
+                if status == "error":
+                    code = resp_json.get('code')
+                    raise HTTPException(
+                        status_code=code,
+                        detail=f"Failed to perform request,"
+                               f" code = {code}, message = {resp_json.get('message')}"
+                    )
 
             return response_model.model_validate(resp_json)
 

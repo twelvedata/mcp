@@ -1,8 +1,11 @@
-pairs_ = [
+pairs = [
     # ('Show me batches for AAPL.', 'advanced'),  # skipped-error,
+    # ('Show me earnings calendar for China for 2024 year.', 'GetEarningsCalendar'),
+    ("Give me a complete ETF analysis report for IVV, with all metrics like performance,"
+     " summary, volatility, sector weights and country allocations.", "GetETFsWorld"),
 ]
 
-pairs = [
+pairs_ = [
     ('Give me the accumulation/distribution indicator for AAPL.', 'GetTimeSeriesAd'),
     ('Show me add for AAPL.', 'GetTimeSeriesAdd'),
     ('Show me adosc for AAPL.', 'GetTimeSeriesAdOsc'),
@@ -51,7 +54,7 @@ pairs = [
     ('Show me dx for AAPL.', 'GetTimeSeriesDx'),
     ('Show me earliest timestamp for AAPL.', 'GetEarliestTimestamp'),
     ('Show me earnings for AAPL.', 'GetEarnings'),
-    ('Show me earnings calendar for AAPL.', 'GetEarningsCalendar'),
+    ('Show me earnings calendar for China for 2024 year.', 'GetEarningsCalendar'),
     ('Show me earnings estimate for AAPL.', 'GetEarningsEstimate'),
     ('Show me edgar filings archive for AAPL.', 'GetEdgarFilingsArchive'),
     ('Show me ema for AAPL.', 'GetTimeSeriesEma'),
@@ -139,15 +142,15 @@ pairs = [
     ('Show me mutual fonds family list.', 'GetMutualFundsFamily'),
     ('Show me mutual fonds list.', 'GetMutualFundsList'),
     ('Show me mutual fonds type list.', 'GetMutualFundsType'),
-    ('Show me all data for mutual fund ABCDX.', 'GetMutualFundsWorld'),
-    ('Show me composition for mutual fund ABCDX.', 'GetMutualFundsWorldComposition'),
-    ('Show me performance for mutual fund ABCDX.', 'GetMutualFundsWorldPerformance'),
-    ('Show me purchase info for mutual fund ABCDX.', 'GetMutualFundsWorldPurchaseInfo'),
-    ('Show me ratings for mutual fund ABCDX.', 'GetMutualFundsWorldRatings'),
-    ('Show me risk for mutual fund ABCDX.', 'GetMutualFundsWorldRisk'),
+    ('Show me all data for mutual fund VTSMX.', 'GetMutualFundsWorld'),
+    ('Show me composition for mutual fund VTSMX.', 'GetMutualFundsWorldComposition'),
+    ('Show me performance for mutual fund VTSMX.', 'GetMutualFundsWorldPerformance'),
+    ('Show me purchase info for mutual fund VTSMX.', 'GetMutualFundsWorldPurchaseInfo'),
+    ('Show me ratings for mutual fund VTSMX.', 'GetMutualFundsWorldRatings'),
+    ('Show me risk for mutual fund VTSMX.', 'GetMutualFundsWorldRisk'),
 
-    ('Show me summary for mutual fund ABCDX.', 'GetMutualFundsWorldSummary'),
-    ('Show me sustainability for mutual fund ABCDX.', 'GetMutualFundsWorldSustainability'),
+    ('Show me summary for mutual fund VTSMX.', 'GetMutualFundsWorldSummary'),
+    ('Show me sustainability for mutual fund VTSMX.', 'GetMutualFundsWorldSustainability'),
     ('Show me natr indicator for AAPL.', 'GetTimeSeriesNatr'),
     ('Show me obv indicator for AAPL.', 'GetTimeSeriesObv'),
     ('Show me percent B indicator for AAPL.', 'GetTimeSeriesPercent_B'),
