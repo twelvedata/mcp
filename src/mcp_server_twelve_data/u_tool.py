@@ -301,4 +301,4 @@ def register_u_tool(
             ctx = Context(request_context=request_context)
             result = await u_tool(query=query, ctx=ctx, format_param=format_param, )
 
-            return JSONResponse(content=result.model_dump())
+            return JSONResponse(content=result.model_dump(mode="json"))
