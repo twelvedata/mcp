@@ -2,6 +2,7 @@ import importlib.util
 from pathlib import Path
 
 from mcp.client.streamable_http import RequestContext
+from pandas.core.interchange.dataframe_protocol import DataFrame
 from starlette.requests import Request
 
 import openai
@@ -51,6 +52,41 @@ def get_md_response(
     )
 
     return llm_response.choices[0].message.content.strip()
+
+
+class ToolPlanMap:
+    def __init__(self, df: DataFrame):
+        self.df = df
+        self.plan_to_int = {
+            None: 0,
+            'Basic': 0,
+            'Grow': 1,
+            'Pro': 2,
+            'Ultra': 3,
+            'Enterprise': 4,
+        }
+
+    def check_access_rights(self, user_plan: str, tool_operation_id: str) -> bool:
+        user_plan_int = self.plan_to_int.get(user_plan)
+
+        tool = self.df.loc[self.df['id'] == tool_operation_id]
+        if tool.empty:
+            raise ValueError(f"No tool found with id '{tool_operation_id}'")
+
+        tool_starting_plan = tool['x-starting-plan'].values[0]
+        tool_starting_plan_int = self.plan_to_int.get(tool_starting_plan)
+
+        return user_plan_int >= tool_starting_plan_int
+
+    def get_recommendation(self, user_plan: str, tool_operation_id: str):
+        tool = self.df.loc[self.df['id'] == tool_operation_id]
+        tool_starting_plan = tool['x-starting-plan'].values[0]
+
+        return (
+            f"Your current plan is '{user_plan}'. "
+            f"To use '{tool_operation_id}', you need at least the '{tool_starting_plan}' plan. "
+            f"See details at https://twelvedata.com/pricing"
+        )
 
 
 def register_u_tool(
@@ -149,9 +185,16 @@ def register_u_tool(
 
     db = lancedb.connect(DB_PATH)
     table = db.open_table("endpoints")
+    table_df = table.to_pandas()
+    tool_plan_map = ToolPlanMap(table_df)
 
     @server.tool(name="u-tool")
-    async def u_tool(query: str, ctx: Context, format_param: Optional[str] = None) -> UToolResponse:
+    async def u_tool(
+        query: str,
+        ctx: Context,
+        format_param: Optional[str] = None,
+        user_plan_param: str = 'Ultra'
+    ) -> UToolResponse:
         """
         A universal tool router for the MCP system, designed for the Twelve Data API.
 
@@ -245,6 +288,13 @@ def register_u_tool(
             if "params" not in arguments:
                 arguments = {"params": arguments}
 
+            if not tool_plan_map.check_access_rights(user_plan=user_plan_param, tool_operation_id=name):
+                return constructor_for_utool(
+                    top_candidates=candidate_ids,
+                    error=tool_plan_map.get_recommendation(user_plan=user_plan_param, tool_operation_id=name),
+                    selected_tool=name,
+                )
+
         except Exception as e:
             return constructor_for_utool(
                 top_candidates=candidate_ids,
@@ -294,11 +344,16 @@ def register_u_tool(
         async def u_tool_http(request: Request):
             query = request.query_params.get("query")
             format_param = request.query_params.get("format", default="json").lower()
+            user_plan_param = request.query_params.get("plan", "Ultra")
             if not query:
                 return JSONResponse({"error": "Missing 'query' query parameter"}, status_code=400)
 
             request_context = create_dummy_request_context(request)
             ctx = Context(request_context=request_context)
-            result = await u_tool(query=query, ctx=ctx, format_param=format_param, )
+            result = await u_tool(
+                query=query, ctx=ctx,
+                format_param=format_param,
+                user_plan_param=user_plan_param
+            )
 
             return JSONResponse(content=result.model_dump(mode="json"))

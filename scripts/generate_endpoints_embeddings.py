@@ -79,7 +79,8 @@ def extract_endpoints(spec: dict) -> list[dict]:
                 'parameters': parameters,
                 'requestBody': request_body,
                 'responses': responses,
-                'operationId': op.get('operationId', f'{method}_{path}')
+                'operationId': op.get('operationId', f'{method}_{path}'),
+                'x-starting-plan': op.get('x-starting-plan', None),
             })
 
     return endpoints
@@ -154,14 +155,13 @@ def main():
 
             print(f"\n--- LLM Description for {info['method']} {info['path']} ---\n{description}\n")
             vector = generate_embedding(description)
-
             records.append({
                 'id': operation_id,
                 'vector': vector,
                 'path': info['path'],
                 'method': info['method'],
                 'summary': info['summary'],
-                'description': info['description'],
+                'x-starting-plan': info.get('x-starting-plan', None),
             })
         except Exception as e:
             print(f"Error processing {info['method']} {info['path']}: {e}")

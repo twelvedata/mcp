@@ -1,11 +1,9 @@
-pairs = [
+pairs_ = [
     # ('Show me batches for AAPL.', 'advanced'),  # skipped-error,
-    # ('Show me earnings calendar for China for 2024 year.', 'GetEarningsCalendar'),
-    ("Give me a complete ETF analysis report for IVV, with all metrics like performance,"
-     " summary, volatility, sector weights and country allocations.", "GetETFsWorld"),
+    ('Tell me the last update time for Apple’s income statement?', 'GetLastChanges'),
 ]
 
-pairs_ = [
+pairs = [
     ('Give me the accumulation/distribution indicator for AAPL.', 'GetTimeSeriesAd'),
     ('Show me add for AAPL.', 'GetTimeSeriesAdd'),
     ('Show me adosc for AAPL.', 'GetTimeSeriesAdOsc'),
@@ -104,7 +102,7 @@ pairs_ = [
     ('Show me keltner for AAPL.', 'GetTimeSeriesKeltner'),
     ('Show me key executives for AAPL.', 'GetKeyExecutives'),
     ('Show me kst for AAPL.', 'GetTimeSeriesKst'),
-    ('Show me last changes for AAPL.', 'GetLastChanges'),
+    ('Tell me the last update time for Apple’s income statement?', 'GetLastChanges'),
 
     ('Show me linearreg for AAPL.', 'GetTimeSeriesLinearReg'),
     ('Show me linearregangle for AAPL.', 'GetTimeSeriesLinearRegAngle'),
