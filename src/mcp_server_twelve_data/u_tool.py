@@ -2,7 +2,6 @@ import importlib.util
 from pathlib import Path
 
 from mcp.client.streamable_http import RequestContext
-from pandas.core.interchange.dataframe_protocol import DataFrame
 from starlette.requests import Request
 
 import openai
@@ -11,7 +10,7 @@ import json
 
 from mcp.server.fastmcp import FastMCP, Context
 from pydantic import BaseModel, Field
-from typing import Any, Optional, List, cast, Literal
+from typing import Any, Optional, List, cast, Literal, Tuple
 from openai.types.chat import ChatCompletionSystemMessageParam
 from starlette.responses import JSONResponse
 
@@ -55,38 +54,47 @@ def get_md_response(
 
 
 class ToolPlanMap:
-    def __init__(self, df: DataFrame):
+    def __init__(self, df):
         self.df = df
         self.plan_to_int = {
-            None: 0,
-            'Basic': 0,
-            'Grow': 1,
-            'Pro': 2,
-            'Ultra': 3,
-            'Enterprise': 4,
+            'basic': 0,
+            'grow': 1,
+            'pro': 2,
+            'ultra': 3,
+            'enterprise': 4,
         }
 
-    def check_access_rights(self, user_plan: str, tool_operation_id: str) -> bool:
-        user_plan_int = self.plan_to_int.get(user_plan)
+    def split(self, user_plan: Optional[str], tool_operation_ids: List[str]) -> Tuple[List[str], List[str]]:
+        if user_plan is None:
+            # if user plan param was not specified, then we have no restrictions for function calling
+            return tool_operation_ids, []
+        user_plan_key = user_plan.lower()
+        user_plan_int = self.plan_to_int.get(user_plan_key)
+        if user_plan_int is None:
+            raise ValueError(f"Wrong user_plan: '{user_plan}'")
 
-        tool = self.df.loc[self.df['id'] == tool_operation_id]
-        if tool.empty:
-            raise ValueError(f"No tool found with id '{tool_operation_id}'")
+        tools_df = self.df[self.df["id"].isin(tool_operation_ids)]
 
-        tool_starting_plan = tool['x-starting-plan'].values[0]
-        tool_starting_plan_int = self.plan_to_int.get(tool_starting_plan)
+        candidates = []
+        premium_only_candidates = []
 
-        return user_plan_int >= tool_starting_plan_int
+        for _, row in tools_df.iterrows():
+            tool_id = row["id"]
+            tool_plan_raw = row["x-starting-plan"]
+            if tool_plan_raw is None:
+                tool_plan_raw = 'basic'
 
-    def get_recommendation(self, user_plan: str, tool_operation_id: str):
-        tool = self.df.loc[self.df['id'] == tool_operation_id]
-        tool_starting_plan = tool['x-starting-plan'].values[0]
+            tool_plan_key = tool_plan_raw.lower()
+            tool_plan_int = self.plan_to_int.get(tool_plan_key)
+            if tool_plan_int is None:
+                raise ValueError(f"Wrong tool_starting_plan: '{tool_plan_key}'")
 
-        return (
-            f"Your current plan is '{user_plan}'. "
-            f"To use '{tool_operation_id}', you need at least the '{tool_starting_plan}' plan. "
-            f"See details at https://twelvedata.com/pricing"
-        )
+            if user_plan_int >= tool_plan_int:
+                candidates.append(tool_id)
+            else:
+                premium_only_candidates.append(tool_id)
+
+        return candidates, premium_only_candidates
 
 
 def register_u_tool(
@@ -112,6 +120,9 @@ def register_u_tool(
         top_candidates: Optional[List[str]] = Field(
             ..., description="List of tool operationIds considered by the vector search."
         )
+        premium_only_candidates: Optional[List[str]] = Field(
+            None, description="Relevant tool IDs available only in higher-tier plans"
+        )
         selected_tool: Optional[str] = Field(
             None, description="Name (operationId) of the tool selected by the LLM."
         )
@@ -131,6 +142,7 @@ def register_u_tool(
         param=None,
         response=None,
         error=None,
+        premium_only_candidates=None,
     ):
         return UToolResponse(
             top_candidates=top_candidates,
@@ -138,6 +150,7 @@ def register_u_tool(
             param=param,
             response=response,
             error=error,
+            premium_only_candidates=premium_only_candidates,
         )
 
     def build_openai_tools_subset(tool_list):
@@ -192,8 +205,8 @@ def register_u_tool(
     async def u_tool(
         query: str,
         ctx: Context,
-        format_param: Optional[str] = None,
-        user_plan_param: str = 'Ultra'
+        format: Optional[str] = None,
+        plan: Optional[str] = None,
     ) -> UToolResponse:
         """
         A universal tool router for the MCP system, designed for the Twelve Data API.
@@ -242,7 +255,7 @@ def register_u_tool(
             return constructor_for_utool(error=f"This transport is not supported")
 
         client = openai.OpenAI(api_key=o_ai_api_key_to_use)
-        candidate_ids: List[str]
+        all_candidate_ids: List[str]
 
         try:
             embedding = client.embeddings.create(
@@ -251,14 +264,18 @@ def register_u_tool(
             ).data[0].embedding
 
             results = table.search(embedding).metric("cosine").limit(TOP_N).to_list()  # type: ignore[attr-defined]
-            candidate_ids = [r["id"] for r in results]
-            if "GetTimeSeries" not in candidate_ids:
-                candidate_ids.append('GetTimeSeries')
+            all_candidate_ids = [r["id"] for r in results]
+            if "GetTimeSeries" not in all_candidate_ids:
+                all_candidate_ids.append('GetTimeSeries')
+
+            candidates, premium_only_candidates = tool_plan_map.split(
+                user_plan=plan, tool_operation_ids=all_candidate_ids
+            )
 
         except Exception as e:
             return constructor_for_utool(error=f"Embedding or vector search failed: {e}")
 
-        filtered_tools = [tool for tool in all_tools.values() if tool.name in candidate_ids]  # type: ignore
+        filtered_tools = [tool for tool in all_tools.values() if tool.name in candidates]  # type: ignore
         openai_tools = build_openai_tools_subset(filtered_tools)
 
         prompt = (
@@ -288,23 +305,18 @@ def register_u_tool(
             if "params" not in arguments:
                 arguments = {"params": arguments}
 
-            if not tool_plan_map.check_access_rights(user_plan=user_plan_param, tool_operation_id=name):
-                return constructor_for_utool(
-                    top_candidates=candidate_ids,
-                    error=tool_plan_map.get_recommendation(user_plan=user_plan_param, tool_operation_id=name),
-                    selected_tool=name,
-                )
-
         except Exception as e:
             return constructor_for_utool(
-                top_candidates=candidate_ids,
+                top_candidates=candidates,
+                premium_only_candidates=premium_only_candidates,
                 error=f"LLM did not return valid tool call: {e}",
             )
 
         tool = all_tools.get(name)
         if not tool:
             return constructor_for_utool(
-                top_candidates=candidate_ids,
+                top_candidates=candidates,
+                premium_only_candidates=premium_only_candidates,
                 selected_tool=name,
                 param=arguments,
                 error=f"Tool '{name}' not found in MCP",
@@ -317,7 +329,7 @@ def register_u_tool(
 
             result = await tool.fn(**arguments)
 
-            if format_param == "md":
+            if format == "md":
                 result = get_md_response(
                     client=client,
                     llm_model=llm_model,
@@ -326,14 +338,16 @@ def register_u_tool(
                 )
 
             return constructor_for_utool(
-                top_candidates=candidate_ids,
+                top_candidates=candidates,
+                premium_only_candidates=premium_only_candidates,
                 selected_tool=name,
                 param=arguments,
                 response=result,
             )
         except Exception as e:
             return constructor_for_utool(
-                top_candidates=candidate_ids,
+                top_candidates=candidates,
+                premium_only_candidates=premium_only_candidates,
                 selected_tool=name,
                 param=arguments,
                 error=str(e),
@@ -344,7 +358,7 @@ def register_u_tool(
         async def u_tool_http(request: Request):
             query = request.query_params.get("query")
             format_param = request.query_params.get("format", default="json").lower()
-            user_plan_param = request.query_params.get("plan", "Ultra")
+            user_plan_param = request.query_params.get("plan", None)
             if not query:
                 return JSONResponse({"error": "Missing 'query' query parameter"}, status_code=400)
 
@@ -352,8 +366,8 @@ def register_u_tool(
             ctx = Context(request_context=request_context)
             result = await u_tool(
                 query=query, ctx=ctx,
-                format_param=format_param,
-                user_plan_param=user_plan_param
+                format=format_param,
+                plan=user_plan_param
             )
 
             return JSONResponse(content=result.model_dump(mode="json"))

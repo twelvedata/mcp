@@ -26,7 +26,7 @@ async def test_utool_basic_plan_restrictions(user_query, expected_operation_id, 
             await session.initialize()
             result = await session.call_tool("u-tool", arguments={
                 "query": user_query,
-                "user_plan_param": user_plan
+                "plan": user_plan
             })
         await read_stream.aclose()
         await write_stream.aclose()
@@ -35,12 +35,7 @@ async def test_utool_basic_plan_restrictions(user_query, expected_operation_id, 
     payload = json.loads(result.content[0].text)
     error = payload.get("error")
     selected_tool = payload.get("selected_tool")
-    response = payload.get("response")
-
-    assert error is not None, f"Expected error for query: '{user_query}'"
-    assert "at least" in error, f"Unexpected error format: {error}"
-    assert expected_operation_id in error, (
-        f"Expected operationId '{expected_operation_id}' to appear in error message: {error}"
-    )
-    assert selected_tool == expected_operation_id
-    assert response is None, "No response should be returned if access is denied"
+    premium_only_candidates = payload.get("premium_only_candidates")
+    assert expected_operation_id in premium_only_candidates
+    assert selected_tool != expected_operation_id
+    assert error is  None
