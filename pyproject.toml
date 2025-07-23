@@ -1,6 +1,6 @@
 [project]
 name = "mcp-server-twelve-data"
-version = "0.1.41"
+version = "0.1.42"
 description = "A Model Context Protocol server providing tools access Twelve Data."
 readme = "README.md"
 requires-python = ">=3.13"

@@ -184,17 +184,23 @@ def main():
                         "default": default,
                     }
 
-            # Add outputsize with detailed description and default=10
-            props["outputsize"] = {
-                "type": "int",
-                "required": False,
-                "description": (
-                    "Number of data points to retrieve. Supports values in the range from `1` to `5000`. "
-                    "Default `10` when no date parameters are set, otherwise set to maximum"
-                ),
-                "examples": [10],
-                "default": 10,
-            }
+            if "outputsize" not in props:
+                props["outputsize"] = {
+                    "type": "int",
+                    "required": False,
+                    "description": (
+                        "Number of data points to retrieve. Supports values in the range from `1` to `5000`. "
+                        "Default `10` when no date parameters are set, otherwise set to maximum"
+                    ),
+                    "examples": [10],
+                    "default": 10,
+                }
+            else:
+                props["outputsize"]["default"] = 10
+                props["outputsize"]["description"] = props["outputsize"]["description"].replace(
+                    'Default `30`', 'Default `10`'
+                )
+                props["outputsize"]["examples"] = [10]
 
             # Add apikey with default="demo"
             props["apikey"] = {

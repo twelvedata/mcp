@@ -145,7 +145,7 @@ class GetAnalystRatingsLightRequest(BaseModel):
     cusip: Optional[str] = Field(default=None, description='The CUSIP of an instrument for which data is requested', examples=['594918104'])
     exchange: Optional[str] = Field(default=None, description='Filter by exchange name', examples=['NASDAQ'])
     rating_change: Optional[str] = Field(default=None, description='Filter by rating change action', examples=['Maintains', 'Upgrade', 'Downgrade', 'Initiates', 'Reiterates'])
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of records in response', examples=[10])
     country: Optional[str] = Field(default=None, description='Filter by country name or alpha code, e.g., `United States` or `US`', examples=['United States'])
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
@@ -157,7 +157,7 @@ class GetAnalystRatingsUsEquitiesRequest(BaseModel):
     cusip: Optional[str] = Field(default=None, description='The CUSIP of an instrument for which data is requested', examples=['594918104'])
     exchange: Optional[str] = Field(default=None, description='Filter by exchange name', examples=['NASDAQ'])
     rating_change: Optional[str] = Field(default=None, description='Filter by rating change action', examples=['Maintains', 'Upgrade', 'Downgrade', 'Initiates', 'Reiterates'])
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of records in response', examples=[10])
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetApiUsageRequest(BaseModel):
@@ -345,7 +345,7 @@ class GetBalanceSheetRequest(BaseModel):
     period: str = Field(default='annual', description='The reporting period for the balane sheet data', examples=['annual', 'quarterly'])
     start_date: Optional[str] = Field(default=None, description='Begin date for filtering items by fiscal date.\nReturns income statements with fiscal dates on or after this date. Format `2006-01-02`', examples=['2024-01-01'])
     end_date: Optional[str] = Field(default=None, description='End date for filtering items by fiscal date.\nReturns income statements with fiscal dates on or before this date. Format `2006-01-02`', examples=['2024-05-01'])
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of records in response', examples=[10])
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetBalanceSheetConsolidatedRequest(BaseModel):
@@ -360,7 +360,7 @@ class GetBalanceSheetConsolidatedRequest(BaseModel):
     period: str = Field(default='annual', description='The reporting period for the balance sheet data.', examples=['annual', 'quarterly'])
     start_date: Optional[str] = Field(default=None, description='Begin date for filtering items by fiscal date. Returns income statements with fiscal dates on or after this date.\nFormat `2006-01-02`')
     end_date: Optional[str] = Field(default=None, description='End date for filtering items by fiscal date. Returns income statements with fiscal dates on or before this date.\nFormat `2006-01-02`')
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of records in response', examples=[10])
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class AdvancedRequest(BaseModel):
@@ -451,7 +451,7 @@ class GetBondsRequest(BaseModel):
     delimiter: str = Field(default=';', description='The separator used in the CSV response data')
     show_plan: bool = Field(default=False, description='Adds info on which plan symbol is available')
     page: int = Field(default=1, description='Page number of the results to fetch')
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Determines the number of data points returned in the output', examples=[10])
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetTimeSeriesBopRequest(BaseModel):
@@ -492,7 +492,7 @@ class GetCashFlowRequest(BaseModel):
     period: str = Field(default='annual', description='The reporting period for the cash flow statements', examples=['annual', 'quarterly'])
     start_date: Optional[str] = Field(default=None, description='Start date for filtering cash flow statements.\nOnly cash flow statements with fiscal dates on or after this date will be included.\nFormat `2006-01-02`', examples=['2024-01-01'])
     end_date: Optional[str] = Field(default=None, description='End date for filtering cash flow statements.\nOnly cash flow statements with fiscal dates on or before this date will be included.\nFormat `2006-01-02`', examples=['2024-12-31'])
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of records in response', examples=[10])
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetCashFlowConsolidatedRequest(BaseModel):
@@ -507,7 +507,7 @@ class GetCashFlowConsolidatedRequest(BaseModel):
     period: str = Field(default='annual', description='The reporting period for the cash flow statements', examples=['annual', 'quarterly'])
     start_date: Optional[str] = Field(default=None, description='Start date for filtering cash flow statements. Only cash flow statements with fiscal dates on or after this date will be included.\nFormat `2006-01-02`', examples=['2024-01-01'])
     end_date: Optional[str] = Field(default=None, description='End date for filtering cash flow statements. Only cash flow statements with fiscal dates on or before this date will be included.\nFormat `2006-01-02`', examples=['2024-12-31'])
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of records in response', examples=[10])
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetTimeSeriesCciRequest(BaseModel):
@@ -829,7 +829,7 @@ class GetDividendsCalendarRequest(BaseModel):
     country: Optional[str] = Field(default=None, description='Country where instrument is traded, e.g., `United States` or `US`', examples=['US'])
     start_date: Optional[str] = Field(default=None, description='Start date for the dividends calendar query. Only dividends with ex-dates on or after this date will be returned. Format `2006-01-02`', examples=['2024-01-01'])
     end_date: Optional[str] = Field(default=None, description='End date for the dividends calendar query. Only dividends with ex-dates on or before this date will be returned. Format `2006-01-02`', examples=['2024-12-31'])
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of data points to retrieve.\nSupports values in the range from `1` to `500`.\nDefault `100` when no date parameters are set, otherwise set to maximum', examples=[10])
     page: int = Field(default=1, description='Page number')
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
@@ -913,7 +913,7 @@ class GetEarningsRequest(BaseModel):
     country: Optional[str] = Field(default=None, description='Country where instrument is traded, e.g., `United States` or `US`', examples=['United States'])
     type: Optional[str] = Field(default=None, description='The asset class to which the instrument belongs', examples=['Common Stock', 'American Depositary Receipt', 'Bond', 'Bond Fund', 'Closed-end Fund', 'Common Stock', 'Depositary Receipt', 'Digital Currency', 'ETF', 'Exchange-Traded Note', 'Global Depositary Receipt', 'Limited Partnership', 'Mutual Fund', 'Physical Currency', 'Preferred Stock', 'REIT', 'Right', 'Structured Product', 'Trust', 'Unit', 'Warrant'])
     period: Optional[str] = Field(default=None, description='Type of earning, returns only 1 record.\nWhen is not empty, dates and outputsize parameters are ignored', examples=['latest', 'next'])
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of data points to retrieve.\nSupports values in the range from `1` to `1000`.\nDefault `10` when no date parameters are set, otherwise set to maximum', examples=[10])
     format: str = Field(default='JSON', description='The format of the response data', examples=['JSON', 'CSV'])
     delimiter: str = Field(default=';', description='The separator used in the CSV response data')
     start_date: Optional[str] = Field(default=None, description='The date from which the data is requested. The date format is `YYYY-MM-DD`.', examples=['2024-04-01'])
@@ -1061,7 +1061,7 @@ class GetETFsListRequest(BaseModel):
     fund_family: Optional[str] = Field(default=None, description='Filter by investment company that manages the fund', examples=['iShares'])
     fund_type: Optional[str] = Field(default=None, description='Filter by the type of fund', examples=['Large Blend'])
     page: int = Field(default=1, description='Page number')
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of records in response', examples=[10])
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetETFsTypeRequest(BaseModel):
@@ -1246,7 +1246,7 @@ class GetFundsRequest(BaseModel):
     delimiter: str = Field(default=';', description='The separator used in the CSV response data')
     show_plan: bool = Field(default=False, description='Adds info on which plan symbol is available')
     page: int = Field(default=1, description='Page number of the results to fetch')
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Determines the number of data points returned in the output', examples=[10])
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetGrowthEstimatesRequest(BaseModel):
@@ -1529,7 +1529,7 @@ class GetIncomeStatementRequest(BaseModel):
     period: Optional[str] = Field(default=None, description='The reporting period for the income statement data', examples=['annual', 'annual', 'quarterly'])
     start_date: Optional[str] = Field(default=None, description='Begin date for filtering income statements by fiscal date.\nReturns income statements with fiscal dates on or after this date.\nFormat `2006-01-02`', examples=['2024-01-01'])
     end_date: Optional[str] = Field(default=None, description='End date for filtering income statements by fiscal date.\nReturns income statements with fiscal dates on or before this date.\nFormat `2006-01-02`', examples=['2024-12-31'])
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of records in response', examples=[10])
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetIncomeStatementConsolidatedRequest(BaseModel):
@@ -1544,7 +1544,7 @@ class GetIncomeStatementConsolidatedRequest(BaseModel):
     period: Optional[str] = Field(default=None, description='The reporting period for the income statement data', examples=['annual', 'quarterly'])
     start_date: Optional[str] = Field(default=None, description='Begin date for filtering income statements by fiscal date.\nReturns income statements with fiscal dates on or after this date.\nFormat `2006-01-02`', examples=['2024-01-01'])
     end_date: Optional[str] = Field(default=None, description='End date for filtering income statements by fiscal date.\nReturns income statements with fiscal dates on or before this date.\nFormat `2006-01-02`', examples=['2024-12-31'])
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of records in response', examples=[10])
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetInsiderTransactionsRequest(BaseModel):
@@ -1706,7 +1706,7 @@ class GetLastChangesRequest(BaseModel):
     mic_code: Optional[str] = Field(default=None, description='Filter by market identifier code (MIC) under ISO 10383 standard', examples=['XNAS'])
     country: Optional[str] = Field(default=None, description='Filter by country name or alpha code, e.g., `United States` or `US`', examples=['United States'])
     page: int = Field(default=1, description='Page number')
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of records in response', examples=[10])
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetTimeSeriesLinearRegRequest(BaseModel):
@@ -2049,7 +2049,7 @@ class GetMarketCapRequest(BaseModel):
     start_date: Optional[str] = Field(default=None, description='Start date for market capitalization data retrieval.\nData will be returned from this date onwards.\nFormat `2006-01-02`', examples=['2023-01-01'])
     end_date: Optional[str] = Field(default=None, description='End date for market capitalization data retrieval.\nData will be returned up to and including this date.\nFormat `2006-01-02`', examples=['2023-12-31'])
     page: int = Field(default=1, description='Page number')
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of records in response', examples=[10])
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetMarketMoversRequest(BaseModel):
@@ -2060,7 +2060,7 @@ Top gainers are ordered by the highest rate of price increase since the previous
 Data is available for all international equities, forex, crypto. Available starting from the `Pro` plan."""
     market: str = Field(..., description='Maket type', examples=['stocks', 'stocks', 'etf', 'mutual_funds', 'forex', 'crypto'])
     direction: str = Field(default='gainers', description='Specifies direction of the snapshot gainers or losers', examples=['gainers', 'losers'])
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Specifies the size of the snapshot.\nCan be in a range from `1` to `50`', examples=[10])
     country: str = Field(default='USA', description='Country of the snapshot, applicable to non-currencies only.\nTakes country name or alpha code')
     price_greater_than: Optional[str] = Field(default=None, description='Takes values with price grater than specified value', examples=['175.5'])
     dp: str = Field(default='5', description='Specifies the number of decimal places for floating values.\nShould be in range [0,11] inclusive')
@@ -2506,7 +2506,7 @@ class GetMutualFundsListRequest(BaseModel):
     performance_rating: Optional[int] = Field(default=None, description='Filter by performance rating from `0` to `5`', examples=[4])
     risk_rating: Optional[int] = Field(default=None, description='Filter by risk rating from `0` to `5`', examples=[4])
     page: int = Field(default=1, description='Page number')
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of records in response', examples=[10])
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
 class GetMutualFundsTypeRequest(BaseModel):
@@ -3173,7 +3173,7 @@ class GetSplitsCalendarRequest(BaseModel):
     country: Optional[str] = Field(default=None, description='Country where instrument is traded, e.g., `United States` or `US`', examples=['United States'])
     start_date: Optional[str] = Field(default=None, description='The starting date (inclusive) for filtering split events in the calendar. Format `2006-01-02`', examples=['2024-01-01'])
     end_date: Optional[str] = Field(default=None, description='The ending date (inclusive) for filtering split events in the calendar. Format `2006-01-02`', examples=['2024-12-31'])
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `500`. Default `100` when no date parameters are set, otherwise set to maximum', examples=[10])
     page: str = Field(default='1', description='Page number')
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
@@ -3470,7 +3470,7 @@ class GetTimeSeriesSuperTrendHeikinAshiCandlesRequest(BaseModel):
 class GetSymbolSearchRequest(BaseModel):
     """This method helps to find the best matching symbol. It can be used as the base for custom lookups. The response is returned in descending order, with the most relevant instrument at the beginning."""
     symbol: str = Field(..., description='Symbol to search. Supports:\n<ul>\n<li>Ticker symbol of instrument.</li>\n<li>International securities identification number (ISIN).\n<li>Financial instrument global identifier (FIGI).\n<li>Composite FIGI.</li>\n<li>Share Class FIGI.</li>\n</ul>', examples=['AAPL'])
-    outputsize: int = Field(default=10, description='Number of data points to retrieve. Supports values in the range from `1` to `5000`. Default `10` when no date parameters are set, otherwise set to maximum', examples=[10])
+    outputsize: int = Field(default=10, description='Number of matches in response. Max <code>120</code>', examples=[10])
     show_plan: bool = Field(default=False, description='Adds info on which plan symbol is available.')
     apikey: str = Field(default='demo', description='API key', examples=['demo'])
 
