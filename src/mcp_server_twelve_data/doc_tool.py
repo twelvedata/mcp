@@ -22,7 +22,8 @@ def register_doc_tool(
     transport: Literal["stdio", "sse", "streamable-http"],
 ):
     EMBEDDING_MODEL = "text-embedding-3-large"
-    llm_model = "gpt-4o-mini"
+    llm_model = "gpt-4.1-mini"
+    # llm_model = "gpt-4o-mini"
     # llm_model = "gpt-4.1-nano"
 
     spec = importlib.util.find_spec("mcp_server_twelve_data")
