@@ -28,7 +28,7 @@ def register_doc_tool(
     spec = importlib.util.find_spec("mcp_server_twelve_data")
     module_path = Path(spec.origin).resolve()
     db_path = str(module_path.parent / "resources" / "docs.lancedb")
-    top_k = 5
+    top_k = 15
 
     class DocToolResponse(BaseModel):
         query: str
@@ -78,7 +78,10 @@ def register_doc_tool(
                 "- Bullet points\n"
                 "- Short paragraphs\n"
                 "- Code blocks if applicable\n\n"
-                "Do not repeat the full documentation — summarize only what's relevant to the query."
+                "Do not repeat the full documentation — summarize only what's relevant to the query.\n\n"
+                "If the user asks how to perform an action (e.g., 'how to get', 'ways to retrieve', 'methods for', etc.), "
+                "and there are multiple suitable API endpoints, provide a list of the most relevant ones with a brief description of each.\n"
+                "Highlight when to use which endpoint and what kind of data they return."
             )
 
             llm_response = client.chat.completions.create(
