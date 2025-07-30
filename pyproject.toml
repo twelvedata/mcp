@@ -1,6 +1,6 @@
 [project]
 name = "mcp-server-twelve-data"
-version = "0.1.44"
+version = "0.2.4"
 description = "A Model Context Protocol server providing tools access Twelve Data."
 readme = "README.md"
 requires-python = ">=3.13"
@@ -16,13 +16,9 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "bs4>=0.0.2",
     "click==8.2.1",
-    "datamodel-code-generator==0.31.2",
-    "lancedb>=0.23.0",
     "mcp[cli]>=1.9.4",
     "openai>=1.86.0",
-    "pandas>=2.3.1",
     "pydantic==2.11.5",
     "pylint>=3.3.7",
     "pyyml>=0.0.2",
@@ -42,6 +38,13 @@ dev-dependencies = [
     "pytest>=8.0.0",
     "datamodel-code-generator>=0.31.2",
     "pytest-asyncio>=1.0.0",
+    "bs4>=0.0.2",
+]
+
+[project.optional-dependencies]
+db = [
+    "lancedb>=0.23.0",
+    "pandas>=2.3.1"
 ]
 
 [tool.pytest.ini_options]
@@ -54,9 +57,9 @@ addopts = "-s"
 log_cli = true
 log_cli_level = "INFO"
 
-[tool.setuptools]
-include-package-data = true
-[tool.setuptools.package-data]
-"mcp_server_twelve_data" = ["resources/**"]
-[tool.setuptools.data-files]
-"mcp_server_twelve_data/resources/endpoints.lancedb/endpoints.lance/data" = ["src/mcp_server_twelve_data/resources/endpoints.lancedb/endpoints.lance/data/*"]
+
+[tool.hatch.build]
+exclude = [
+    "src/resources/*",
+    "example.gif"
+]

@@ -76,13 +76,13 @@ Add one of the following snippets to your `claude_desktop_config.json`:
 }
 ```
 
-(2) local stdio server only with 30 the most popular endpoints
+(2) local stdio server only with 10 the most popular endpoints
 ```json
 {
   "mcpServers": {
     "twelvedata": {
       "command": "uvx",
-      "args": ["mcp-server-twelve-data@latest", "-k", "YOUR_TWELVE_DATA_API_KEY", "-n", "30"]
+      "args": ["mcp-server-twelve-data@latest", "-k", "YOUR_TWELVE_DATA_API_KEY", "-n", "10"]
     }
   }
 }
@@ -96,10 +96,11 @@ Add one of the following snippets to your `claude_desktop_config.json`:
     "twelvedata-remote": {
       "command": "npx",
       "args":    [
-        "mcp-remote", "https://mcp.twelvedata.com/mcp/",
+        "mcp-remote", "https://mcp.twelvedata.com/mcp",
         "--header",
         "Authorization:${AUTH_HEADER}",
-        "X-OpenAPI-Key:${AUTH_HEADER}"
+        "--header",
+        "X-OpenAPI-Key:${OPENAI_API_KEY}"
       ],
       "env": {
         "AUTH_HEADER": "apikey YOUR_TWELVE_DATA_API_KEY",

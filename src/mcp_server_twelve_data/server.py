@@ -1,6 +1,5 @@
 from typing import Type, TypeVar, Literal, Optional
 import httpx
-from mcp.client.streamable_http import RequestContext
 from pydantic import BaseModel
 from mcp.server.fastmcp import FastMCP, Context
 from starlette.exceptions import HTTPException
@@ -8,9 +7,13 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 import re
 
-from .doc_tool import register_doc_tool
+from .common import vector_db_exists
+from .doc_tool import register_doc_tool, register_http_doctool
+from .doc_tool_remote import register_doc_tool_remote
+from .key_provider import extract_twelve_data_apikey
 from .tools import register_all_tools
-from .u_tool import register_u_tool, get_tokens_from_rc
+from .u_tool import register_u_tool, register_http_utool
+from .u_tool_remote import register_u_tool_remote
 
 
 def serve(
@@ -44,12 +47,11 @@ def serve(
         response_model: Type[R],
         ctx: Context
     ) -> R:
-        if transport in {'stdio', 'streamable-http'} and twelve_data_apikey:
-            params.apikey = twelve_data_apikey
-        else:
-            rc: RequestContext = ctx.request_context
-            tokens = get_tokens_from_rc(rc=rc)
-            params.apikey = tokens.twelve_data_api_key
+        params.apikey = extract_twelve_data_apikey(
+            twelve_data_apikey=twelve_data_apikey,
+            transport=transport,
+            ctx=ctx
+        )
 
         params_dict = params.model_dump(exclude_none=True)
         resolved_endpoint = resolve_path_params(endpoint, params_dict)
@@ -80,20 +82,46 @@ def serve(
 
             return response_model.model_validate(resp_json)
 
-    register_all_tools(server=server, _call_endpoint=_call_endpoint)
-
     if u_tool_oauth2 or u_tool_open_ai_api_key is not None:
-        register_u_tool(
+        # we will not publish large vector db, without it server will work in remote mode
+        if vector_db_exists():
+            register_all_tools(server=server, _call_endpoint=_call_endpoint)
+            u_tool = register_u_tool(
+                server=server,
+                open_ai_api_key_from_args=u_tool_open_ai_api_key,
+                transport=transport
+            )
+            doc_tool = register_doc_tool(
+                server=server,
+                open_ai_api_key_from_args=u_tool_open_ai_api_key,
+                transport=transport
+            )
+        else:
+            u_tool = register_u_tool_remote(
+                server=server,
+                twelve_data_apikey=twelve_data_apikey,
+                open_ai_api_key_from_args=u_tool_open_ai_api_key,
+                transport=transport,
+            )
+            doc_tool = register_doc_tool_remote(
+                server=server,
+                twelve_data_apikey=twelve_data_apikey,
+                open_ai_api_key_from_args=u_tool_open_ai_api_key,
+                transport=transport,
+            )
+        register_http_utool(
+            transport=transport,
+            u_tool=u_tool,
             server=server,
-            u_tool_open_ai_api_key=u_tool_open_ai_api_key,
-            transport=transport
         )
-        register_doc_tool(
+        register_http_doctool(
+            transport=transport,
             server=server,
-            doc_tool_open_ai_api_key=u_tool_open_ai_api_key,
-            transport=transport
+            doc_tool=doc_tool,
         )
+
     else:
+        register_all_tools(server=server, _call_endpoint=_call_endpoint)
         all_tools = server._tool_manager._tools
         server._tool_manager._tools = dict(list(all_tools.items())[:number_of_tools])
 
