@@ -10,8 +10,16 @@ mcp_server_base_url = "https://mcp.twelvedata.com"
 spec = importlib.util.find_spec("mcp_server_twelve_data")
 MODULE_PATH = Path(spec.origin).resolve()
 PACKAGE_ROOT = MODULE_PATH.parent  # src/mcp_server_twelve_data
-LANCE_DB_ENDPOINTS_PATH = str(PACKAGE_ROOT / ".." / "resources" / "endpoints.lancedb")
-LANCE_DB_DOCS_PATH = str(PACKAGE_ROOT / ".." / "resources" / "docs.lancedb")
+
+LANCE_DB_ENDPOINTS_PATH = os.environ.get(
+    "LANCE_DB_ENDPOINTS_PATH",
+    str(PACKAGE_ROOT / ".." / "resources" / "endpoints.lancedb")
+)
+
+LANCE_DB_DOCS_PATH = os.environ.get(
+    "LANCE_DB_DOCS_PATH",
+    str(PACKAGE_ROOT / ".." / "resources" / "docs.lancedb")
+)
 
 
 def vector_db_exists():

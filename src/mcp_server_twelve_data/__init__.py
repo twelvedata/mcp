@@ -3,6 +3,9 @@ from typing import Literal, Optional
 import click
 import logging
 import sys
+
+from dotenv import load_dotenv
+
 from .server import serve
 
 
@@ -47,6 +50,7 @@ def main(
     u_tool_open_ai_api_key: Optional[str] = None,
     u_tool_oauth2: bool = False,
 ) -> None:
+    load_dotenv()
     logging_level = logging.WARN
     if verbose == 1:
         logging_level = logging.INFO

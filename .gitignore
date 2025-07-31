@@ -9,3 +9,6 @@ test/__pycache__/
 /data/
 /.env
 debug.txt
+src/resources/docs.lancedb/
+src/resources/endpoints.lancedb/
+
