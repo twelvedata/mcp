@@ -1,21 +1,18 @@
-# Use official Python 3.13 runtime
-FROM python:3.13-slim
+FROM python:3.12-slim
 
-# Set working directory
 WORKDIR /app
 
-# Install pip and UV for dependency management
-RUN pip install --upgrade pip uv
+# Install deps from pyproject.toml (single source of truth — no drift). Only
+# pyproject is copied first so this layer stays cached on code-only changes.
+# We install just the dependency list (not the project itself); the app runs
+# from the copied src/ below via `python server.py`.
+COPY pyproject.toml .
+RUN python -c "import tomllib, subprocess; deps = tomllib.load(open('pyproject.toml','rb'))['project']['dependencies']; subprocess.check_call(['pip','install','--no-cache-dir',*deps])"
 
-# Copy project metadata and README for build context
-COPY pyproject.toml uv.lock* README.md LICENSE ./
+COPY src/ ./
 
-# Copy source code in src directory
-COPY src ./src
+ENV MCP_TRANSPORT=streamable-http
 
-# Install project dependencies and build the package using UV
-RUN uv pip install . --system
+EXPOSE 8000
 
-# Run the MCP server directly from source
-ENTRYPOINT ["python", "-m", "mcp_server_twelve_data"]
-CMD ["-k", "demo", "-t", "streamable-http"]
+CMD ["python", "server.py"]
