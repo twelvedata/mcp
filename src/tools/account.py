@@ -8,6 +8,7 @@ import time
 from typing import Optional
 
 from mcp.server.fastmcp import Context
+from mcp.types import ToolAnnotations
 
 from auth import load_config, save_config, CALLBACK_PORT
 from state import (
@@ -20,7 +21,14 @@ from store import store
 from oauth.config import ENABLED as _OAUTH_AS_ENABLED
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="OAuth Login",
+        readOnlyHint=False,
+        destructiveHint=False,
+        openWorldHint=True,
+    )
+)
 async def oauth_login(ctx: Context) -> str:
     """Authenticate with Twelve Data via OAuth 2.0.
 
@@ -89,7 +97,13 @@ async def oauth_login(ctx: Context) -> str:
         return result
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Auth Status",
+        readOnlyHint=True,
+        openWorldHint=False,
+    )
+)
 async def auth_status(ctx: Context) -> str:
     """Show current authentication state — useful for debugging.
 
@@ -141,7 +155,15 @@ async def auth_status(ctx: Context) -> str:
     return "\n".join(lines)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Configure OAuth Credentials",
+        readOnlyHint=False,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    )
+)
 async def oauth_configure(ctx: Context, client_id: str, client_secret: str) -> str:
     """Save Twelve Data OAuth credentials to ~/.twelvedata_mcp/config.json.
 
@@ -158,7 +180,13 @@ async def oauth_configure(ctx: Context, client_id: str, client_secret: str) -> s
     )
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get API Usage",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_api_usage(ctx: Context) -> str:
     """Check Twelve Data API credit consumption and plan limits.
 
@@ -179,7 +207,13 @@ async def get_api_usage(ctx: Context) -> str:
     )
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Search Symbol",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def search_symbol(
     ctx: Context,
     symbol: str,

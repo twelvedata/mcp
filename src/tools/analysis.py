@@ -7,11 +7,18 @@ from typing import Annotated, Optional
 from pydantic import BeforeValidator
 
 from mcp.server.fastmcp import Context
+from mcp.types import ToolAnnotations
 
 from state import mcp, _get_client, _token_from_ctx, _err, _raw
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Technical Indicator",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_technical_indicator(
     ctx: Context,
     indicator: str,
@@ -107,7 +114,13 @@ async def get_technical_indicator(
     return _raw(data)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Analyst Data",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_analyst_data(
     ctx: Context,
     symbol: str,

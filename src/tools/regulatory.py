@@ -5,11 +5,18 @@ from __future__ import annotations
 from typing import Optional
 
 from mcp.server.fastmcp import Context
+from mcp.types import ToolAnnotations
 
 from state import mcp, _get_client, _token_from_ctx, _err, _raw
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Regulatory Data",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_regulatory_data(
     ctx: Context,
     symbol: str,

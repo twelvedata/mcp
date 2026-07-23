@@ -10,6 +10,7 @@ from html.parser import HTMLParser
 from typing import Optional
 
 from mcp.server.fastmcp import Context
+from mcp.types import ToolAnnotations
 
 from state import mcp, _get_client, _token_from_ctx, _err, _raw
 
@@ -130,7 +131,13 @@ def _shape_press_releases(data):
     return data
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Market Cap",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_market_cap(
     ctx: Context,
     symbol: str,
@@ -180,7 +187,13 @@ async def get_market_cap(
     return _raw(data)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Statistics",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_statistics(
     ctx: Context,
     symbol: str,
@@ -214,7 +227,13 @@ async def get_statistics(
     return _raw(data)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Company Info",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_company_info(
     ctx: Context,
     symbol: str,
@@ -263,7 +282,13 @@ async def get_company_info(
     return _raw(data)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Company News",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_company_news(
     ctx: Context,
     symbol: str,
@@ -311,7 +336,13 @@ async def get_company_news(
     return _raw(_shape_press_releases(data))
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Financials",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_financials(
     ctx: Context,
     symbol: str,
@@ -360,7 +391,13 @@ async def get_financials(
     return _raw(data)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Earnings",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_earnings(
     ctx: Context,
     symbol: Optional[str] = None,
@@ -414,7 +451,13 @@ async def get_earnings(
     return _raw(data)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Dividends",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_dividends(
     ctx: Context,
     symbol: Optional[str] = None,
@@ -465,7 +508,13 @@ async def get_dividends(
     return _raw(data)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Splits",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_splits(
     ctx: Context,
     symbol: Optional[str] = None,
@@ -530,7 +579,13 @@ async def get_splits(
     return _raw(data)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get IPO Calendar",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_ipo_calendar(
     ctx: Context,
     start_date: Optional[str] = None,
@@ -566,7 +621,13 @@ async def get_ipo_calendar(
     return _raw(data)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get ETF Data",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_etf_data(
     ctx: Context,
     symbol: str,

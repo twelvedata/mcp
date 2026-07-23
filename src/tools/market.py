@@ -5,11 +5,18 @@ from __future__ import annotations
 from typing import Optional
 
 from mcp.server.fastmcp import Context
+from mcp.types import ToolAnnotations
 
 from state import mcp, _get_client, _token_from_ctx, _err, _raw
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Price",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_price(
     ctx: Context,
     symbol: Optional[str] = None,
@@ -56,7 +63,13 @@ async def get_price(
     return _raw(data)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Quote",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_quote(
     ctx: Context,
     symbol: Optional[str] = None,
@@ -102,7 +115,13 @@ async def get_quote(
     return _raw(data)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Time Series",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_time_series(
     ctx: Context,
     symbol: Optional[str] = None,
@@ -162,7 +181,13 @@ async def get_time_series(
     return _raw(data)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Earliest Timestamp",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_earliest_timestamp(
     ctx: Context,
     interval: str = "1day",
@@ -208,7 +233,13 @@ async def get_earliest_timestamp(
     return _raw(data)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Market State",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_market_state(
     ctx: Context,
     exchange: Optional[str] = None,
@@ -231,7 +262,13 @@ async def get_market_state(
     return _raw(data)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Market Movers",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_market_movers(
     ctx: Context,
     market: str = "stocks",
@@ -270,7 +307,13 @@ async def get_market_movers(
     return _raw(data)
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Currency Conversion",
+        readOnlyHint=True,
+        openWorldHint=True,
+    )
+)
 async def currency_conversion(
     ctx: Context,
     symbol: str,
