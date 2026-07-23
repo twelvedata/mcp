@@ -29,7 +29,8 @@ from starlette.routing import Route
 
 from views import callback_page
 from state import mcp, _oauth_pending, _persist_user_token, _session_user_ids, _session_tokens, _persisted_sessions, _oauth_provider
-from oauth import storage as _oauth_storage
+from oauth import ENABLED as _oauth_enabled, storage as _oauth_storage
+from oauth.agent_auth import AgentAuthMetadataMiddleware
 
 _access_log = logging.getLogger("access")
 _access_handler = logging.StreamHandler()
@@ -182,9 +183,13 @@ def main():
 
         app_fn = mcp.streamable_http_app if transport == "streamable-http" else mcp.sse_app
 
+        app = app_fn()
+        if _oauth_enabled:
+            app = AgentAuthMetadataMiddleware(app)
+
         async def serve():
             cfg = uvicorn.Config(
-                AccessLogMiddleware(app_fn()),
+                AccessLogMiddleware(app),
                 host=os.environ.get("MCP_HOST", "0.0.0.0"),
                 port=8000,
                 access_log=False,

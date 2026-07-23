@@ -61,7 +61,9 @@ def build_auth():
             default_scopes=[SCOPE],
         ),
         revocation_options=RevocationOptions(enabled=True),
-        required_scopes=None,
+        # Also advertised as scopes_supported in the Protected Resource Metadata.
+        # Safe to require: the provider issues every token with this scope.
+        required_scopes=[SCOPE],
     )
     log.info("oauth: Authorization Server enabled (issuer=%s)", issuer_url())
     return provider, settings

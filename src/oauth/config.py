@@ -46,3 +46,22 @@ def issuer_url() -> str:
 def resource_url() -> str:
     """Canonical resource identifier = the MCP endpoint clients POST to."""
     return f"{PUBLIC_URL}/mcp"
+
+
+def agent_auth_metadata() -> dict:
+    """`agent_auth` block (Auth.md spec, https://github.com/workos/auth.md)
+    advertised in the Authorization Server metadata.
+
+    Client registration is anonymous (RFC 7591 DCR, no account needed); tokens
+    are only issued after the upstream Twelve Data user login, which is what
+    claim_uri points at.
+    """
+    from auth import OAUTH_BASE
+
+    return {
+        "skill": f"{OAUTH_BASE}/auth.md",
+        "register_uri": f"{PUBLIC_URL}/register",
+        "identity_types_supported": ["anonymous"],
+        "anonymous": {"credential_types_supported": ["oauth2_client"]},
+        "claim_uri": f"{OAUTH_BASE}/register",
+    }
