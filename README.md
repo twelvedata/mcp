@@ -29,6 +29,36 @@ That's it. No installation, no API key to copy and paste. When you connect, a br
 
 > The exact menu names differ between apps and versions, but the flow is always the same: add the URL, then log in via the browser popup.
 
+### OpenAI Codex
+
+The hosted Twelve Data MCP server works with **OpenAI Codex CLI** using OAuth.
+
+Add the server to your project-local `.codex/config.toml`:
+
+```toml
+[mcp_servers.twelvedata]
+url = "https://mcp.twelvedata.com/mcp"
+```
+
+From the trusted project directory, verify the server and start the OAuth flow:
+
+```bash
+codex mcp list
+codex mcp login twelvedata
+```
+
+Codex opens the Twelve Data authorization page in your browser. Complete the login and authorization, then verify the connection:
+
+```bash
+codex mcp list
+```
+
+The `twelvedata` server should appear enabled with `OAuth` authentication. You can then start Codex and request market data through Twelve Data, for example: *"Using only the Twelve Data MCP server, get the latest quote for AAPL."*
+
+> **Codex VS Code extension:** the extension may detect the hosted MCP server without surfacing the OAuth login flow or exposing its tools. The same project configuration has been verified to authenticate successfully through Codex CLI. This behavior is tracked upstream in [openai/codex#33151](https://github.com/openai/codex/issues/33151). Until that behavior is resolved, Codex CLI provides a verified integration path for the hosted Twelve Data MCP server.
+
+> **Security:** do not put your Twelve Data API key in `.codex/config.toml`. The hosted MCP server uses OAuth; Codex obtains the required credentials through the browser authorization flow.
+
 ---
 
 ## Option 2 — Run it locally with your API key
