@@ -7,13 +7,16 @@ from typing import Optional
 from mcp.server.fastmcp import Context
 from mcp.types import ToolAnnotations
 
-from state import mcp, _get_client, _token_from_ctx, _err, _raw
+from oauth.config import SCOPE
+from state import td_tool, _get_client, _token_from_ctx, _err, _raw
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get Price",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -63,10 +66,12 @@ async def get_price(
     return _raw(data)
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get Quote",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -115,10 +120,12 @@ async def get_quote(
     return _raw(data)
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get Time Series",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -181,10 +188,12 @@ async def get_time_series(
     return _raw(data)
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get Earliest Timestamp",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -233,10 +242,12 @@ async def get_earliest_timestamp(
     return _raw(data)
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get Market State",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -262,10 +273,12 @@ async def get_market_state(
     return _raw(data)
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get Market Movers",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -307,10 +320,12 @@ async def get_market_movers(
     return _raw(data)
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Currency Conversion",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )

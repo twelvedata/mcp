@@ -3,3 +3,9 @@
 __pycache__/
 *.pyc
 .aider*
+# Written by the analysers into the working tree. Root-owned when the reporter image runs
+# as root, and then only root can remove them — which is what breaks `git clean` in CI.
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.DS_Store

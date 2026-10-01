@@ -3,36 +3,79 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
-import time
 from typing import Optional
 
+from mcp.server.auth.middleware.bearer_auth import AuthenticatedUser
 from mcp.server.fastmcp import FastMCP, Context
 
 from auth import TwelveDataAuth, load_config
-from client import TwelveDataClient
+from client import Credential, Refusal, TwelveDataClient
+from exchange import Exchanger
+from failures import ToolFailure
+from lru import LRUDict as _LRUDict
+from scopes import declare as _declare_scope
 from store import store
-from oauth import build_auth, resolve_apikey
+from oauth import build_auth
+from oauth.config import (
+    EXCHANGE_CACHE_MAX,
+    EXCHANGE_CLIENT_ID,
+    EXCHANGE_CLIENT_SECRET,
+    LOCAL_MODE,
+    token_endpoint,
+)
 
-# OAuth Authorization Server (HTTP / multi-user). (None, None) for stdio.
-_oauth_provider, _auth_settings = build_auth()
+# One exchanger for the process. Its connection pool and its cache are opened and closed
+# with the application lifespan, never at import: a socket created at import leaks one per
+# reload the test harness performs.
+exchanger = Exchanger(
+    token_endpoint=token_endpoint(),
+    client_id=EXCHANGE_CLIENT_ID,
+    client_secret=EXCHANGE_CLIENT_SECRET,
+    cache_max=EXCHANGE_CACHE_MAX,
+)
 
-# Pending OAuth logins: state → {"auth": TwelveDataAuth, "session_id": str, "created_at": float}
+# The token verifier and the SDK's auth settings. (None, None) for stdio / local. Built after
+# the exchanger, which is what it verifies with.
+_token_verifier, _auth_settings = build_auth(exchanger)
+
+_dataplane_log = logging.getLogger("dataplane")
+
+# The five log slugs the data plane's refusals are read through. Each names a different
+# branch of ours, and a slug that means two things means nothing.
+LOG_CREDENTIAL_REFUSED = "dataplane: credential refused"
+LOG_BRANCH_DID_NOT_RUN = "dataplane: bearer branch did not run"
+LOG_TRANSIENT_UPSTREAM = "dataplane: transient upstream"
+LOG_UPSTREAM_INTERNAL = "dataplane: upstream internal error"
+LOG_DATAPLANE_UNREACHABLE = "dataplane: unreachable"
+
+# The body the data plane answers a request its Bearer branch never reached. It is one
+# constant on that side, rendered by one function, so matching its leading words is enough
+# — and copying the rest of it in is what would make the match brittle. The asterisks are
+# part of it: the message is rendered as markdown to the user.
+_MISSING_APIKEY_BODY = "**apikey** parameter is incorrect or not specified"
+
+# Pending OAuth logins for the local browser flow: state → {"auth", "session_id", "created_at"}
 _oauth_pending: dict = {}
 _OAUTH_PENDING_TTL = 600  # 10 minutes
 
-# Hot, request-path caches. The durable source of truth is `store` (Redis, with
-# a sessions.json fallback); these are warmed from it at startup and written
-# through on login / session-resolve so data-request lookups stay I/O-free.
+# Largest number of Mcp-Session-Id entries kept in the hot caches below.
+_SESSION_CACHE_MAX = int(os.environ.get("MCP_SESSION_CACHE_MAX", "5000") or "5000")
+
+# Hot caches for the local login flow; the user map is warmed from `store` at startup. Local
+# only: on a hosted deployment identity comes from the verified token, and warming would pull
+# every legacy user's permanent api_token into this process for nothing to read.
 #
 # session_id → api_token
-_session_tokens: dict[str, str] = {}
+_session_tokens: dict[str, str] = _LRUDict(_SESSION_CACHE_MAX)
 # session_id → user_id (for access logs)
-_session_user_ids: dict[str, str] = {}
+_session_user_ids: dict[str, str] = _LRUDict(_SESSION_CACHE_MAX)
 # user_id → api_token  (stable identity that survives restarts)
 _persisted_sessions: dict[str, str] = {}
 
-store.warm(_persisted_sessions, _session_tokens, _session_user_ids)
+if LOCAL_MODE:
+    store.warm(_persisted_sessions)
 
 mcp = FastMCP(
     "Twelve Data",
@@ -69,10 +112,21 @@ Symbol formats:
     if _auth_settings is not None else
     "\nAuthentication: call oauth_login, or set TWELVE_DATA_API_KEY in the server environment."
 ),
-    host=os.environ.get("MCP_HOST", "0.0.0.0"),
-    auth_server_provider=_oauth_provider,
+    host=os.environ.get("MCP_HOST", "0.0.0.0"),  # noqa: S104 — a container reaches its port through the bridge
+    token_verifier=_token_verifier,
     auth=_auth_settings,
 )
+
+
+def td_tool(*, scope: str, **kwargs):
+    """Register a tool, declaring the scope a caller's token must carry for it.
+
+    The SDK's own decorator has no argument for a scope, so the declaration rides on the
+    tool's `_meta`, where the registry walk can read it back. A tool registered through
+    `mcp.tool` directly declares none and fails that walk.
+    """
+    return mcp.tool(meta=_declare_scope(scope), **kwargs)
+
 
 _UNSET = object()
 _shared_auth: object = _UNSET  # TwelveDataAuth | None once loaded
@@ -95,7 +149,7 @@ def _reset_shared_auth() -> None:
 
 
 def _persist_user_token(api_token: str, profile: dict, session_id: str = "") -> None:
-    """Persist api_token to the durable store (Redis/file) and warm caches."""
+    """Persist api_token to the durable store (sessions.json) and warm caches."""
     if not api_token:
         return
     user_id = store.save_user_from_profile(api_token, profile)
@@ -103,84 +157,206 @@ def _persist_user_token(api_token: str, profile: dict, session_id: str = "") -> 
     if session_id:
         _session_tokens[session_id] = api_token
         _session_user_ids[session_id] = user_id
-        store.save_session(session_id, user_id, api_token)
 
 
-def _get_client(request_api_token: Optional[str] = None) -> TwelveDataClient:
-    return TwelveDataClient(request_api_token or "")
+def _get_client(credential: Optional[Credential] = None) -> TwelveDataClient:
+    return TwelveDataClient(credential, exchanger)
 
 
-def _token_from_ctx(ctx: Context) -> Optional[str]:
-    """Return the api_token for the current request, checking in order:
+def request_user(ctx: Context) -> Optional[AuthenticatedUser]:
+    """The principal of THIS request, off the ASGI scope.
 
-    1. In-memory session map (keyed by Mcp-Session-Id)
-    2. Per-request Bearer header
-    3. Auto-restore: if exactly one user in sessions.json, use their token
+    Never `get_access_token()`: a tool body does not run in its own request's task. The
+    session manager starts one task per session inside the *initialize* POST, and anyio
+    copies the caller's context into it — so the contextvar every later call reads holds the
+    token presented when the connector connected, which is expired from the sixteenth minute
+    of a session on.
     """
-    # OAuth (HTTP, multi-user): identity is the access token the SDK validated.
-    # Resolve the bound user → their Twelve Data api_token. This is the path
-    # used by ChatGPT / Claude connectors and survives restarts.
-    apikey = resolve_apikey()
-    if apikey:
-        return apikey
+    try:
+        request = ctx.request_context.request
+    except Exception:  # noqa: BLE001 — a guard on the request path; it must never be what fails a call
+        return None
+    return user_from_scope(getattr(request, "scope", None))
+
+
+def user_from_scope(scope) -> Optional[AuthenticatedUser]:
+    """The principal on an ASGI scope, guarded both ways.
+
+    `scope.get` and never `scope["user"]`: the SDK installs its authentication middleware
+    only when auth is configured, so a local HTTP deployment has no such key at all. And an
+    isinstance check and never `.access_token`: an unauthenticated request carries
+    Starlette's own UnauthenticatedUser, which has no such attribute.
+    """
+    if not isinstance(scope, dict):
+        return None
+    user = scope.get("user")
+    return user if isinstance(user, AuthenticatedUser) else None
+
+
+def _token_from_ctx(ctx: Context) -> Optional[Credential]:
+    """The credential this request may spend at the data plane, or nothing.
+
+    On a hosted deployment there is one source: the token this request presented and the
+    verifier accepted. It is a subject token, which the seam exchanges — an identity, not
+    something the data plane would take.
+
+    Local mode keeps three rungs, and what they yield is an api_token: the Bearer a laptop
+    passes as its own key, the single stored user, who on a single-tenant process is by
+    definition the caller, and TWELVE_DATA_API_KEY. All three are gated on the local signal
+    rather than on whether verification is on, because a hosted box with verification
+    switched off would otherwise answer every caller with one tenant's key.
+    """
+    user = request_user(ctx)
+    if user is not None:
+        name = (user.access_token.claims or {}).get("td_client_name")
+        return Credential.subject_token(
+            user.access_token.token,
+            # A claim of any other type is dropped rather than refused: it names nothing but
+            # an analytics bucket, so a bad one costs attribution and never a tool call.
+            client_name=name if isinstance(name, str) and name else None,
+        )
+
+    if not LOCAL_MODE:
+        return None
 
     session_id = ""
     try:
-        req        = ctx.request_context.request
+        req = ctx.request_context.request
         session_id = req.headers.get("mcp-session-id", "")
-        if session_id and session_id in _session_tokens:
-            return _session_tokens[session_id]
-        # Cache miss: a session created by another worker (or before a restart
-        # where the id is still alive) may live in the durable store.
-        if session_id:
-            rec = store.get_session(session_id)
-            if rec and rec.get("api_token"):
-                _session_tokens[session_id] = rec["api_token"]
-                if rec.get("user_id"):
-                    _session_user_ids[session_id] = rec["user_id"]
-                return rec["api_token"]
         auth_header = req.headers.get("authorization", "")
         if auth_header.lower().startswith("bearer "):
-            return auth_header[7:].strip() or None
+            raw = auth_header[7:].strip()
+            if raw:
+                return Credential.api_token(raw)
     except Exception:
         pass
+
     if len(_persisted_sessions) == 1:
         user_id, api_token = next(iter(_persisted_sessions.items()))
         if session_id:
             _session_tokens[session_id] = api_token
             _session_user_ids[session_id] = user_id
-            store.save_session(session_id, user_id, api_token)
-        return api_token
+        return Credential.api_token(api_token)
+
+    # The documented way to run this server without logging in at all. It used to live at
+    # the seam, where it applied to every deployment: with the variable set on a host, a
+    # request whose credential did not resolve was served under the server's own key.
+    own_key = os.environ.get("TWELVE_DATA_API_KEY", "")
+    if own_key:
+        return Credential.api_token(own_key)
     return None
 
 
 def _err(data) -> Optional[str]:
+    """Turn a refusal from the data plane into what the agent should read.
+
+    A returned string is `isError=False` — a successful call whose content says "error" —
+    so it is what a refusal the user can act on gets. A failure of ours is raised instead,
+    which is the only thing an agent can tell apart and the thing that decides whether it
+    retries.
+
+    The discriminator is the status line first, then WWW-Authenticate, then the body. The
+    order is what keeps the one refusal that carries no challenge out of the arm that is
+    about challenges.
+    """
+    if isinstance(data, Refusal):
+        return _map_refusal(data)
     if isinstance(data, dict) and data.get("status") == "error":
-        msg = data.get("message", "Unknown error from Twelve Data")
-        # Plan gating comes as 403 or 404 — gate on the code first, then confirm
-        # via the message (a 404 is also a genuine "symbol not found", so the
-        # code alone isn't enough). The plan message names a plan / pricing link.
-        code = str(data.get("code"))
-        lower = msg.lower()
-        is_plan = code in ("403", "404") and (
-            "twelvedata.com/pricing" in lower or "upgrad" in lower or "plan" in lower
-        )
-        if is_plan:
-            # Lead with Twelve Data's own message (it carries the plan + pricing
-            # link); append a short steer so the model surfaces it instead of
-            # silently falling back to web search.
-            return (
-                f"{msg}\n\n"
-                "(This data requires upgrading the user's Twelve Data plan. Relay "
-                "the message and pricing link above to the user; do not fall back "
-                "to web search or prior knowledge.)"
-            )
-        return f"Error: {msg}"
+        # A 200 carrying an error envelope: some upstreams answer this way, and so do the
+        # endpoints that report in-band.
+        return _plan_aware(str(data.get("message", "Unknown error from Twelve Data")), str(data.get("code")))
     return None
+
+
+def _map_refusal(refusal: Refusal) -> str:
+    status = refusal.status
+    message = refusal.message
+
+    if status is None:
+        # The request never completed, so nothing was refused and nobody said anything about
+        # the credential: this is ours. It is the one input of the default arm with a shape
+        # known in advance, and leaving it there answered a connection failure with a string
+        # — a successful call whose content says "error", which is the one thing an agent
+        # cannot tell from data. The message is logged and not relayed: it is httpx's, and
+        # the agent's move is the same whichever socket failed.
+        _dataplane_log.error("%s: %s", LOG_DATAPLANE_UNREACHABLE, message)
+        raise ToolFailure(  # noqa: TRY003 — the agent reads this message
+            "Twelve Data could not be reached. The call is worth repeating."
+        )
+
+    if status == 503 and refusal.retry_after:
+        # It says "ask again" and carries a machine-readable when. A keyset it could not
+        # consult is the interesting cause and not the only one — an edge attaches this
+        # header as a matter of course — so the slug names the class and not the cause.
+        _dataplane_log.error("%s: retry_after=%s", LOG_TRANSIENT_UPSTREAM, refusal.retry_after)
+        raise ToolFailure(  # noqa: TRY003 — the agent reads this message
+            f"Twelve Data is briefly unavailable and suggested retrying in {refusal.retry_after} "
+            "seconds. The call is worth repeating."
+        )
+
+    if status == 401:
+        if refusal.www_authenticate:
+            # Never passed through as a 401: the agent's own token is valid, so telling it
+            # to authorize sends it through a flow that succeeds and returns it here.
+            _dataplane_log.error("%s: %s", LOG_CREDENTIAL_REFUSED, refusal.www_authenticate)
+            raise ToolFailure(  # noqa: TRY003 — the agent reads this message
+                "Twelve Data refused this server's own credential for this account. Signing in "
+                "again will not change it; try again shortly."
+            )
+        if message.lower().startswith(_MISSING_APIKEY_BODY):
+            # The node is serving without its Bearer branch. What this repository owes is
+            # not relaying Twelve Data's API-key sales copy to a user who already has an
+            # account.
+            _dataplane_log.error("%s", LOG_BRANCH_DID_NOT_RUN)
+            raise ToolFailure(  # noqa: TRY003 — the agent reads this message
+                "Twelve Data did not accept this server's credential on the node that answered. "
+                "Try again shortly."
+            )
+        return f"Error: {message}"
+
+    if status == 402:
+        # A lapsed subscription, and the link in the message is a BILLING link: the user's
+        # action is paying an invoice rather than upgrading a plan, which is why this arm
+        # does not share the plan-gate sentence.
+        return (
+            f"{message}\n\n"
+            "(The user's Twelve Data subscription has lapsed. Relay the message and the billing "
+            "link above to the user; the action is paying the outstanding invoice.)"
+        )
+
+    if status == 500:
+        # The account lookup or the quota service failed inside the data plane. Two
+        # different bodies arrive here and nothing branches on which, so neither is relayed.
+        _dataplane_log.error("%s: status=500", LOG_UPSTREAM_INTERNAL)
+        raise ToolFailure(  # noqa: TRY003 — the agent reads this message
+            "Twelve Data could not complete the request. Try again shortly."
+        )
+
+    return _plan_aware(message, str(status) if status is not None else refusal.code)
+
+
+def _plan_aware(message: str, code: Optional[str]) -> str:
+    """The plan-gate arm, unchanged, and the default that makes the rule total.
+
+    Plan gating comes as 403 or 404 — the code alone is not enough, a 404 also being a
+    genuine "symbol not found" — so the message has to name a plan or a pricing link.
+    """
+    lower = message.lower()
+    is_plan = code in ("403", "404") and (
+        "twelvedata.com/pricing" in lower or "upgrad" in lower or "plan" in lower
+    )
+    if is_plan:
+        # Lead with Twelve Data's own message (it carries the plan + pricing link); append a
+        # short steer so the model surfaces it instead of falling back to web search.
+        return (
+            f"{message}\n\n"
+            "(This data requires upgrading the user's Twelve Data plan. Relay "
+            "the message and pricing link above to the user; do not fall back "
+            "to web search or prior knowledge.)"
+        )
+    return f"Error: {message}"
 
 
 def _raw(data) -> str:
     """Return API response as a string: CSV text as-is, JSON dicts serialized."""
     return data if isinstance(data, str) else json.dumps(data)
-
-

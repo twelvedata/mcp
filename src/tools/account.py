@@ -10,18 +10,50 @@ from typing import Optional
 from mcp.server.fastmcp import Context
 from mcp.types import ToolAnnotations
 
-from auth import load_config, save_config, CALLBACK_PORT
+from auth import load_config, save_config, CALLBACK_PORT, OAUTH_BASE
+from oauth.config import LOCAL_MODE, SCOPE
 from state import (
-    mcp,
+    td_tool, request_user,
     _get_shared_auth, _reset_shared_auth, _persist_user_token,
     _get_client, _token_from_ctx, _err, _raw,
     _oauth_pending, _OAUTH_PENDING_TTL, _session_tokens, _persisted_sessions,
 )
-from store import store
-from oauth.config import ENABLED as _OAUTH_AS_ENABLED
 
 
-@mcp.tool(
+def _local_only_tool(**kwargs):
+    """Register a tool only on single-tenant deployments (stdio / local).
+
+    On a hosted deployment these act on server-wide state that no client should be able to
+    touch. Returning the function unregistered keeps it out of the tool list, which is what
+    makes it uncallable. Gated on the local signal and never on whether verification is on:
+    a hosted box with verification switched off must not gain them.
+    """
+    if not LOCAL_MODE:
+        return lambda fn: fn
+    return td_tool(**kwargs)
+
+
+# What the model reads, on a deployment where every sentence of the docstring below is false:
+# there is no browser to open, nothing is saved on anyone's disk, and the environment variables
+# it names are the operator's rather than the user's. A description is not documentation — it is
+# the only thing an agent has when it decides what to do about "I am not getting data", and the
+# local one answers that with instructions to go and set a client secret.
+#
+# The tool stays registered here rather than becoming local-only, which its body already assumes:
+# a model that has decided a login is needed gets a clear answer instead of an unknown tool and
+# an invented one.
+_HOSTED_DESCRIPTION = (
+    "Report whether this connection is authenticated with Twelve Data.\n\n"
+    "The account is linked when the integration is connected, so there is no separate login "
+    "step to run here and nothing for the user to configure. If data requests report that the "
+    "connection is not authenticated, the user reconnects the integration."
+)
+
+
+@td_tool(
+    scope=SCOPE,
+    # None falls through to the docstring — Tool.from_function reads `description or fn.__doc__`.
+    description=None if LOCAL_MODE else _HOSTED_DESCRIPTION,
     annotations=ToolAnnotations(
         title="OAuth Login",
         readOnlyHint=False,
@@ -37,11 +69,10 @@ async def oauth_login(ctx: Context) -> str:
     Requires MCP_DATA_TWELVE_DATA_CLIENT_ID and MCP_DATA_TWELVE_DATA_CLIENT_SECRET environment variables.
     Alternatively, set TWELVE_DATA_API_KEY to skip OAuth entirely.
     """
-    # When the Authorization Server is active (remote multi-user: ChatGPT /
-    # Claude connectors), login already happened when the integration connected.
-    # Short-circuit so the model gets a clear signal instead of running the
-    # legacy browser flow.
-    if _OAUTH_AS_ENABLED:
+    # On a hosted deployment the login happened at the Authorization Server when the
+    # integration connected. Short-circuit so the model gets a clear signal instead of
+    # running the legacy browser flow.
+    if not LOCAL_MODE:
         return (
             "Already authenticated — this connection uses OAuth, so no separate login "
             "step is needed. Just ask for data (e.g. 'price of AAPL'). If a request "
@@ -97,19 +128,38 @@ async def oauth_login(ctx: Context) -> str:
         return result
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Auth Status",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=False,
     )
 )
 async def auth_status(ctx: Context) -> str:
-    """Show current authentication state — useful for debugging.
+    """Show whether the current connection is authenticated.
 
-    Reports: which credentials are configured, whether OAuth tokens exist,
-    whether api_token was successfully fetched from the user profile.
+    On a public (OAuth) deployment this reports only yes/no. On a local
+    stdio setup it additionally reports the configured credentials, the
+    detected redirect URI and the stored token — useful for debugging.
     """
+    # Hosted deployment: the full diagnostic dump below is operator data (other users'
+    # ids, session ids, host/redirect config) and would leak across tenants into the
+    # client's conversation. Keyed on the local signal and never on whether this server
+    # issues tokens — answering the second question makes every hosted deployment dump.
+    #
+    # What it reports is that this connection's token verified, which is what the tool can
+    # know. It cannot report that the credential WORKS: there is no stored credential any
+    # more, one is minted per call, and spending a user's quota on a status check would
+    # make a read-only tool consume credits.
+    if not LOCAL_MODE:
+        if request_user(ctx) is not None:
+            return "Authenticated: yes — this connection's access token verified."
+        return (
+            "Authenticated: no — reconnect the Twelve Data integration to authorize again."
+        )
+
     cfg  = load_config()
     auth = _get_shared_auth()
 
@@ -142,10 +192,10 @@ async def auth_status(ctx: Context) -> str:
         f"Detected request host             : {detected_host or '(stdio — no HTTP context)'}",
         f"Redirect URI                      : {redirect_uri}",
         f"MCP_DATA_TWELVE_DATA_REDIRECT_URI : {os.environ.get('MCP_DATA_TWELVE_DATA_REDIRECT_URI', '(not set)')}",
+        f"OAuth base                        : {OAUTH_BASE}",
         f"Mcp-Session-Id                    : {session_id or '(not present)'}",
         f"Session token                     : {'…' + session_token[-6:] if session_token else 'none — call oauth_login'}",
-        f"Session store backend             : {store.backend}",
-        f"Persisted users ({store.backend:<6})           : {len(_persisted_sessions)} "
+        f"Persisted users                   : {len(_persisted_sessions)} "
         + (f"[{', '.join(_persisted_sessions.keys())}]" if _persisted_sessions else "(empty)"),
     ]
 
@@ -155,7 +205,8 @@ async def auth_status(ctx: Context) -> str:
     return "\n".join(lines)
 
 
-@mcp.tool(
+@_local_only_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Configure OAuth Credentials",
         readOnlyHint=False,
@@ -167,6 +218,7 @@ async def auth_status(ctx: Context) -> str:
 async def oauth_configure(ctx: Context, client_id: str, client_secret: str) -> str:
     """Save Twelve Data OAuth credentials to ~/.twelvedata_mcp/config.json.
 
+    Local/stdio deployments only — not registered on a hosted deployment.
     Run this once before oauth_login if credentials are not yet configured.
     The file is stored with chmod 600 (owner-readable only).
     After saving, call oauth_login to complete the authorization flow.
@@ -180,10 +232,12 @@ async def oauth_configure(ctx: Context, client_id: str, client_secret: str) -> s
     )
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get API Usage",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -207,10 +261,12 @@ async def get_api_usage(ctx: Context) -> str:
     )
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Search Symbol",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )

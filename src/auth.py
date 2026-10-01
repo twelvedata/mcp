@@ -19,7 +19,18 @@ load_dotenv(Path(__file__).parent.parent / ".env", override=False)
 import httpx
 from views import callback_page
 
-OAUTH_BASE     = "https://twelvedata.com"
+# Where the login sends the client secret and the authorization code, so it is read only from
+# the environment or .env, never from a tool argument or config.json. Configurable so the
+# flow can be exercised against a Passport other than production.
+DEFAULT_OAUTH_BASE = "https://twelvedata.com"
+
+
+def _oauth_base() -> str:
+    # `or`: an empty assignment must fall back to the default rather than defeat it.
+    return (os.environ.get("MCP_DATA_TWELVE_DATA_OAUTH_BASE") or DEFAULT_OAUTH_BASE).rstrip("/")
+
+
+OAUTH_BASE     = _oauth_base()
 CALLBACK_PORT  = 8765
 CONFIG_DIR     = Path.home() / ".twelvedata_mcp"
 CONFIG_FILE    = CONFIG_DIR / "config.json"

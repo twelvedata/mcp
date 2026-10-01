@@ -12,7 +12,8 @@ from typing import Optional
 from mcp.server.fastmcp import Context
 from mcp.types import ToolAnnotations
 
-from state import mcp, _get_client, _token_from_ctx, _err, _raw
+from oauth.config import SCOPE
+from state import td_tool, _get_client, _token_from_ctx, _err, _raw
 
 
 def _truncate_csv(data, max_rows: int) -> str:
@@ -131,10 +132,12 @@ def _shape_press_releases(data):
     return data
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get Market Cap",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -187,10 +190,12 @@ async def get_market_cap(
     return _raw(data)
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get Statistics",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -227,10 +232,12 @@ async def get_statistics(
     return _raw(data)
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get Company Info",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -282,10 +289,12 @@ async def get_company_info(
     return _raw(data)
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get Company News",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -336,10 +345,12 @@ async def get_company_news(
     return _raw(_shape_press_releases(data))
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get Financials",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -391,10 +402,12 @@ async def get_financials(
     return _raw(data)
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get Earnings",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -451,10 +464,12 @@ async def get_earnings(
     return _raw(data)
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get Dividends",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -508,10 +523,12 @@ async def get_dividends(
     return _raw(data)
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get Splits",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -579,10 +596,12 @@ async def get_splits(
     return _raw(data)
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get IPO Calendar",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )
@@ -621,10 +640,12 @@ async def get_ipo_calendar(
     return _raw(data)
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get ETF Data",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )

@@ -7,13 +7,16 @@ from typing import Optional
 from mcp.server.fastmcp import Context
 from mcp.types import ToolAnnotations
 
-from state import mcp, _get_client, _token_from_ctx, _err, _raw
+from oauth.config import SCOPE
+from state import td_tool, _get_client, _token_from_ctx, _err, _raw
 
 
-@mcp.tool(
+@td_tool(
+    scope=SCOPE,
     annotations=ToolAnnotations(
         title="Get Regulatory Data",
         readOnlyHint=True,
+        destructiveHint=False,
         openWorldHint=True,
     )
 )

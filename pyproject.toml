@@ -8,10 +8,23 @@ version = "0.1.0"
 description = "MCP server for Twelve Data financial API"
 requires-python = ">=3.10"
 dependencies = [
-    "mcp[cli]>=1.28,<2",
+    # Pinned exactly, both here and in `make install`. Below 1.30 `AuthSettings` declares no
+    # model_config, so pydantic's default extra="ignore" silently DROPS
+    # validate_token_resource=True and no audience is checked at the middleware at all; 2.x
+    # renames FastMCP and `mcp.server.fastmcp` raises ModuleNotFoundError on import.
+    "mcp[cli]==1.30.0",
+    # Pinned exactly, here and in `make install`, because hosted-mode code imports a function
+    # from one of Starlette's private modules: unpinned, an image build could resolve a newer
+    # Starlette than the tests ran against, and a change of meaning would ship untested.
+    "starlette==1.6.0",
     "httpx>=0.27.0",
     "python-dotenv>=1.0.0",
-    "redis>=5.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
 ]
 
 [project.scripts]
@@ -19,3 +32,12 @@ twelvedata-mcp = "server:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["."]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]  # src/ is not a package — tests import `state`, `store` directly
+asyncio_mode = "auto"
+# The deployment mode is read from the environment at import, so it cannot be chosen inside
+# a run: tests/hosted, tests/hosted_unverified and everything else are three invocations.
+# See `make test`.
+asyncio_default_fixture_loop_scope = "function"
