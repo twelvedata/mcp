@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import re
 from datetime import date
 from html import unescape
@@ -181,7 +180,7 @@ async def get_market_cap(
         if e := _err(data):
             return e
         if isinstance(data, dict):
-            return json.dumps({
+            return _raw({
                 "meta": data.get("meta", {}),
                 "market_cap": [{"date": date.today().isoformat(), "value": data.get("statistics", {}).get("valuations_metrics", {}).get("market_capitalization")}],
             })

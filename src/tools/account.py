@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import os
 import time
 from typing import Optional
@@ -316,4 +315,4 @@ async def search_symbol(
     if not results:
         return f"No instruments found matching '{symbol}'"
 
-    return json.dumps(results)
+    return _raw(results)

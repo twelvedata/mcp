@@ -108,6 +108,10 @@ class TwelveDataClient:
             # No status line at all, which is what the mapping's first arm reads: a request
             # that never completed is ours rather than a refusal the user can act on.
             return Refusal(status=None, message=f"Request failed: {exc}")
+        except Exception as exc:  # noqa: BLE001 — strict sanitizer: a traceback must never reach the caller
+            # Anything unexpected on the way to or from the data plane. The class name is
+            # logged (not the traceback) and the caller sees the generic "unreachable" arm.
+            return Refusal(status=None, message=f"Unexpected data plane error: {type(exc).__name__}")
 
     async def _authorization(self) -> dict[str, str]:
         if self._credential is None or not self._credential.value:

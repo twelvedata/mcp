@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 from typing import Optional
@@ -14,6 +13,7 @@ from auth import TwelveDataAuth, load_config
 from client import Credential, Refusal, TwelveDataClient
 from exchange import Exchanger
 from failures import ToolFailure
+from guards import enforce_budget, error_envelope
 from lru import LRUDict as _LRUDict
 from scopes import declare as _declare_scope
 from store import store
@@ -294,6 +294,18 @@ def _map_refusal(refusal: Refusal) -> str:
             "seconds. The call is worth repeating."
         )
 
+    if status == 429:
+        # A rate limit is a refusal the caller can act on — wait, then retry — so it is
+        # rendered as a clean JSON envelope carrying the machine-readable retry window
+        # rather than raised: the agent reads `retry_after` and paces itself.
+        _dataplane_log.error("%s: retry_after=%s", LOG_TRANSIENT_UPSTREAM, refusal.retry_after)
+        return error_envelope(
+            code="rate_limit",
+            status=429,
+            message=message or "Twelve Data rate limit exceeded.",
+            retry_after=refusal.retry_after,
+        )
+
     if status == 401:
         if refusal.www_authenticate:
             # Never passed through as a 401: the agent's own token is valid, so telling it
@@ -328,8 +340,10 @@ def _map_refusal(refusal: Refusal) -> str:
         # The account lookup or the quota service failed inside the data plane. Two
         # different bodies arrive here and nothing branches on which, so neither is relayed.
         _dataplane_log.error("%s: status=500", LOG_UPSTREAM_INTERNAL)
-        raise ToolFailure(  # noqa: TRY003 — the agent reads this message
-            "Twelve Data could not complete the request. Try again shortly."
+        return error_envelope(
+            code="internal_error",
+            status=500,
+            message="Twelve Data could not complete the request. Try again shortly.",
         )
 
     return _plan_aware(message, str(status) if status is not None else refusal.code)
@@ -358,5 +372,10 @@ def _plan_aware(message: str, code: Optional[str]) -> str:
 
 
 def _raw(data) -> str:
-    """Return API response as a string: CSV text as-is, JSON dicts serialized."""
-    return data if isinstance(data, str) else json.dumps(data)
+    """Return API response as a string: CSV text as-is, JSON dicts serialized.
+
+    JSON payloads pass through the context budget guard, so one oversized
+    time-series or indicator response is truncated into a marked envelope rather
+    than blown whole into the caller's context window.
+    """
+    return data if isinstance(data, str) else enforce_budget(data)
