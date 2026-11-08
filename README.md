@@ -146,6 +146,23 @@ docker run --rm --env-file .env -p 127.0.0.1:8000:8000 twelvedata-mcp
 
 Call `auth_status` from your client first. It shows whether an API key is configured, the stored token, the detected host and the redirect URI — usually enough to see what is missing.
 
+### 8. Context budget & error envelopes
+
+Raw Twelve Data JSON is capped before it reaches the model, so a dense response — a time-series row carrying a whole block of technical indicators — cannot blow the context window or exhaust memory. If a serialized payload exceeds the budget, the server trims it and marks the result explicitly:
+
+```json
+{"_truncated": true, "reason": "payload_exceeds_context_budget", "data": { ... }}
+```
+
+Rate limits (HTTP 429) and upstream errors (HTTP 500) are returned as clean JSON envelopes carrying `code`, `status` and `retry_after` instead of raw tracebacks.
+
+Tune the guard with these environment variables (defaults shown):
+
+```bash
+MCP_CONTEXT_BUDGET_BYTES=16384    # max serialized JSON bytes per tool response
+MCP_CONTEXT_BUDGET_MAX_ROWS=100   # max rows kept in any list during truncation
+```
+
 ---
 
 ## What you can ask

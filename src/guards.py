@@ -48,6 +48,21 @@ def enforce_budget(data: Any) -> str:
     does not, the payload is reduced and wrapped in ``{"_truncated": true,
     "reason": "payload_exceeds_context_budget", "data": ...}`` so the caller can
     tell truncation apart from a genuinely short answer.
+
+    Defense in depth after a raw API call: an ``outputsize`` cap does not bound a
+    deeply nested shape, where each row carries a whole indicator block and the
+    serialized JSON still crosses the budget. Reproduction::
+
+        payload = {
+            "meta": {"symbol": "AAPL"},
+            "values": [
+                {"datetime": f"2024-01-{i}", "close": i, "rsi": i, "macd": i,
+                 "sma_20": i, "note": None}
+                for i in range(250)
+            ],
+        }
+        enforce_budget(payload)
+        # '{"_truncated": true, "reason": "payload_exceeds_context_budget", "data": {...}}'
     """
     if isinstance(data, str):
         return data
