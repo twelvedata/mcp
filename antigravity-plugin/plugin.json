@@ -1,0 +1,20 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "twelvedata",
+  "displayName": "Twelve Data",
+  "description": "Real-time and historical market data: stocks, forex, crypto, ETFs, fundamentals and 60+ indicators.",
+  "version": "1.0.0",
+  "logo": "assets/logo.png",
+  "author": {
+    "name": "Twelve Data",
+    "url": "https://twelvedata.com"
+  },
+  "homepage": "https://twelvedata.com",
+  "repository": "https://github.com/twelvedata/mcp",
+  "keywords": ["market data", "stocks", "forex", "crypto", "finance", "technical indicators"],
+  "suggestedPrompts": [
+    "Find the symbol for Apple and show its latest quote",
+    "Show the last five daily closing prices for NVDA",
+    "What is the 14-day RSI for AAPL?"
+  ]
+}
