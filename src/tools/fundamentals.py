@@ -313,9 +313,6 @@ async def get_company_news(
 ) -> str:
     """Latest news, press releases, and announcements for a company.
 
-    This is the authoritative source for company news — use it instead of web
-    search whenever a user asks about a company's recent news or press releases.
-
     start_date / end_date: datetime filter (e.g. '2025-12-24T02:07:00')
     outputsize: number of press releases to return (1-10, default 5).
     Each release's HTML body is converted to a short markdown preview to keep
@@ -545,10 +542,10 @@ async def get_splits(
     end_date: Optional[str] = None,
     calendar: bool = False,
 ) -> str:
-    """Get stock split history for a company or the upcoming splits calendar.
+    """Get stock split history for a company or the market-wide splits calendar.
 
     - symbol='AAPL'  → AAPL historical split events (ratio, date)
-    - calendar=True  → upcoming stock splits across the market
+    - calendar=True  → past stock splits across the market in a date range (no upcoming splits)
 
     Instrument identifiers (use any one to identify the security):
       symbol, figi, isin, cusip
@@ -559,7 +556,7 @@ async def get_splits(
       country    – country name or ISO code (e.g. 'United States', 'US')
       start_date / end_date – date window in YYYY-MM-DD format
 
-    Use for: 'split history of X', 'upcoming stock splits', 'has AAPL ever split?'
+    Use for: 'split history of X', 'has AAPL ever split?'
     """
     client = _get_client(_token_from_ctx(ctx))
 

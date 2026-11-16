@@ -489,8 +489,8 @@ async def oauth_callback(request: Request) -> HTMLResponse:
     pending = _oauth_pending.pop(state, None)
     if pending is None:
         # On a hosted deployment nothing sends a browser here any more, and the tool this
-        # page used to name answers "already authenticated" there — so it says what such a
-        # reader can actually do instead.
+        # page used to name is not registered there — so it says what such a reader can
+        # actually do instead.
         retry = (
             'Please call <code>oauth_login</code> again.'
             if LOCAL_MODE else

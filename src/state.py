@@ -108,9 +108,10 @@ Symbol formats:
   Crypto  → BTC/USD, ETH/USD
   Forex   → EUR/USD, GBP/JPY
 """ + (
-    "\nAuthentication is handled automatically via OAuth when you connect — no auth tool to call."
-    if _auth_settings is not None else
+    # Keyed on the local signal: oauth_login is registered only there.
     "\nAuthentication: call oauth_login, or set TWELVE_DATA_API_KEY in the server environment."
+    if LOCAL_MODE else
+    "\nAuthentication is handled automatically via OAuth when you connect — no auth tool to call."
 ),
     host=os.environ.get("MCP_HOST", "0.0.0.0"),  # noqa: S104 — a container reaches its port through the bridge
     token_verifier=_token_verifier,

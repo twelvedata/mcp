@@ -33,27 +33,12 @@ def _local_only_tool(**kwargs):
     return td_tool(**kwargs)
 
 
-# What the model reads, on a deployment where every sentence of the docstring below is false:
-# there is no browser to open, nothing is saved on anyone's disk, and the environment variables
-# it names are the operator's rather than the user's. A description is not documentation — it is
-# the only thing an agent has when it decides what to do about "I am not getting data", and the
-# local one answers that with instructions to go and set a client secret.
-#
-# The tool stays registered here rather than becoming local-only, which its body already assumes:
-# a model that has decided a login is needed gets a clear answer instead of an unknown tool and
-# an invented one.
-_HOSTED_DESCRIPTION = (
-    "Report whether this connection is authenticated with Twelve Data.\n\n"
-    "The account is linked when the integration is connected, so there is no separate login "
-    "step to run here and nothing for the user to configure. If data requests report that the "
-    "connection is not authenticated, the user reconnects the integration."
-)
-
-
-@td_tool(
+# Local-only: on a hosted deployment the account is linked when the integration connects, and
+# auth_status already answers "am I authenticated". Registered there under this name, the tool
+# could only describe itself as a status check, and the ChatGPT directory scan holds a tool
+# whose name does not say what it does.
+@_local_only_tool(
     scope=SCOPE,
-    # None falls through to the docstring — Tool.from_function reads `description or fn.__doc__`.
-    description=None if LOCAL_MODE else _HOSTED_DESCRIPTION,
     annotations=ToolAnnotations(
         title="OAuth Login",
         readOnlyHint=False,
@@ -69,15 +54,6 @@ async def oauth_login(ctx: Context) -> str:
     Requires MCP_DATA_TWELVE_DATA_CLIENT_ID and MCP_DATA_TWELVE_DATA_CLIENT_SECRET environment variables.
     Alternatively, set TWELVE_DATA_API_KEY to skip OAuth entirely.
     """
-    # On a hosted deployment the login happened at the Authorization Server when the
-    # integration connected. Short-circuit so the model gets a clear signal instead of
-    # running the legacy browser flow.
-    if not LOCAL_MODE:
-        return (
-            "Already authenticated — this connection uses OAuth, so no separate login "
-            "step is needed. Just ask for data (e.g. 'price of AAPL'). If a request "
-            "reports 'Not authenticated', reconnect the integration to re-run OAuth."
-        )
     auth = _get_shared_auth()
     if auth is None:
         return (
